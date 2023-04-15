@@ -1,6 +1,6 @@
 {
 	"mesh":{
-		"type":"structure",
+		"mode":"structure",
 		"dim":2,
 		"nx":50,
 		"ny":50,
@@ -9,7 +9,7 @@
 		"meshtype":"quad4",
 		"savemesh":true
 	},
-	"elements":{
+	"element":{
 		"elmt1":{
 			"type":"CPE4R",
 			"material":{
@@ -22,7 +22,9 @@
 		}
 	},
 	"step":{
-		"type":"Tangent-Newton",
+		"algorithm":"Tangent-Newton",
+		"nlsolver":"gmres",
+		"preconditioner":"bjacobi",
 		"dt0":0.1,
 		"dtmax":1.0e-1,
 		"dtmin":1.0e-12,
@@ -30,16 +32,11 @@
 		"end-time":1.0e-2,
 		"growth-factor":1.1,
 		"cutback-factor":0.85,
-		"adaptive":true
-	},
-	"nlsolver":{
-		"type":"newton",
-		"solver":"gmres",
+		"adaptive":true,
 		"maxiters":50,
 		"abs-tolerance":5.0e-7,
 		"rel-tolerance":5.0e-10,
-		"s-tolerance":0.0,
-		"preconditioner":"bjacobi"
+		"du-tolerance":0.0
 	},
 	"output":{
 		"field":{
@@ -59,15 +56,15 @@
 	"bcs":{
 		"fix":{
 			"type":"dirichlet",
-			"dofs":["ux","uy"],
+			"dofs":[1,2],
 			"bcvalue":0.0,
-			"side":["bottom"]
+			"set":["bottom"]
 		},
 		"load":{
 			"type":"dirichlet",
-			"dofs":["uy"],
+			"dofs":[2],
 			"bcvalue":0.1,
-			"side":["top"]
+			"set":["top"]
 		}
 	}
 }
