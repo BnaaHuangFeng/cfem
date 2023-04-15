@@ -1,0 +1,3 @@
+/home/c/github/cfem/tests/MathUtils2d/build/CMakeFiles/rebuild_cache.dir
+/home/c/github/cfem/tests/MathUtils2d/build/CMakeFiles/edit_cache.dir
+/home/c/github/cfem/tests/MathUtils2d/build/CMakeFiles/cfem-test.dir
