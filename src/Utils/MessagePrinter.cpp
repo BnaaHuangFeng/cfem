@@ -19,7 +19,7 @@
 MessagePrinter::MessagePrinter(){
 }
 
-void MessagePrinter::exitAsFem(){
+void MessagePrinter::exitcfem(){
     printStars(MessageColor::RED);
     printTxt("AsFem exit due to some errors",MessageColor::RED);
     printStars(MessageColor::RED);

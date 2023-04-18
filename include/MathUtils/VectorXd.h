@@ -79,7 +79,7 @@ public:
     inline double& operator()(const int i){
         if(i<1||i>m_m){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" is out of range(m="+to_string(m_m)+")");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[i-1];
     }
@@ -90,7 +90,7 @@ public:
     inline double operator()(const int i)const{
         if(i<1||i>m_m){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" is out of range(m="+to_string(m_m)+")");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[i-1];
     }
@@ -123,7 +123,7 @@ public:
             }
             else{
                 MessagePrinter::printErrorTxt("a=b can\'t be applied to two vectors with different size");
-                MessagePrinter::exitAsFem();
+                MessagePrinter::exitcfem();
             }
         }
         return *this;
@@ -150,7 +150,7 @@ public:
         }
         else{
             MessagePrinter::printErrorTxt("a+b can\'t be applied for two vectors with different size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return temp;
     }
@@ -174,7 +174,7 @@ public:
         }
         else{
             MessagePrinter::printErrorTxt("a+b can\'t be applied for two vectors with different size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return *this;
     }
@@ -202,7 +202,7 @@ public:
         }
         else{
             MessagePrinter::printErrorTxt("a+b can\'t be applied to two vectors with different size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return temp;
     }
@@ -226,7 +226,7 @@ public:
         }
         else{
             MessagePrinter::printErrorTxt("a-b can\'t be applied to two vectors with different size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return *this;
     }
@@ -260,7 +260,7 @@ public:
         VectorXd temp(m_m);
         if(abs(val)<1.0e-16){
             MessagePrinter::printErrorTxt("val="+to_string(val)+" is singular for / operator in VectorXd");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         for(int i=0;i<m_m;++i) temp.m_vals[i]=m_vals[i]/val;
         return temp;
@@ -273,7 +273,7 @@ public:
     inline VectorXd& operator/=(const double val){
         if(abs(val)<1.0e-16){
             MessagePrinter::printErrorTxt("val="+to_string(val)+" is singular for /= operator in VectorXd");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         for(int i=0;i<m_m;++i) m_vals[i]/=val;
         return *this;

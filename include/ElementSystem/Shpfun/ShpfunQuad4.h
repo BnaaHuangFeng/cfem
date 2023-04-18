@@ -1,6 +1,5 @@
 #pragma once
 #include "ElementSystem/Shpfun/Shpfun2D.h"
-#include "MeshSystem/MeshType.h"
 #include <vector>
 #include "MathUtils/Vector2d.h"
 class Vector2d;

@@ -137,7 +137,7 @@ if(UNIX)
     if (CMAKE_BUILD_TYPE STREQUAL "Depdebug")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O0 -fsanitize=address -g -fno-omit-frame-pointer -std=c++17")
     elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O2 -std=c++17")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O1 -std=c++17")
     elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -march=native -mtune=native -DNDEBUG -std=c++17")
     else()
@@ -154,7 +154,7 @@ message("The executable file 'cfem' will be generated in ${CMAKE_CURRENT_SOURCE_
 ###############################################
 ### Do not edit the following two lines !!! ###
 ###############################################
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 #############################################################
@@ -166,6 +166,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 #############################################################
 #############################################################
 set(src src/main.cpp)
+#############################################################
+### For input system                                      ###
+#############################################################
+set(inc ${inc} include/InputSystem/InputSystem.h)
+set(src ${src} src/InputSystem/InputSystem.cpp)
 #############################################################
 ### For message printer utils                             ###
 #############################################################
@@ -223,6 +228,15 @@ set(inc ${inc} include/MathUtils/ViogtRank2Tensor2D.h)
 set(src ${src} src/MathUtils/ViogtRank2Tensor2D.cpp)
 set(inc ${inc} include/MathUtils/ViogtRank4Tensor2D.h)
 set(src ${src} src/MathUtils/ViogtRank4Tensor2D.cpp)
+#############################################################
+### For MeshSystem                                        ###
+#############################################################
+set(inc ${inc} include/MeshSystem/MeshSystem.h)
+set(src ${src} src/MeshSystem/MeshSystem.cpp)
+set(inc ${inc} include/MeshSystem/MeshSystem2D.h)
+set(src ${src} src/MeshSystem/MeshSystem2D.cpp)
+set(inc ${inc} include/MeshSystem/StructuredMesh2D.h)
+set(src ${src} src/MeshSystem/StructuredMesh2D.cpp)
 
 
 add_executable(cfem ${inc} ${src})

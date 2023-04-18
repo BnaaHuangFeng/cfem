@@ -20,7 +20,7 @@ JsonUtils::JsonUtils(){}
 void JsonUtils::checkValidation(const nlohmann::json &t_json,const string &matename){
     if(!t_json.contains(matename)){
         MessagePrinter::printErrorTxt("can\'t find material property("+matename+") in the given json file, please check your input file");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
 }
 double JsonUtils::getValue(const nlohmann::json &t_json,const string &matename){
@@ -33,12 +33,12 @@ double JsonUtils::getValue(const nlohmann::json &t_json,const string &matename){
         }
         else{
             MessagePrinter::printErrorTxt("the value of material property(\'"+matename+"\') is not a valid number, please check your input file");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else{
         MessagePrinter::printErrorTxt("can\'t find material property(\'"+matename+"\') in the given json file, please check your input file");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     return 0.0;
 }
@@ -51,12 +51,12 @@ int JsonUtils::getInteger(const nlohmann::json &t_json,const string &matename){
         }
         else{
             MessagePrinter::printErrorTxt("the value of material property(\'"+matename+"\') is not a valid integer, please check your input file");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else{
         MessagePrinter::printErrorTxt("can\'t find material property(\'"+matename+"\') in the given json file, please check your input file");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     return -1;
 }
@@ -68,12 +68,12 @@ string JsonUtils::getString(const nlohmann::json &t_json,const string &matename)
         }
         else{
             MessagePrinter::printErrorTxt("the value of material property(\'"+matename+"\') is not a valid string, please check your input file");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else{
         MessagePrinter::printErrorTxt("can\'t find material property(\'"+matename+"\') in the given json file, please check your input file");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     return "";
 }
@@ -85,12 +85,12 @@ bool JsonUtils::getBoolean(const nlohmann::json &t_json,const string &matename){
         }
         else{
             MessagePrinter::printErrorTxt("the value of material property(\'"+matename+"\') is not a valid boolean, please check your input file");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else{
         MessagePrinter::printErrorTxt("can\'t find material property(\'"+matename+"\') in the given json file, please check your input file");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     return false;
 }
@@ -99,7 +99,7 @@ Vector3d JsonUtils::getVector(const nlohmann::json &t_json,const string &matenam
     if(t_json.contains(matename)){
         if(!t_json.at(matename).is_array()){
             MessagePrinter::printErrorTxt("the vector value of material property(\'"+matename+"\') is not a valid vector(3d), please check your input file");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         else{
             Vector3d temp(0.0);
@@ -109,7 +109,7 @@ Vector3d JsonUtils::getVector(const nlohmann::json &t_json,const string &matenam
                 }
                 else{
                     MessagePrinter::printErrorTxt(to_string(i+1)+"-th value of material property(\'"+matename+"\') is not a valid number, please check your input file");
-                    MessagePrinter::exitAsFem();
+                    MessagePrinter::exitcfem();
                 }
             }
             return temp;
@@ -117,7 +117,7 @@ Vector3d JsonUtils::getVector(const nlohmann::json &t_json,const string &matenam
     }
     else{
         MessagePrinter::printErrorTxt("can\'t find material property(\'"+matename+"\') in the given json file, please check your input file");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     return Vector3d(0);
 }

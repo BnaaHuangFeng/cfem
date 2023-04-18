@@ -82,7 +82,7 @@ public:
     inline Vector& operator=(const double &val){
         if(!m_allocated){
             MessagePrinter::printErrorTxt("can\'t apply = to an empty vector, you must initialize it before use");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         VecSet(m_vector,val);
         assemble();
@@ -95,11 +95,11 @@ public:
     inline Vector& operator=(const Vector &a){
         if(!m_allocated){
             MessagePrinter::printErrorTxt("can\'t apply = to an empty vector, you must initialize it before use");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         if(m_size!=a.getSize()){
             MessagePrinter::printErrorTxt("can\'t apply = to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         VecCopy(a.m_vector,m_vector);
         assemble();
@@ -112,13 +112,13 @@ public:
     inline Vector& operator=(const Vec &a){
         if(!m_allocated){
             MessagePrinter::printErrorTxt("can\'t apply = to an empty vector, you must initialize it before use");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         int size;
         VecGetSize(a,&size);
         if(m_size!=size){
             MessagePrinter::printErrorTxt("can\'t apply = to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         VecCopy(a,m_vector);
         assemble();
@@ -131,11 +131,11 @@ public:
     inline void copyFrom(const Vector &a){
         if(!m_allocated){
             MessagePrinter::printErrorTxt("can\'t apply = to an empty vector, you must initialize it before use");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         if(m_size!=a.getSize()){
             MessagePrinter::printErrorTxt("can\'t apply = to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         VecCopy(a.m_vector,m_vector);
         assemble();
@@ -147,13 +147,13 @@ public:
     inline void copyFrom(const Vec &a){
         if(!m_allocated){
             MessagePrinter::printErrorTxt("can\'t apply copyFrom to an empty vector, you must initialize it before use");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         int size;
         VecGetSize(a,&size);
         if(m_size!=size){
             MessagePrinter::printErrorTxt("can\'t apply copyFrom to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         VecCopy(a,m_vector);
         assemble();
@@ -181,7 +181,7 @@ public:
     inline Vector operator+(const Vector &a)const{
         if(a.getSize()!=m_size){
             MessagePrinter::printErrorTxt("can\'t appy + to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem(); 
+            MessagePrinter::exitcfem(); 
         }
         Vector anew;
         VecDuplicate(m_vector,&anew.m_vector);
@@ -203,7 +203,7 @@ public:
         VecGetSize(a,&size);
         if(m_size!=size){
             MessagePrinter::printErrorTxt("can\'t appy + to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem(); 
+            MessagePrinter::exitcfem(); 
         }
         Vector anew;
         VecDuplicate(m_vector,&anew.m_vector);
@@ -233,7 +233,7 @@ public:
     inline Vector& operator+=(const Vector &a){
         if(m_size!=a.getSize()){
             MessagePrinter::printErrorTxt("can\'t apply += to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         VecAXPY(m_vector,1.0,a.m_vector);
         assemble();
@@ -248,7 +248,7 @@ public:
         VecGetSize(a,&size);
         if(m_size!=size){
             MessagePrinter::printErrorTxt("can\'t apply += to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         VecAXPY(m_vector,1.0,a);
         assemble();
@@ -277,7 +277,7 @@ public:
     inline Vector operator-(const Vector &a)const{
         if(a.getSize()!=m_size){
             MessagePrinter::printErrorTxt("can\'t appy - to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem(); 
+            MessagePrinter::exitcfem(); 
         }
         Vector anew;
         VecDuplicate(m_vector,&anew.m_vector);
@@ -299,7 +299,7 @@ public:
         VecGetSize(a,&size);
         if(size!=m_size){
             MessagePrinter::printErrorTxt("can\'t appy - to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem(); 
+            MessagePrinter::exitcfem(); 
         }
         Vector anew;
         VecDuplicate(m_vector,&anew.m_vector);
@@ -329,7 +329,7 @@ public:
     inline Vector& operator-=(const Vector &a){
         if(m_size!=a.getSize()){
             MessagePrinter::printErrorTxt("can\'t apply -= to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         VecAXPY(m_vector,-1.0,a.m_vector);
         assemble();
@@ -344,7 +344,7 @@ public:
         VecGetSize(a,&size);
         if(m_size!=size){
             MessagePrinter::printErrorTxt("can\'t apply -= to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         VecAXPY(m_vector,-1.0,a);
         assemble();
@@ -373,7 +373,7 @@ public:
     inline double dot(const Vector &a)const{
         if(a.getSize()!=m_size){
             MessagePrinter::printErrorTxt("can\'t appy dot to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem(); 
+            MessagePrinter::exitcfem(); 
         }
         double val;
         VecDot(m_vector,a.m_vector,&val);
@@ -388,7 +388,7 @@ public:
         VecGetSize(a,&size);
         if(size!=m_size){
             MessagePrinter::printErrorTxt("can\'t appy dot to two different vectors, they must have the same size");
-            MessagePrinter::exitAsFem(); 
+            MessagePrinter::exitcfem(); 
         }
         double val;
         VecDot(m_vector,a,&val);
@@ -412,7 +412,7 @@ public:
     inline Vector operator/(const double &val)const{
         if(abs(val)<1.0e-15){
             MessagePrinter::printErrorTxt("can\'t appy / to a singular value, val must be nonzero");
-            MessagePrinter::exitAsFem(); 
+            MessagePrinter::exitcfem(); 
         }
         Vector anew;
         VecDuplicate(m_vector,&anew.m_vector);
@@ -432,7 +432,7 @@ public:
     inline Vector& operator/=(const double &val){
         if(abs(val)<1.0e-15){
             MessagePrinter::printErrorTxt("can\'t appy /= to a singular value, val must be nonzero");
-            MessagePrinter::exitAsFem(); 
+            MessagePrinter::exitcfem(); 
         }
         VecScale(m_vector,1.0/val);
         assemble();
@@ -567,7 +567,7 @@ public:
         VecGetSize(a,&size);
         if(size!=m_size){
             MessagePrinter::printErrorTxt("can\'t copy current vector to PETSc vec, the size does not match");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         VecCopy(m_vector,a);
         VecAssemblyBegin(a);
@@ -611,7 +611,7 @@ public:
     inline double getIthValueFromGhost(const int &i)const{
         if(i<1||i>getSize()){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" is out of range("+to_string(getSize())+") for your vector");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         double val;int index[1];
         index[0]=i-1;

@@ -23,7 +23,7 @@ ViogtRank2Tensor2D::ViogtRank2Tensor2D(InitMethod initmethod):Vector3d(0.0){
 double& ViogtRank2Tensor2D::operator()(const int i,const int j){
     if(i<1||i>2||j<1||j>2){
     MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector2");
-    MessagePrinter::exitAsFem();
+    MessagePrinter::exitcfem();
 }
     if(i==1&&j==1)return Vector3d::operator()(1);
     else if (i!=j)return Vector3d::operator()(3);
@@ -33,7 +33,7 @@ double& ViogtRank2Tensor2D::operator()(const int i,const int j){
 double ViogtRank2Tensor2D::operator()(const int i,const int j)const{
     if(i<1||i>2||j<1||j>2){
     MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector2");
-    MessagePrinter::exitAsFem();
+    MessagePrinter::exitcfem();
 }
     if(i==1&&j==1)return Vector3d::operator()(1);
     else if (i!=j)return Vector3d::operator()(3);

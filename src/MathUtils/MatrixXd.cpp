@@ -41,11 +41,11 @@ MatrixXd::MatrixXd(const int  m,const int  n,const double val){
 void MatrixXd::solve(const VectorXd &b,VectorXd &x) const{
     if(b.getM()!=getM()){
         MessagePrinter::printErrorTxt("size of rhs vector b is not equal to the row number of your matrix, can\'t execute the solve function");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     if(x.getM()!=getN()){
         MessagePrinter::printErrorTxt("size of solution vector x is not equal to the column number of your matrix, can\'t execute the solve function");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     Eigen::MatrixXd A(getM(),getN());
     Eigen::VectorXd B(getM()),X(getN());
@@ -63,7 +63,7 @@ void MatrixXd::solve(const VectorXd &b,VectorXd &x) const{
 VectorXd MatrixXd::solve(const VectorXd &b) const{
     if(b.getM()!=getM()){
         MessagePrinter::printErrorTxt("size of rhs vector b is not equal to the row number of your matrix, can\'t execute the solve function");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     VectorXd x(getM(),0.0);
     Eigen::MatrixXd A(getM(),getN());

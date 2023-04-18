@@ -33,7 +33,7 @@ ViogtRank4Tensor2D::ViogtRank4Tensor2D(Rank4Tensor rank4Tensor):MatrixXd(3,3,0.0
             l=ind2ij[indkl-1][1];
             if(rank4Tensor(i,j,k,l)!=rank4Tensor(j,i,k,l)||rank4Tensor(i,j,k,l)!=rank4Tensor(i,j,l,k)){
                 MessagePrinter::printErrorTxt("the input Rank4Tensor doesn't have the property of viogt minor symtric.");
-                MessagePrinter::exitAsFem();
+                MessagePrinter::exitcfem();
             }
             else{
                 (*this)(indij,indkl)=rank4Tensor(i,j,k,l);

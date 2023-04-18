@@ -70,9 +70,22 @@ CMakeFiles/cfem.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cfem.dir/src/main.cpp.s"
 	/usr/bin/mpicxx $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/c/github/cfem/src/main.cpp -o CMakeFiles/cfem.dir/src/main.cpp.s
 
+CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.o: CMakeFiles/cfem.dir/flags.make
+CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.o: ../src/InputSystem/InputSystem.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.o"
+	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.o -c /home/c/github/cfem/src/InputSystem/InputSystem.cpp
+
+CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.i"
+	/usr/bin/mpicxx $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/c/github/cfem/src/InputSystem/InputSystem.cpp > CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.i
+
+CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.s"
+	/usr/bin/mpicxx $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/c/github/cfem/src/InputSystem/InputSystem.cpp -o CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.s
+
 CMakeFiles/cfem.dir/src/Utils/MessagePrinter.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/Utils/MessagePrinter.cpp.o: ../src/Utils/MessagePrinter.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/cfem.dir/src/Utils/MessagePrinter.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/cfem.dir/src/Utils/MessagePrinter.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/Utils/MessagePrinter.cpp.o -c /home/c/github/cfem/src/Utils/MessagePrinter.cpp
 
 CMakeFiles/cfem.dir/src/Utils/MessagePrinter.cpp.i: cmake_force
@@ -85,7 +98,7 @@ CMakeFiles/cfem.dir/src/Utils/MessagePrinter.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/Utils/StringUtils.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/Utils/StringUtils.cpp.o: ../src/Utils/StringUtils.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/cfem.dir/src/Utils/StringUtils.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/cfem.dir/src/Utils/StringUtils.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/Utils/StringUtils.cpp.o -c /home/c/github/cfem/src/Utils/StringUtils.cpp
 
 CMakeFiles/cfem.dir/src/Utils/StringUtils.cpp.i: cmake_force
@@ -98,7 +111,7 @@ CMakeFiles/cfem.dir/src/Utils/StringUtils.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/Utils/JsonUtils.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/Utils/JsonUtils.cpp.o: ../src/Utils/JsonUtils.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/cfem.dir/src/Utils/JsonUtils.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/cfem.dir/src/Utils/JsonUtils.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/Utils/JsonUtils.cpp.o -c /home/c/github/cfem/src/Utils/JsonUtils.cpp
 
 CMakeFiles/cfem.dir/src/Utils/JsonUtils.cpp.i: cmake_force
@@ -111,7 +124,7 @@ CMakeFiles/cfem.dir/src/Utils/JsonUtils.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/Utils/Timer.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/Utils/Timer.cpp.o: ../src/Utils/Timer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/cfem.dir/src/Utils/Timer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/cfem.dir/src/Utils/Timer.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/Utils/Timer.cpp.o -c /home/c/github/cfem/src/Utils/Timer.cpp
 
 CMakeFiles/cfem.dir/src/Utils/Timer.cpp.i: cmake_force
@@ -124,7 +137,7 @@ CMakeFiles/cfem.dir/src/Utils/Timer.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/MathUtils/Vector2d.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/MathUtils/Vector2d.cpp.o: ../src/MathUtils/Vector2d.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/Vector2d.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/Vector2d.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MathUtils/Vector2d.cpp.o -c /home/c/github/cfem/src/MathUtils/Vector2d.cpp
 
 CMakeFiles/cfem.dir/src/MathUtils/Vector2d.cpp.i: cmake_force
@@ -137,7 +150,7 @@ CMakeFiles/cfem.dir/src/MathUtils/Vector2d.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/MathUtils/Vector3d.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/MathUtils/Vector3d.cpp.o: ../src/MathUtils/Vector3d.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/Vector3d.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/Vector3d.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MathUtils/Vector3d.cpp.o -c /home/c/github/cfem/src/MathUtils/Vector3d.cpp
 
 CMakeFiles/cfem.dir/src/MathUtils/Vector3d.cpp.i: cmake_force
@@ -150,7 +163,7 @@ CMakeFiles/cfem.dir/src/MathUtils/Vector3d.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/MathUtils/VectorXd.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/MathUtils/VectorXd.cpp.o: ../src/MathUtils/VectorXd.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/VectorXd.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/VectorXd.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MathUtils/VectorXd.cpp.o -c /home/c/github/cfem/src/MathUtils/VectorXd.cpp
 
 CMakeFiles/cfem.dir/src/MathUtils/VectorXd.cpp.i: cmake_force
@@ -163,7 +176,7 @@ CMakeFiles/cfem.dir/src/MathUtils/VectorXd.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/MathUtils/MatrixXd.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/MathUtils/MatrixXd.cpp.o: ../src/MathUtils/MatrixXd.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/MatrixXd.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/MatrixXd.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MathUtils/MatrixXd.cpp.o -c /home/c/github/cfem/src/MathUtils/MatrixXd.cpp
 
 CMakeFiles/cfem.dir/src/MathUtils/MatrixXd.cpp.i: cmake_force
@@ -176,7 +189,7 @@ CMakeFiles/cfem.dir/src/MathUtils/MatrixXd.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/MathUtils/Vector.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/MathUtils/Vector.cpp.o: ../src/MathUtils/Vector.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/Vector.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/Vector.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MathUtils/Vector.cpp.o -c /home/c/github/cfem/src/MathUtils/Vector.cpp
 
 CMakeFiles/cfem.dir/src/MathUtils/Vector.cpp.i: cmake_force
@@ -189,7 +202,7 @@ CMakeFiles/cfem.dir/src/MathUtils/Vector.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/MathUtils/SparseMatrix.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/MathUtils/SparseMatrix.cpp.o: ../src/MathUtils/SparseMatrix.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/SparseMatrix.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/SparseMatrix.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MathUtils/SparseMatrix.cpp.o -c /home/c/github/cfem/src/MathUtils/SparseMatrix.cpp
 
 CMakeFiles/cfem.dir/src/MathUtils/SparseMatrix.cpp.i: cmake_force
@@ -202,7 +215,7 @@ CMakeFiles/cfem.dir/src/MathUtils/SparseMatrix.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor.cpp.o: ../src/MathUtils/Rank2Tensor.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor.cpp.o -c /home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp
 
 CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor.cpp.i: cmake_force
@@ -215,7 +228,7 @@ CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor2d.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor2d.cpp.o: ../src/MathUtils/Rank2Tensor2d.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor2d.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor2d.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor2d.cpp.o -c /home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp
 
 CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor2d.cpp.i: cmake_force
@@ -228,7 +241,7 @@ CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor2d.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/MathUtils/Rank4Tensor.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/MathUtils/Rank4Tensor.cpp.o: ../src/MathUtils/Rank4Tensor.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/Rank4Tensor.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/Rank4Tensor.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MathUtils/Rank4Tensor.cpp.o -c /home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp
 
 CMakeFiles/cfem.dir/src/MathUtils/Rank4Tensor.cpp.i: cmake_force
@@ -241,7 +254,7 @@ CMakeFiles/cfem.dir/src/MathUtils/Rank4Tensor.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/MathUtils/MathFuns.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/MathUtils/MathFuns.cpp.o: ../src/MathUtils/MathFuns.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/MathFuns.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/MathFuns.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MathUtils/MathFuns.cpp.o -c /home/c/github/cfem/src/MathUtils/MathFuns.cpp
 
 CMakeFiles/cfem.dir/src/MathUtils/MathFuns.cpp.i: cmake_force
@@ -254,7 +267,7 @@ CMakeFiles/cfem.dir/src/MathUtils/MathFuns.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/MathUtils/ViogtRank2Tensor2D.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/MathUtils/ViogtRank2Tensor2D.cpp.o: ../src/MathUtils/ViogtRank2Tensor2D.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/ViogtRank2Tensor2D.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/ViogtRank2Tensor2D.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MathUtils/ViogtRank2Tensor2D.cpp.o -c /home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp
 
 CMakeFiles/cfem.dir/src/MathUtils/ViogtRank2Tensor2D.cpp.i: cmake_force
@@ -267,7 +280,7 @@ CMakeFiles/cfem.dir/src/MathUtils/ViogtRank2Tensor2D.cpp.s: cmake_force
 
 CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.o: CMakeFiles/cfem.dir/flags.make
 CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.o: ../src/MathUtils/ViogtRank4Tensor2D.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.o"
 	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.o -c /home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp
 
 CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.i: cmake_force
@@ -278,9 +291,49 @@ CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.s"
 	/usr/bin/mpicxx $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp -o CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.s
 
+CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.o: CMakeFiles/cfem.dir/flags.make
+CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.o: ../src/MeshSystem/MeshSystem.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.o"
+	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.o -c /home/c/github/cfem/src/MeshSystem/MeshSystem.cpp
+
+CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.i"
+	/usr/bin/mpicxx $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/c/github/cfem/src/MeshSystem/MeshSystem.cpp > CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.i
+
+CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.s"
+	/usr/bin/mpicxx $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/c/github/cfem/src/MeshSystem/MeshSystem.cpp -o CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.s
+
+CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.o: CMakeFiles/cfem.dir/flags.make
+CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.o: ../src/MeshSystem/MeshSystem2D.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.o"
+	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.o -c /home/c/github/cfem/src/MeshSystem/MeshSystem2D.cpp
+
+CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.i"
+	/usr/bin/mpicxx $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/c/github/cfem/src/MeshSystem/MeshSystem2D.cpp > CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.i
+
+CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.s"
+	/usr/bin/mpicxx $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/c/github/cfem/src/MeshSystem/MeshSystem2D.cpp -o CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.s
+
+CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.o: CMakeFiles/cfem.dir/flags.make
+CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.o: ../src/MeshSystem/StructuredMesh2D.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.o"
+	/usr/bin/mpicxx  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.o -c /home/c/github/cfem/src/MeshSystem/StructuredMesh2D.cpp
+
+CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.i"
+	/usr/bin/mpicxx $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/c/github/cfem/src/MeshSystem/StructuredMesh2D.cpp > CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.i
+
+CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.s"
+	/usr/bin/mpicxx $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/c/github/cfem/src/MeshSystem/StructuredMesh2D.cpp -o CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.s
+
 # Object files for target cfem
 cfem_OBJECTS = \
 "CMakeFiles/cfem.dir/src/main.cpp.o" \
+"CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.o" \
 "CMakeFiles/cfem.dir/src/Utils/MessagePrinter.cpp.o" \
 "CMakeFiles/cfem.dir/src/Utils/StringUtils.cpp.o" \
 "CMakeFiles/cfem.dir/src/Utils/JsonUtils.cpp.o" \
@@ -296,37 +349,44 @@ cfem_OBJECTS = \
 "CMakeFiles/cfem.dir/src/MathUtils/Rank4Tensor.cpp.o" \
 "CMakeFiles/cfem.dir/src/MathUtils/MathFuns.cpp.o" \
 "CMakeFiles/cfem.dir/src/MathUtils/ViogtRank2Tensor2D.cpp.o" \
-"CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.o"
+"CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.o" \
+"CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.o" \
+"CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.o" \
+"CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.o"
 
 # External object files for target cfem
 cfem_EXTERNAL_OBJECTS =
 
-../bin/cfem: CMakeFiles/cfem.dir/src/main.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/Utils/MessagePrinter.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/Utils/StringUtils.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/Utils/JsonUtils.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/Utils/Timer.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/MathUtils/Vector2d.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/MathUtils/Vector3d.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/MathUtils/VectorXd.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/MathUtils/MatrixXd.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/MathUtils/Vector.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/MathUtils/SparseMatrix.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor2d.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/MathUtils/Rank4Tensor.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/MathUtils/MathFuns.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/MathUtils/ViogtRank2Tensor2D.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.o
-../bin/cfem: CMakeFiles/cfem.dir/build.make
-../bin/cfem: /home/c/software/mpi/lib/libmpi.so
-../bin/cfem: /home/c/software/petsc/lib/libpetsc.so
-../bin/cfem: CMakeFiles/cfem.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Linking CXX executable ../bin/cfem"
+cfem: CMakeFiles/cfem.dir/src/main.cpp.o
+cfem: CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.o
+cfem: CMakeFiles/cfem.dir/src/Utils/MessagePrinter.cpp.o
+cfem: CMakeFiles/cfem.dir/src/Utils/StringUtils.cpp.o
+cfem: CMakeFiles/cfem.dir/src/Utils/JsonUtils.cpp.o
+cfem: CMakeFiles/cfem.dir/src/Utils/Timer.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MathUtils/Vector2d.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MathUtils/Vector3d.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MathUtils/VectorXd.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MathUtils/MatrixXd.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MathUtils/Vector.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MathUtils/SparseMatrix.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor2d.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MathUtils/Rank4Tensor.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MathUtils/MathFuns.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MathUtils/ViogtRank2Tensor2D.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.o
+cfem: CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.o
+cfem: CMakeFiles/cfem.dir/build.make
+cfem: /home/c/software/mpi/lib/libmpi.so
+cfem: /home/c/software/petsc/lib/libpetsc.so
+cfem: CMakeFiles/cfem.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/c/github/cfem/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Linking CXX executable cfem"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/cfem.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
-CMakeFiles/cfem.dir/build: ../bin/cfem
+CMakeFiles/cfem.dir/build: cfem
 
 .PHONY : CMakeFiles/cfem.dir/build
 

@@ -39,7 +39,7 @@ SparseMatrix& SparseMatrix::operator=(const double &a){
     // which is faster than this one!!!
     if(!m_allocated){
         MessagePrinter::printErrorTxt("can\'t apply = to your sparse matrix, it is not allocated");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     int start,end,r,j;
     int ncols;
@@ -75,7 +75,7 @@ SparseMatrix& SparseMatrix::operator=(const SparseMatrix &a){
     else{
         if(m_m!=a.m_m || m_n!=a.m_n){
             MessagePrinter::printErrorTxt("can\'t apply = to sparse matrix with different size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         MatCopy(a.m_matrix,m_matrix,SAME_NONZERO_PATTERN);
     }
@@ -105,7 +105,7 @@ SparseMatrix SparseMatrix::operator+(const double &a)const{
 SparseMatrix SparseMatrix::operator+(const SparseMatrix &a)const{
     if(a.m_m!=m_m || a.m_n!=m_n){
         MessagePrinter::printErrorTxt("can\'t apply + to sparse matrix with different size");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     SparseMatrix temp;
     temp=*this;
@@ -138,7 +138,7 @@ SparseMatrix& SparseMatrix::operator+=(const double &a){
 SparseMatrix& SparseMatrix::operator+=(const SparseMatrix &a){
     if(a.m_m!=m_m || a.m_n!=m_n){
         MessagePrinter::printErrorTxt("can\'t apply += to sparse matrix with different size");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     //Computes Y = a*X + Y.
     MatAXPY(m_matrix,1.0,a.m_matrix,SAME_NONZERO_PATTERN);
@@ -175,7 +175,7 @@ SparseMatrix SparseMatrix::operator-(const double &a)const{
 SparseMatrix SparseMatrix::operator-(const SparseMatrix &a)const{
     if(a.m_m!=m_m || a.m_n!=m_n){
         MessagePrinter::printErrorTxt("can\'t apply - to sparse matrix with different size");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     SparseMatrix temp;
     temp=*this;
@@ -211,7 +211,7 @@ SparseMatrix& SparseMatrix::operator-=(const double &a){
 SparseMatrix& SparseMatrix::operator-=(const SparseMatrix &a){
     if(a.m_m!=m_m || a.m_n!=m_n){
         MessagePrinter::printErrorTxt("can\'t apply -= to sparse matrix with different size");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     //Computes Y = a*X + Y.
     MatAXPY(m_matrix,-1.0,a.m_matrix,SAME_NONZERO_PATTERN);
@@ -239,7 +239,7 @@ SparseMatrix& SparseMatrix::operator*=(const double &a){
 SparseMatrix SparseMatrix::operator/(const double &a)const{
     if(abs(a)<1.0e-15){
         MessagePrinter::printErrorTxt("can\'t apply A/0 to sparse matrix, the scalar is singular");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     SparseMatrix anew;
     anew.m_m=m_m;
@@ -252,7 +252,7 @@ SparseMatrix SparseMatrix::operator/(const double &a)const{
 SparseMatrix& SparseMatrix::operator/=(const double &a){
     if(abs(a)<1.0e-15){
         MessagePrinter::printErrorTxt("can\'t apply A/0 to sparse matrix, the scalar is singular");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     MatScale(m_matrix,1.0/a);
     return *this;

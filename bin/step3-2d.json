@@ -1,29 +1,37 @@
 {
 	"mesh":{
-		"mode":"structure",
+		"mode":"structured",
 		"dim":2,
+		"shape":"rectangular",
 		"nx":50,
 		"ny":50,
-		"xmax":5.0,
-		"ymax":5.0,
+		"size":{
+			"xmax":5.0,
+			"ymax":5.0
+		},
 		"meshtype":"quad4",
-		"savemesh":true
+		"savemesh":true,
+		"outputfile":"step3.vtu"
 	},
 	"element":{
 		"elmt1":{
 			"type":"CPE4R",
-			"material":{
-				"type":"linearelastic",
-				"parameters":{
-					"E":1.0e3,
-					"nu":0.3
-				}
-			}
+			"set":"all"
+		}
+	},
+	"material":{
+		"mat1":{
+			"type":"linearelastic",
+			"parameters":{
+				"E":1.0e3,
+				"nu":0.3
+			},
+			"set":"all"
 		}
 	},
 	"step":{
-		"algorithm":"Tangent-Newton",
-		"nlsolver":"gmres",
+		"nlsolver":"newtonls",
+		"kspsolver":"gmres",
 		"preconditioner":"bjacobi",
 		"dt0":0.1,
 		"dtmax":1.0e-1,
@@ -42,7 +50,7 @@
 		"field":{
 			"format":"vtu",
 			"interval":1,
-			"variable":["vonMises-stress","stress","strain"]
+			"variable":["vonMises-stress","stress","log-strain"]
 		},
 		"history":{
 			"history1":{

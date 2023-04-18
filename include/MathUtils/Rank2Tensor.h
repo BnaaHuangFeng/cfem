@@ -90,7 +90,7 @@ public:
     inline double operator()(const int &i,const int &j) const{
         if(i<1||i>3 || j<1||j>3 ){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" or j="+to_string(j)+" is out of range when you call a rank-2 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[(i-1)*N+j-1];
     }
@@ -101,7 +101,7 @@ public:
     inline double& operator()(const int &i,const int &j){
         if(i<1||i>3 || j<1||j>3 ){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" or j="+to_string(j)+" is out of range when you call a rank-2 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[(i-1)*N+j-1];
     }
@@ -115,7 +115,7 @@ public:
     inline double operator[](const int &i) const{
         if(i<1||i>N2){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" is out of range when you call a rank-2 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[i-1];
     }
@@ -126,7 +126,7 @@ public:
     inline double& operator[](const int &i){
         if(i<1||i>N2){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" is out of range when you call a rank-2 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[i-1];
     }
@@ -329,7 +329,7 @@ public:
     inline Rank2Tensor operator/(const double &a) const{
         if(abs(a)<1.0e-16){
             MessagePrinter::printErrorTxt("a="+to_string(a)+" is singular for / operator in rank-2 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         Rank2Tensor temp(0.0);
         for(int i=0;i<N2;i++) temp.m_vals[i]=m_vals[i]/a;
@@ -345,7 +345,7 @@ public:
     inline Rank2Tensor& operator/=(const double &a){
         if(abs(a)<1.0e-16){
             MessagePrinter::printErrorTxt("a="+to_string(a)+" is singular for /= operator in rank-2 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         for(int i=0;i<N2;i++) m_vals[i]/=a;
         return *this;
@@ -686,7 +686,7 @@ public:
         double J=det();
         if(abs(J)<1.0e-16){
             MessagePrinter::printErrorTxt("inverse operation failed for a singular rank-2 tensor !");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         Rank2Tensor inv(0.0);
         // taken from wiki:

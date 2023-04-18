@@ -1,4 +1,5 @@
 #include "ElementSystem/Shpfun/ShpfunQuad4.h"
+#include "InputSystem/EnumDataType.h"
 #include "MathUtils/Rank2Tensor2d.h"
 /**
  * COMPUTES SHAPE FUNCTIONS AND SHAPE FUNCTION DERIVATIVES FOR

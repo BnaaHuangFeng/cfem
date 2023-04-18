@@ -52,7 +52,7 @@ public:
     inline double& operator()(const int &i){
         if(i<1||i>3){
             MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector3");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[i-1];
     }
@@ -63,7 +63,7 @@ public:
     inline double operator()(const int &i)const{
         if(i<1||i>3){
             MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector3");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[i-1];
     }
@@ -219,7 +219,7 @@ public:
         Vector3d temp=*this;
         if(abs(val)<1.0e-15){
             MessagePrinter::printErrorTxt("val= "+to_string(val)+" is singular for / operator in Vector3");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         temp.m_vals[0]/=val;temp.m_vals[1]/=val;temp.m_vals[2]/=val;
         return temp;

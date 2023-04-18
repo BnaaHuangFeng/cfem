@@ -43,7 +43,7 @@ public:
     inline void resize(const int &m,const int &n,const int &maxrownnz){
         if(m<0||n<0||m!=n){
             MessagePrinter::printErrorTxt("either you m<0 or n<0 or m!=n detected in resize function");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         if(m_allocated){
             MatDestroy(&m_matrix);// hf: d_nz=o_nz is not not so efficient.
@@ -292,7 +292,7 @@ public:
         MatGetSize(a,&m,&n);
         if(m!=m_m || n!=m_n){
             MessagePrinter::printErrorTxt("can\'t copy current sparse matrix to PETSc Mat, their sizes do not match");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         MatCopy(m_matrix,a,SAME_NONZERO_PATTERN);
         MatSetOption(a,MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE);// disable reallocation

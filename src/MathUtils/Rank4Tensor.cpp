@@ -46,7 +46,7 @@ Rank4Tensor::Rank4Tensor(const InitMethod &method){
     }
     else{
         MessagePrinter::printErrorTxt("unsupported initialize method in rank-4 tensor");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
 }
 Rank4Tensor::~Rank4Tensor(){
@@ -75,7 +75,7 @@ double Rank4Tensor::getVoigtComponent(const int &i,const int &j)const{
         }
         else{
             MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else if(i==2){
@@ -99,7 +99,7 @@ double Rank4Tensor::getVoigtComponent(const int &i,const int &j)const{
         }
         else{
             MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else if(i==3){
@@ -123,7 +123,7 @@ double Rank4Tensor::getVoigtComponent(const int &i,const int &j)const{
         }
         else{
             MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else if(i==4){
@@ -147,7 +147,7 @@ double Rank4Tensor::getVoigtComponent(const int &i,const int &j)const{
         }
         else{
             MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else if(i==5){
@@ -171,7 +171,7 @@ double Rank4Tensor::getVoigtComponent(const int &i,const int &j)const{
         }
         else{
             MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else if(i==6){
@@ -195,12 +195,12 @@ double Rank4Tensor::getVoigtComponent(const int &i,const int &j)const{
         }
         else{
             MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else{
         MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     return 0;
 }
@@ -227,7 +227,7 @@ double& Rank4Tensor::voigtComponent(const int &i,const int &j){
         }
         else{
             MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else if(i==2){
@@ -251,7 +251,7 @@ double& Rank4Tensor::voigtComponent(const int &i,const int &j){
         }
         else{
             MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else if(i==3){
@@ -275,7 +275,7 @@ double& Rank4Tensor::voigtComponent(const int &i,const int &j){
         }
         else{
             MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else if(i==4){
@@ -299,7 +299,7 @@ double& Rank4Tensor::voigtComponent(const int &i,const int &j){
         }
         else{
             MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else if(i==5){
@@ -323,7 +323,7 @@ double& Rank4Tensor::voigtComponent(const int &i,const int &j){
         }
         else{
             MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else if(i==6){
@@ -347,12 +347,12 @@ double& Rank4Tensor::voigtComponent(const int &i,const int &j){
         }
         else{
             MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
     }
     else{
         MessagePrinter::printErrorTxt("i="+to_string(i)+", j="+to_string(j)+" is invalid for the voigt notation in rank-4 tensor");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     return (*this)(1,1,1,1);
 }
@@ -463,7 +463,7 @@ void Rank4Tensor::setFromKAndG(const double &K,const double &G){
 void Rank4Tensor::setFromSymmetric9(const vector<double> &vec){
     if(vec.size()<9){
         MessagePrinter::printErrorTxt("Symmetric9 fill method for rank-4 tensor need at least 9 elements!!!");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     //C1111  C1122  C1133   0     0     0
     // 0     C2222  C2233   0     0     0
@@ -508,7 +508,7 @@ void Rank4Tensor::setFromSymmetric9(const vector<double> &vec){
 void Rank4Tensor::setToOrthotropic(const vector<double> &vec){
     if(vec.size()<9){
         MessagePrinter::printErrorTxt("Orthotropic fill method for rank-4 tensor need at least 9 elements!!!");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
     //C1111  C1122  C1133   0     0     0
     // 0     C2222  C2233   0     0     0

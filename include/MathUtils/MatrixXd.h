@@ -88,11 +88,11 @@ public:
     inline double& operator()(const int i,const int j){
         if(i<1||i>m_m){
             MessagePrinter::printErrorTxt("i= "+to_string(i)+" is out of range(m="+to_string(m_m)+") in MatrixXd.h");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         if(j<1||i>m_n){
             MessagePrinter::printErrorTxt("j= "+to_string(j)+" is out of range(m="+to_string(m_n)+") in MatrixXd.h");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[(i-1)*m_n+j-1];
     }
@@ -104,11 +104,11 @@ public:
     inline double operator()(const int i,const int j)const{
         if(i<1||i>m_m){
             MessagePrinter::printErrorTxt("i= "+to_string(i)+" is out of range(m="+to_string(m_m)+") in MatrixXd.h");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         if(j<1||i>m_n){
             MessagePrinter::printErrorTxt("j= "+to_string(j)+" is out of range(m="+to_string(m_n)+") in MatrixXd.h");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[(i-1)*m_n+j-1];
     }
@@ -119,7 +119,7 @@ public:
     inline double& operator[](const int i){
         if(i<1||i>m_mn){
             MessagePrinter::printErrorTxt("i= "+to_string(i)+" is out of range(mn="+to_string(m_mn)+") in MatrixXd.h");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[i-1];
     }
@@ -130,7 +130,7 @@ public:
     inline double operator[](const int i)const{
         if(i<1||i>m_mn){
             MessagePrinter::printErrorTxt("i= "+to_string(i)+" is out of range(mn="+to_string(m_mn)+") in MatrixXd.h");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[i-1];
     }
@@ -164,7 +164,7 @@ public:
             }
             else{
                 MessagePrinter::printErrorTxt("a=b can\'t be applied to two matrix with different size");
-                MessagePrinter::exitAsFem();
+                MessagePrinter::exitcfem();
             }
         }
         return *this;
@@ -192,7 +192,7 @@ public:
         }
         else{
             MessagePrinter::printErrorTxt("a+b can\'t be applied to two matrix with different size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return temp;
     }
@@ -217,7 +217,7 @@ public:
         }
         else{
             MessagePrinter::printErrorTxt("a+b can\'t be applied to two matrix with different size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return *this;
     }
@@ -244,7 +244,7 @@ public:
         }
         else{
             MessagePrinter::printErrorTxt("a-b can\'t be applied to two matrix with different size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return temp;
     }
@@ -269,7 +269,7 @@ public:
         }
         else{
             MessagePrinter::printErrorTxt("a-b can\'t be applied to two matrix with different size");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return *this;
     }
@@ -292,7 +292,7 @@ public:
         VectorXd temp(m_m,0.0);
         if(m_n!=a.getM()){
             MessagePrinter::printErrorTxt("A*b should be applied to A matrix with the same cols as b vector!");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         else{
             for(int i=1;i<=m_m;i++){
@@ -313,7 +313,7 @@ public:
         MatrixXd temp(m_m,a.getN());
         if(m_n!=a.getM()){
             MessagePrinter::printErrorTxt("A*B should be applied to A matrix with the same cols as the rows of B matrix!");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         else{
             for(int i=1;i<=m_m;i++){
@@ -346,7 +346,7 @@ public:
     inline MatrixXd operator/(const double val)const{
         if(abs(val)<1.0e-15){
             MessagePrinter::printErrorTxt("val="+to_string(val)+" is singular for / operator in MatrixXd");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         MatrixXd temp(m_m,m_n);
         for(int i=0;i<m_mn;++i) temp.m_vals[i]=m_vals[i]/val;
@@ -360,7 +360,7 @@ public:
     inline MatrixXd& operator/=(const double val){
         if(abs(val)<1.0e-15){
             MessagePrinter::printErrorTxt("val="+to_string(val)+" is singular for / operator in MatrixXd");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         for(int i=0;i<m_mn;++i) m_vals[i]=m_vals[i]/val;
         return *this;
@@ -385,7 +385,7 @@ public:
     inline MatrixXd inverse()const{
         if(m_m!=m_n){
             MessagePrinter::printErrorTxt("the inverse operation only works for square matrix");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         Eigen::MatrixXd Mat(m_m,m_n),MatInv(m_m,m_n);
         MatrixXd temp(m_m,m_n);

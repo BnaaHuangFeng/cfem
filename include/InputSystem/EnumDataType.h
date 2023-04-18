@@ -4,6 +4,12 @@ enum Dimension{
     TWO,
     THREE
 };
+enum MeshShape{
+    RECTANGULAR,
+    SIN,
+    HALFSIN,
+    COMPLEX
+};
 enum MeshMode{
     STRUCTURED,
     UNSTRUCTURED
@@ -30,12 +36,12 @@ enum ElementType{
 enum MaterialType{
     LINEARELASTIC,
     NEOHOOKEAN,
-    VONMISES
+    VONMISESPLAS
 };
-enum AlgorithmType{
-    TANGENTNEWTON,
-    ARCLENGTH_CYLENDER
-};
+// enum AlgorithmType{
+//     TANGENTNEWTON,
+//     ARCLENGTH_CYLENDER
+// };
 enum FiledOutputFormat{
     VTU
 };

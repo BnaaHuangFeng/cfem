@@ -72,7 +72,7 @@ public:
     inline double operator()(const int &i,const int &j,const int &k,const int &l) const{
         if(i<1||i>3 || j<1||j>3 || k<1||k>3 || l<1||l>3){
             MessagePrinter::printErrorTxt("your i or j or k or l is out of range when you call a rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[(((i-1)*N+j-1)*N+k-1)*N+l-1];
     }
@@ -86,7 +86,7 @@ public:
     inline double& operator()(const int &i,const int &j,const int &k,const int &l){
         if(i<1||i>3 || j<1||j>3 || k<1||k>3 || l<1||l>3){
             MessagePrinter::printErrorTxt("your i or j or k or l is out of range when you call a rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return m_vals[(((i-1)*N+j-1)*N+k-1)*N+l-1];
     }
@@ -114,11 +114,11 @@ public:
     inline double getIKComponent(const int &i,const int &k,const Vector3d &grad_test,const Vector3d &grad_trial)const{
         if(i<1||i>3){
             MessagePrinter::printErrorTxt("your i(="+to_string(i)+") is out of range when you call getIKComponent");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         if(k<1||k>3){
             MessagePrinter::printErrorTxt("your k(="+to_string(k)+") is out of range when you call getIKComponent");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         return ( (*this)(i,1,k,1)*grad_test(1)
                 +(*this)(i,2,k,1)*grad_test(2)
@@ -295,7 +295,7 @@ public:
     inline Rank4Tensor operator/(const double &a) const{
         if(abs(a)<1.0e-16){
             MessagePrinter::printErrorTxt("a="+to_string(a)+" is singular for / operator in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         Rank4Tensor temp(0.0);
         for(int i=0;i<N4;i++) temp.m_vals[i]=m_vals[i]/a;
@@ -311,7 +311,7 @@ public:
     inline Rank4Tensor& operator/=(const double &a){
         if(abs(a)<1.0e-16){
             MessagePrinter::printErrorTxt("a="+to_string(a)+" is singular for /= operator in rank-4 tensor");
-            MessagePrinter::exitAsFem();
+            MessagePrinter::exitcfem();
         }
         for(int i=0;i<N4;++i) m_vals[i]=m_vals[i]*a;
         return *this;

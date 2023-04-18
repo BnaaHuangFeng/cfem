@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
-  "../bin/cfem"
-  "../bin/cfem.pdb"
+  "CMakeFiles/cfem.dir/src/InputSystem/InputSystem.cpp.o"
   "CMakeFiles/cfem.dir/src/MathUtils/MathFuns.cpp.o"
   "CMakeFiles/cfem.dir/src/MathUtils/MatrixXd.cpp.o"
   "CMakeFiles/cfem.dir/src/MathUtils/Rank2Tensor.cpp.o"
@@ -13,11 +12,16 @@ file(REMOVE_RECURSE
   "CMakeFiles/cfem.dir/src/MathUtils/VectorXd.cpp.o"
   "CMakeFiles/cfem.dir/src/MathUtils/ViogtRank2Tensor2D.cpp.o"
   "CMakeFiles/cfem.dir/src/MathUtils/ViogtRank4Tensor2D.cpp.o"
+  "CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem.cpp.o"
+  "CMakeFiles/cfem.dir/src/MeshSystem/MeshSystem2D.cpp.o"
+  "CMakeFiles/cfem.dir/src/MeshSystem/StructuredMesh2D.cpp.o"
   "CMakeFiles/cfem.dir/src/Utils/JsonUtils.cpp.o"
   "CMakeFiles/cfem.dir/src/Utils/MessagePrinter.cpp.o"
   "CMakeFiles/cfem.dir/src/Utils/StringUtils.cpp.o"
   "CMakeFiles/cfem.dir/src/Utils/Timer.cpp.o"
   "CMakeFiles/cfem.dir/src/main.cpp.o"
+  "cfem"
+  "cfem.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

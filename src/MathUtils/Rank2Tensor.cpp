@@ -41,7 +41,7 @@ Rank2Tensor::Rank2Tensor(const InitMethod &initmethod){
     }
     else{
         MessagePrinter::printErrorTxt("unsupported initialize method in rank-2 tensor");
-        MessagePrinter::exitAsFem();
+        MessagePrinter::exitcfem();
     }
 }
 Rank2Tensor::~Rank2Tensor(){

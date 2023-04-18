@@ -113,7 +113,7 @@ public:
     /**
      * this will stop all the process and exit the asfem program!
      */
-    static void exitAsFem();
+    static void exitcfem();
 
     /**
      * set the color which will be used in your terminal output
