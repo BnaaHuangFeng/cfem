@@ -1,3 +1,0 @@
-/home/c/github/cfem/build/CMakeFiles/rebuild_cache.dir
-/home/c/github/cfem/build/CMakeFiles/edit_cache.dir
-/home/c/github/cfem/build/CMakeFiles/cfem.dir
