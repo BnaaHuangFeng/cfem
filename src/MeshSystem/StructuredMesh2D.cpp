@@ -189,57 +189,75 @@ PetscErrorCode StructuredMesh2D::getElmtNodeCoord(PetscInt elmtRId,int state,Pet
     return 0;
 }
 PetscErrorCode StructuredMesh2D::getElmtNodeCoordByDmdaInd(PetscInt xI,PetscInt yI,int state,PetscScalar **coordsPtr,PetscInt *nodeNum){
-    Vec *coordVecPtr;
-    PetscScalar ***aCoord;
     *nodeNum=4;
+    if((state==0&&!m_nodes_coord0)|| /**< check if the nodes array ptr is available*/
+    (state==1&&!m_nodes_coord1)||
+    (state==2&&!m_nodes_coord2)){
+        MessagePrinter::printErrorTxt("Coords array need to point to Vec before use it.");
+        MessagePrinter::exitcfem();
+    }
     switch (state)
     {
     case 0:
-        coordVecPtr=&m_nodes_coord0;
+        for(int dofI=0;dofI<m_mDof_node;dofI++){
+            coordsPtr[0][dofI]=m_array_nodes_coord0[yI][xI][dofI];
+            coordsPtr[1][dofI]=m_array_nodes_coord0[yI][xI+1][dofI];
+            coordsPtr[2][dofI]=m_array_nodes_coord0[yI+1][xI+1][dofI];
+            coordsPtr[3][dofI]=m_array_nodes_coord0[yI+1][xI][dofI];
+        }
         break;
     case 1:
-        coordVecPtr=&m_nodes_coord1;
+        for(int dofI=0;dofI<m_mDof_node;dofI++){
+            coordsPtr[0][dofI]=m_array_nodes_coord1[yI][xI][dofI];
+            coordsPtr[1][dofI]=m_array_nodes_coord1[yI][xI+1][dofI];
+            coordsPtr[2][dofI]=m_array_nodes_coord1[yI+1][xI+1][dofI];
+            coordsPtr[3][dofI]=m_array_nodes_coord1[yI+1][xI][dofI];
+        }
         break;
     case 2:
-        coordVecPtr=&m_nodes_coord2;
+        for(int dofI=0;dofI<m_mDof_node;dofI++){
+            coordsPtr[0][dofI]=m_array_nodes_coord2[yI][xI][dofI];
+            coordsPtr[1][dofI]=m_array_nodes_coord2[yI][xI+1][dofI];
+            coordsPtr[2][dofI]=m_array_nodes_coord2[yI+1][xI+1][dofI];
+            coordsPtr[3][dofI]=m_array_nodes_coord2[yI+1][xI][dofI];
+        }
         break;
     default:
-        coordVecPtr=&m_nodes_coord0;
+        MessagePrinter::printErrorTxt("Coords state must be 0 or 1 or 2.");
+        MessagePrinter::exitcfem();
         break;
     }
-    PetscCall(DMDAVecGetArrayDOFRead(m_dm,*coordVecPtr,&aCoord));
-    for(int dofI=0;dofI<m_mDof_node;dofI++){
-        coordsPtr[0][dofI]=aCoord[yI][xI][dofI];
-        coordsPtr[1][dofI]=aCoord[yI][xI+1][dofI];
-        coordsPtr[2][dofI]=aCoord[yI+1][xI+1][dofI];
-        coordsPtr[3][dofI]=aCoord[yI+1][xI][dofI];
-    }
-    PetscCall(DMDAVecRestoreArrayDOFRead(m_dm,*coordVecPtr,&aCoord));
     return 0;
 }
 PetscErrorCode StructuredMesh2D::getNodeCoordByDmdaInd(PetscInt xI,PetscInt yI,int state,PetscScalar *coordsPtr){
-    Vec *coordVecPtr;
-    PetscScalar ***aCoord;
+    if((state==0&&!m_nodes_coord0)|| /**< check if the nodes array ptr is available*/
+    (state==1&&!m_nodes_coord1)||
+    (state==2&&!m_nodes_coord2)){
+        MessagePrinter::printErrorTxt("Coords array need to point to Vec before use it.");
+        MessagePrinter::exitcfem();
+    }
     switch (state)
     {
     case 0:
-        coordVecPtr=&m_nodes_coord0;
+        for(int dofI=0;dofI<m_mDof_node;dofI++){
+            coordsPtr[dofI]=m_array_nodes_coord0[yI][xI][dofI];
+        }
         break;
     case 1:
-        coordVecPtr=&m_nodes_coord1;
+        for(int dofI=0;dofI<m_mDof_node;dofI++){
+            coordsPtr[dofI]=m_array_nodes_coord1[yI][xI][dofI];
+        }
         break;
     case 2:
-        coordVecPtr=&m_nodes_coord2;
+        for(int dofI=0;dofI<m_mDof_node;dofI++){
+            coordsPtr[dofI]=m_array_nodes_coord2[yI][xI][dofI];
+        }
         break;
     default:
-        coordVecPtr=&m_nodes_coord0;
+        MessagePrinter::printErrorTxt("Coords state must be 0 or 1 or 2.");
+        MessagePrinter::exitcfem();
         break;
     }
-    PetscCall(DMDAVecGetArrayDOFRead(m_dm,*coordVecPtr,&aCoord));
-    for(int dofI=0;dofI<m_mDof_node;dofI++){
-        coordsPtr[dofI]=aCoord[yI][xI][dofI];
-    }
-    PetscCall(DMDAVecRestoreArrayDOFRead(m_dm,*coordVecPtr,&aCoord));
     return 0;   
 }
 PetscErrorCode StructuredMesh2D::outputMeshFile(){
@@ -403,4 +421,71 @@ void StructuredMesh2D::getElmtDmdaIndByRId(PetscInt rId,PetscInt *xIPtr,PetscInt
 void StructuredMesh2D::getNodeDmdaIndByRId(PetscInt rId,PetscInt *xIPtr,PetscInt *yIPtr){
     *yIPtr=rId/(m_daInfo.mx-1)+m_daInfo.ys;
     *xIPtr=rId%(m_daInfo.mx-1)+m_daInfo.xs;
+}
+PetscErrorCode StructuredMesh2D::coordVecGetArray(int state){
+    switch (state)
+    {
+    case 0:
+        if(m_array_nodes_coord0){
+            MessagePrinter::printErrorTxt("coord0 array need to be restored before setting up");
+            MessagePrinter::exitcfem();            
+        }
+        else
+            PetscCall(DMDAVecGetArrayDOFRead(m_dm,m_nodes_coord0,&m_array_nodes_coord0));
+        break;
+    case 1:
+        if(m_array_nodes_coord1){
+            MessagePrinter::printErrorTxt("coord1 array need to be restored before setting up");
+            MessagePrinter::exitcfem();            
+        }
+        else
+            PetscCall(DMDAVecGetArrayDOFRead(m_dm,m_nodes_coord1,&m_array_nodes_coord1));
+        break;
+    case 2:
+        if(m_array_nodes_coord2){
+            MessagePrinter::printErrorTxt("coord2 array need to be restored before setting up");
+            MessagePrinter::exitcfem();            
+        }
+        else
+            PetscCall(DMDAVecGetArrayDOFRead(m_dm,m_nodes_coord2,&m_array_nodes_coord2));
+        break;    
+    default:
+        break;
+    }
+    return 0;
+}
+PetscErrorCode StructuredMesh2D::coordVecRestoreArray(int state){
+    switch (state)
+    {
+    case 0:
+        if(m_array_nodes_coord0)
+            PetscCall(DMDAVecRestoreArrayDOFRead(m_dm,m_nodes_coord0,&m_array_nodes_coord0));
+        else{
+            MessagePrinter::printErrorTxt("coord0 array is point to null, can not be restored");
+            MessagePrinter::exitcfem();
+        }
+        m_array_nodes_coord0=nullptr;
+        break;
+    case 1:
+        if(m_nodes_coord1)
+            PetscCall(DMDAVecRestoreArrayDOFRead(m_dm,m_nodes_coord1,&m_array_nodes_coord1));
+        else{
+            MessagePrinter::printErrorTxt("coord1 array is point to null, can not be restored");
+            MessagePrinter::exitcfem();            
+        }
+        m_array_nodes_coord1=nullptr;
+        break;
+    case 2:
+        if(m_nodes_coord2)
+            PetscCall(DMDAVecRestoreArrayDOFRead(m_dm,m_nodes_coord2,&m_array_nodes_coord2));
+        else{
+            MessagePrinter::printErrorTxt("coord2 array is point to null, can not be restored");
+            MessagePrinter::exitcfem();
+        }
+        m_array_nodes_coord2=nullptr;
+        break;   
+    default:
+        break;
+    }
+    return 0;
 }

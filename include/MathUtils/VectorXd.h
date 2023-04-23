@@ -77,22 +77,22 @@ public:
      * @param i the index of the single element
      */
     inline double& operator()(const int i){
-        if(i<1||i>m_m){
+        if(i<0||i>=m_m){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" is out of range(m="+to_string(m_m)+")");
             MessagePrinter::exitcfem();
         }
-        return m_vals[i-1];
+        return m_vals[i];
     }
     /**
      * const () operator for the elemenet access of the vector 
      * @param i the index of the single element
      */
     inline double operator()(const int i)const{
-        if(i<1||i>m_m){
+        if(i<0||i>=m_m){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" is out of range(m="+to_string(m_m)+")");
             MessagePrinter::exitcfem();
         }
-        return m_vals[i-1];
+        return m_vals[i];
     }
     //*****************************************
     //*** For basic mathematic operator

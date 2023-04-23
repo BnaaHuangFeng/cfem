@@ -1,20 +1,17 @@
 #pragma once
 #include "MeshSystem/MeshSystem.h"
-#include "MeshSystem/MeshSystem2D.h"
 #include "petsc.h"
-#include "MathUtils/Vector2d.h"
 #include <string>
 #include<fstream>
-class Vector2d;
 /**
  * this class store the topnology structure of the mesh,including node's ID. coords, element's connectivity
  * implement 2D structured mesh's init, supply query about mesh connectivity.
  */
 using namespace std;
-class StructuredMesh2D:public MeshSystem2D{
+class StructuredMesh2D:public MeshSystem{
 public:
-    inline StructuredMesh2D(){};
-    inline StructuredMesh2D(Timer *timerPtr):MeshSystem2D(timerPtr){};
+    inline StructuredMesh2D():m_array_nodes_coord0(nullptr),m_array_nodes_coord1(nullptr),m_array_nodes_coord2(nullptr){};
+    inline StructuredMesh2D(Timer *timerPtr):MeshSystem(timerPtr),m_array_nodes_coord0(nullptr),m_array_nodes_coord1(nullptr),m_array_nodes_coord2(nullptr){};
     virtual PetscErrorCode MeshSystemInit(MeshDescription *t_meshDesPtr);
     /**
      * get coords of the nodes in a element by element's id in rank
@@ -93,8 +90,21 @@ public:
     */
     void getNodeDmdaIndByRId(PetscInt rId,PetscInt *xIPtr,PetscInt *yIPtr);
     void openMeshOutputFile(ofstream *of,ios_base::openmode mode);
+    /**
+     * set coord array ptr to access coord Vec
+     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
+    */
+    PetscErrorCode coordVecGetArray(int state);
+    /**
+     * restore coord array
+     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
+    */
+    PetscErrorCode coordVecRestoreArray(int state);
 public:
-    static const int vtkType=9;   /**< vtk cell type*/
-    DMDALocalInfo m_daInfo;       /**< DMDA local info*/
-    PetscScalar m_geoParam[3];    /**< geometry parameter to describe the regular mesh domain （for rectangular domain, is x length,y length in order; for sin or half sin domain, is span, amplitude, width in order)*/
+    static const int vtkType=9;             /**< vtk cell type*/
+    DMDALocalInfo m_daInfo;                 /**< DMDA local info*/
+    PetscScalar m_geoParam[3];              /**< geometry parameter to describe the regular mesh domain （for rectangular domain, is x length,y length in order; for sin or half sin domain, is span, amplitude, width in order)*/
+    PetscScalar ***m_array_nodes_coord0;    /**< ptr for access m_nodes_coord0*/
+    PetscScalar ***m_array_nodes_coord1;    /**< ptr for access m_nodes_coord1*/
+    PetscScalar ***m_array_nodes_coord2;    /**< ptr for access m_nodes_coord2*/
 };

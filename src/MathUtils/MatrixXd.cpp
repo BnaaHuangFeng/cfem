@@ -15,9 +15,9 @@
 //+++            If one wants to use Eigen's MatrixXd, please use
 //+++            Eigen::MatrixXd, which is different with ours !!!
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 #include "MathUtils/MatrixXd.h"
-
+#include "MathUtils/VectorXd.h"
+#include "MathUtils/ViogtRank2Tensor2D.h"
 MatrixXd::MatrixXd(){
     m_m=m_n=m_mn=0;
     m_vals.clear();
@@ -37,7 +37,16 @@ MatrixXd::MatrixXd(const int  m,const int  n,const double val){
     m_mn=m*n;
     m_vals.resize(m_mn,val);
 }
-
+MatrixXd::MatrixXd(const int  m,const int  n,const double *vals){
+    m_m=m;m_n=n;
+    m_mn=m*n;
+    m_vals.resize(m_mn,0.0);
+    for(int rowI=0;rowI<m_m;rowI++){// loop over row
+        for(int colI=0;colI<m_n;colI++){// loop over col
+            m_vals[rowI*m_n+colI]=*vals++;
+        }
+    }
+}
 void MatrixXd::solve(const VectorXd &b,VectorXd &x) const{
     if(b.getM()!=getM()){
         MessagePrinter::printErrorTxt("size of rhs vector b is not equal to the row number of your matrix, can\'t execute the solve function");
@@ -49,15 +58,15 @@ void MatrixXd::solve(const VectorXd &b,VectorXd &x) const{
     }
     Eigen::MatrixXd A(getM(),getN());
     Eigen::VectorXd B(getM()),X(getN());
-    for(int i=1;i<=getM();i++){
-        for(int j=1;j<=getN();j++){
-            A.coeffRef(i-1,j-1)=(*this)(i,j);
+    for(int i=0;i<getM();i++){
+        for(int j=0;j<getN();j++){
+            A.coeffRef(i,j)=(*this)(i,j);
         }
-        B.coeffRef(i-1)=b(i);
+        B.coeffRef(i)=b(i);
     }
     X=A.fullPivLu().solve(B);
-    for(int i=1;i<=getM();i++){
-        x(i)=X.coeff(i-1);
+    for(int i=0;i<getM();i++){
+        x(i)=X.coeff(i);
     }
 }
 VectorXd MatrixXd::solve(const VectorXd &b) const{
@@ -68,15 +77,49 @@ VectorXd MatrixXd::solve(const VectorXd &b) const{
     VectorXd x(getM(),0.0);
     Eigen::MatrixXd A(getM(),getN());
     Eigen::VectorXd B(getM()),X(getN());
-    for(int i=1;i<=getM();i++){
-        for(int j=1;j<=getN();j++){
-            A.coeffRef(i-1,j-1)=(*this)(i,j);
+    for(int i=0;i<getM();i++){
+        for(int j=0;j<getN();j++){
+            A.coeffRef(i,j)=(*this)(i,j);
         }
-        B.coeffRef(i-1)=b(i);
+        B.coeffRef(i)=b(i);
     }
     X=A.fullPivLu().solve(B);
-    for(int i=1;i<=getM();i++){
-        x(i)=X.coeff(i-1);
+    for(int i=0;i<getM();i++){
+        x(i)=X.coeff(i);
     }
     return x;
+}
+VectorXd MatrixXd::operator*(const VectorXd &a)const{
+    VectorXd temp(m_m,0.0);
+    if(m_n!=a.getM()){
+        MessagePrinter::printErrorTxt("A*b should be applied to A matrix with the same cols as b vector!");
+        MessagePrinter::exitcfem();
+    }
+    else{
+        for(int i=0;i<m_m;i++){
+            temp(i)=0.0;
+            for(int j=0;j<m_n;j++){
+                temp(i)+=(*this)(i,j)*a(j);
+            }
+        }
+        return temp;
+    }
+    return temp;
+}
+VectorXd MatrixXd::operator*(const ViogtRank2Tensor2D &a)const{
+    VectorXd temp(m_m,0.0);
+    if(m_n!=3){
+        MessagePrinter::printErrorTxt("A*b should be applied to A matrix with the same cols as b vector!");
+        MessagePrinter::exitcfem();
+    }
+    else{
+        for(int i=0;i<m_m;i++){
+            temp(i)=0.0;
+            for(int j=0;j<m_n;j++){
+                temp(i)+=(*this)(i,j)*a(j);
+            }
+        }
+        return temp;
+    }
+    return temp;       
 }

@@ -73,6 +73,7 @@ public:
      * and exit cfem
      * @param rId > node id in rank
     */
+    
     void checkNodeRId(int rId);
     /**
      * check if elmt id in rank is in range, if not then print the error message,
@@ -99,5 +100,5 @@ public:
     Vec m_nodes_coord0;                     /**< global nodes' coords in ref config*/
     Vec m_nodes_coord1;                     /**< global nodes' coords in current config*/
     Vec m_nodes_coord2;                     /**< global nodes' coords of last converged config*/
-    Timer *m_timerPtr;                        /**< clock ptr*/
+    Timer *m_timerPtr;                      /**< clock ptr*/
 };

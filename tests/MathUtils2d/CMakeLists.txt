@@ -110,30 +110,34 @@ set(src test.cpp)
 set(inc ${inc} ${CFEM_DIR}/include/Utils/MessagePrinter.h ${CFEM_DIR}/include/Utils/MessageColor.h)
 set(src ${src} ${CFEM_DIR}/src/Utils/MessagePrinter.cpp)
 #############################################################
-### For mathematic utils (vector and tensors, etc...)     ###
+### For mathematic utils                                  ###
 #############################################################
-set(inc ${inc} ${CFEM_DIR}/include/Utils/MessagePrinter.h)
-set(src ${src} ${CFEM_DIR}/src/Utils/MessagePrinter.cpp)
-
-set(inc ${inc} ${CFEM_DIR}/include/MathUtils/Vector3d.h)
-set(src ${src} ${CFEM_DIR}/src/MathUtils/Vector3d.cpp)
 set(inc ${inc} ${CFEM_DIR}/include/MathUtils/Vector2d.h)
 set(src ${src} ${CFEM_DIR}/src/MathUtils/Vector2d.cpp)
+set(inc ${inc} ${CFEM_DIR}/include/MathUtils/Vector3d.h)
+set(src ${src} ${CFEM_DIR}/src/MathUtils/Vector3d.cpp)
+set(inc ${inc} ${CFEM_DIR}/include/MathUtils/VectorXd.h)
+set(src ${src} ${CFEM_DIR}/src/MathUtils/VectorXd.cpp)
 set(inc ${inc} ${CFEM_DIR}/include/MathUtils/MatrixXd.h)
 set(src ${src} ${CFEM_DIR}/src/MathUtils/MatrixXd.cpp)
-set(inc ${inc} ${CFEM_DIR}/include/MathUtils/Rank2Tensor.h)
-set(src ${src} ${CFEM_DIR}/src/MathUtils/Rank2Tensor.cpp)
-set(inc ${inc} ${CFEM_DIR}/include/MathUtils/Rank2Tensor2d.h)
-set(src ${src} ${CFEM_DIR}/src/MathUtils/Rank2Tensor2d.cpp)
-set(inc ${inc} ${CFEM_DIR}/include/MathUtils/Rank4Tensor.h)
-set(src ${src} ${CFEM_DIR}/src/MathUtils/Rank4Tensor.cpp)
+### for 2D Viogt tensor
 set(inc ${inc} ${CFEM_DIR}/include/MathUtils/ViogtRank2Tensor2D.h)
 set(src ${src} ${CFEM_DIR}/src/MathUtils/ViogtRank2Tensor2D.cpp)
 set(inc ${inc} ${CFEM_DIR}/include/MathUtils/ViogtRank4Tensor2D.h)
 set(src ${src} ${CFEM_DIR}/src/MathUtils/ViogtRank4Tensor2D.cpp)
-set(inc ${inc} ${CFEM_DIR}/include/MathUtils/VectorXd.h)
-set(src ${src} ${CFEM_DIR}/src/MathUtils/VectorXd.cpp)
-
+set(inc ${inc} ${CFEM_DIR}/include/MathUtils/TensorConst2D.h)
+set(src ${src} ${CFEM_DIR}/src/MathUtils/TensorConst2D.cpp)
+### for rank-2 tensor
+set(inc ${inc} ${CFEM_DIR}/include/MathUtils/Rank2Tensor3d.h)
+set(src ${src} ${CFEM_DIR}/src/MathUtils/Rank2Tensor3d.cpp)
+set(inc ${inc} ${CFEM_DIR}/include/MathUtils/Rank2Tensor2d.h)
+set(src ${src} ${CFEM_DIR}/src/MathUtils/Rank2Tensor2d.cpp)
+### for rank-4 tensor
+set(inc ${inc} ${CFEM_DIR}/include/MathUtils/Rank4Tensor3d.h)
+set(src ${src} ${CFEM_DIR}/src/MathUtils/Rank4Tensor3d.cpp)
+# ### for general math funs
+set(inc ${inc} ${CFEM_DIR}/include/MathUtils/MathFuns.h)
+set(src ${src} ${CFEM_DIR}/src/MathUtils/MathFuns.cpp)
 ##################################################
 add_executable(cfem-test ${inc} ${src})
 

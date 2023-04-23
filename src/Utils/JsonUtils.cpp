@@ -119,7 +119,7 @@ Vector3d JsonUtils::getVector(const nlohmann::json &t_json,const string &matenam
         MessagePrinter::printErrorTxt("can\'t find material property(\'"+matename+"\') in the given json file, please check your input file");
         MessagePrinter::exitcfem();
     }
-    return Vector3d(0);
+    return Vector3d(0.0);
 }
 
 bool JsonUtils::hasValue(const nlohmann::json &t_json,const string &matename){

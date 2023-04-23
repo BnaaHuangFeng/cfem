@@ -1,9 +1,9 @@
 #pragma once
 #include "ElementSystem/Shpfun/Shpfun2D.h"
 #include <vector>
+#include "InputSystem/EnumDataType.h"
 #include "MathUtils/Vector2d.h"
-class Vector2d;
-class Shpfun2D;
+#include "MathUtils/Rank2Tensor2d.h"
 /**
  * This class implement the calculation and data storage about the shapfun of  the planar 4-node element with reduced integration
  */
@@ -28,9 +28,9 @@ public:
     ShpfunQuad4();
     /**
      * construction
-     * @param t_x0 > coordinates of a element's nodes in the reference configuration, [node id sf 0](dof id sf 1)
+     * @param t_r > coordinates of a element's nodes in the reference configuration, [node id sf 0](dof id sf 1)
     */
-    ShpfunQuad4(Vector2d t_x0[]);
+    ShpfunQuad4(Vector2d t_r):Shpfun2D(t_r){};
     /**
      * construction
      * @param t_r > the natural coords of the point
@@ -72,7 +72,6 @@ public:
     static const MeshType m_mesh_type=MeshType::QUAD4;/**< the type of mesh */
     static const int m_funs=4;/**< number of shape functions */
     Vector2d m_x0[m_funs];/**< coordinates of a element's nodes in the reference configuration, [node id sf 0](dof id sf 1)*/
-    double m_N[m_funs];/**< shape function values, each item is for a shpfun of a node. sf 0*/
     Vector2d m_dNdr[m_funs];/**< the derivates of shape function to natural coords, [node id sf 0](dof id sf 1)*/
     Vector2d m_dNdx0[m_funs];/**< the derivates of shape function to reference coords, [node id sf 0](dof id sf 1)*/
 };

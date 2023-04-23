@@ -42,6 +42,7 @@ public:
      * @param a the right hand vector
     */
     Vector3d(const Vector3d &a);
+    Vector3d(const double vals[3]):m_vals{vals[0],vals[1],vals[2]}{}
     //****************************************************
     //*** for operators
     //****************************************************
@@ -50,22 +51,22 @@ public:
      * @param i index
      */
     inline double& operator()(const int &i){
-        if(i<1||i>3){
+        if(i<0||i>2){
             MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector3");
             MessagePrinter::exitcfem();
         }
-        return m_vals[i-1];
+        return m_vals[i];
     }
     /**
      * const () operator
      * @param i index
      */
     inline double operator()(const int &i)const{
-        if(i<1||i>3){
+        if(i<0||i>2){
             MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector3");
             MessagePrinter::exitcfem();
         }
-        return m_vals[i-1];
+        return m_vals[i];
     }
     /**
      * = operator
@@ -243,8 +244,8 @@ public:
     }
 
     inline void print()const{
-        PetscPrintf(PETSC_COMM_WORLD,"*** %14.6e ,%14.6e, %14.6e***\n",(*this)(1),(*this)(2),(*this)(3));
+        PetscPrintf(PETSC_COMM_WORLD,"*** %14.6e ,%14.6e, %14.6e***\n",(*this)(0),(*this)(1),(*this)(2));
     }
-private:
+public:
     double m_vals[3];/**< components vector, its size is always 3! */
 };

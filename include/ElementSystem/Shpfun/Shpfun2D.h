@@ -1,6 +1,5 @@
 #pragma once
 #include "MathUtils/Vector2d.h"
-class Vector2d;
 /**
  * This class implement the calculation and information storage about the 2D-shapfun (it's a abstract class) 
  */
@@ -53,7 +52,7 @@ public:
      * get the derivates of shape function to reference coords, [node id sf 0](dof id sf 1)
      * @param t_dNdx0 > the derivates of shape function to reference coords, [node id sf 0](dof id sf 1)
     */
-    virtual void getDer2Ref(Vector2d t_dNdx0)=0;
+    virtual void getDer2Ref(Vector2d t_dNdx0[])=0;
 public:
     static const int m_dim=2;/**< dimension of shape function, i.e., 1d, 2d, and 3d. */
     Vector2d m_r;/**< the natural coords of the point which to cal the shape function and it's derivates*/

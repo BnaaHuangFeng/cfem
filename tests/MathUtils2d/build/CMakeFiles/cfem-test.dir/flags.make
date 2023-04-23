@@ -6,5 +6,5 @@ CXX_FLAGS =  -Wall -Wextra -O2 -g -fopenmp -I/home/c/software/petsc/include -I/h
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/c/software/petsc/include -I/home/c/github/cfem/external/eigen -I/home/c/github/cfem/include 
+CXX_INCLUDES = -I/home/c/software/petsc/include -I/home/c/github/cfem_copy/external/eigen -I/home/c/github/cfem_copy/include 
 

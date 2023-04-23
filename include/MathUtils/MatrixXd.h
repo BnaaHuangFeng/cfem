@@ -15,20 +15,16 @@
 //+++            If one wants to use Eigen's MatrixXd, please use
 //+++            Eigen::MatrixXd, which is different with ours !!!
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 #pragma once
-
 #include "Eigen/Eigen"
-
 #include "Utils/MessagePrinter.h"
-#include "MathUtils/VectorXd.h"
-
 using std::fill;
-
 /**
  * This class implements the general matrix calculation, it shoul be noted that the vector
  * should be one of the special case of this class
  */
+class ViogtRank2Tensor2D;
+class VectorXd;
 class MatrixXd{
 public:
     /**
@@ -38,7 +34,7 @@ public:
     MatrixXd(const MatrixXd &a);
     MatrixXd(const int m,const int n);
     MatrixXd(const int m,const int n,const double val);
-    
+    MatrixXd(const int  m,const int  n,const double *vals);
     /**
      * Resize the matrix, the memory is reallocated, the matrix is set to zero by default
      * @param m integer, the size of the 1st dimention
@@ -86,15 +82,15 @@ public:
      * @param j the index of the 2nd dimension, it should start from 1, not 0!!!
      */
     inline double& operator()(const int i,const int j){
-        if(i<1||i>m_m){
+        if(i<0||i>=m_m){
             MessagePrinter::printErrorTxt("i= "+to_string(i)+" is out of range(m="+to_string(m_m)+") in MatrixXd.h");
             MessagePrinter::exitcfem();
         }
-        if(j<1||i>m_n){
+        if(j<0||j>=m_n){
             MessagePrinter::printErrorTxt("j= "+to_string(j)+" is out of range(m="+to_string(m_n)+") in MatrixXd.h");
             MessagePrinter::exitcfem();
         }
-        return m_vals[(i-1)*m_n+j-1];
+        return m_vals[i*m_n+j];
     }
     /**
      * The () operator for the data access with constant reference(not editable!)
@@ -102,37 +98,37 @@ public:
      * @param j the index of the 2nd dimension, it should start from 1, not 0!!!
      */
     inline double operator()(const int i,const int j)const{
-        if(i<1||i>m_m){
+        if(i<0||i>=m_m){
             MessagePrinter::printErrorTxt("i= "+to_string(i)+" is out of range(m="+to_string(m_m)+") in MatrixXd.h");
             MessagePrinter::exitcfem();
         }
-        if(j<1||i>m_n){
+        if(j<0||j>=m_n){
             MessagePrinter::printErrorTxt("j= "+to_string(j)+" is out of range(m="+to_string(m_n)+") in MatrixXd.h");
             MessagePrinter::exitcfem();
         }
-        return m_vals[(i-1)*m_n+j-1];
+        return m_vals[i*m_n+j];
     }
     /**
      * The [] operator, the data of our matrix is just simple vector in 1D
      * @param i the index of the data vector element, it should start from 1, not 0!!!
      */
     inline double& operator[](const int i){
-        if(i<1||i>m_mn){
+        if(i<0||i>=m_mn){
             MessagePrinter::printErrorTxt("i= "+to_string(i)+" is out of range(mn="+to_string(m_mn)+") in MatrixXd.h");
             MessagePrinter::exitcfem();
         }
-        return m_vals[i-1];
+        return m_vals[i];
     }
     /**
      * The [] operator with constant reference, the data of our matrix is just simple vector in 1D
      * @param i the index of the data vector element, it should start from 1, not 0!!!
      */
     inline double operator[](const int i)const{
-        if(i<1||i>m_mn){
+        if(i<0||i>=m_mn){
             MessagePrinter::printErrorTxt("i= "+to_string(i)+" is out of range(mn="+to_string(m_mn)+") in MatrixXd.h");
             MessagePrinter::exitcfem();
         }
-        return m_vals[i-1];
+        return m_vals[i];
     }
     //*****************************************
     //*** For basic mathematic operator
@@ -288,23 +284,8 @@ public:
      * The '*' operator between matrix and vector
      * @param a the right-hand side vector (the dimensions should be the same)
      */
-    inline VectorXd operator*(const VectorXd &a)const{
-        VectorXd temp(m_m,0.0);
-        if(m_n!=a.getM()){
-            MessagePrinter::printErrorTxt("A*b should be applied to A matrix with the same cols as b vector!");
-            MessagePrinter::exitcfem();
-        }
-        else{
-            for(int i=1;i<=m_m;i++){
-                temp(i)=0.0;
-                for(int j=1;j<=m_n;j++){
-                    temp(i)+=(*this)(i,j)*a(j);
-                }
-            }
-            return temp;
-        }
-        return temp;
-    }
+    VectorXd operator*(const VectorXd &a)const;
+    VectorXd operator*(const ViogtRank2Tensor2D &a)const;
     /**
      * The '*' operator between matrix and matrix
      * @param a the right-hand side matrix (the dimensions should be the same)
@@ -316,10 +297,10 @@ public:
             MessagePrinter::exitcfem();
         }
         else{
-            for(int i=1;i<=m_m;i++){
-                for(int j=1;j<=a.getN();j++){
+            for(int i=0;i<m_m;i++){
+                for(int j=0;j<a.getN();j++){
                     temp(i,j)=0.0;
-                    for(int k=1;k<=a.getM();k++){
+                    for(int k=0;k<a.getM();k++){
                         temp(i,j)+=(*this)(i,k)*a(k,j);
                     }
                 }
@@ -389,15 +370,15 @@ public:
         }
         Eigen::MatrixXd Mat(m_m,m_n),MatInv(m_m,m_n);
         MatrixXd temp(m_m,m_n);
-        for(int i=1;i<=m_m;i++){
-            for(int j=1;j<=m_n;j++){
-                Mat.coeffRef(i-1,j-1)=(*this)(i,j);
+        for(int i=0;i<m_m;i++){
+            for(int j=0;j<m_n;j++){
+                Mat.coeffRef(i,j)=(*this)(i,j);
             }
         }
         MatInv=Mat.inverse();
-        for(int i=1;i<=m_m;i++){
-            for(int j=1;j<=m_n;j++){
-                temp(i,j)=MatInv.coeff(i-1,j-1);
+        for(int i=0;i<m_m;i++){
+            for(int j=0;j<m_n;j++){
+                temp(i,j)=MatInv.coeff(i,j);
             }
         }
         return temp;
@@ -407,9 +388,9 @@ public:
      */
     inline double det()const{
         Eigen::MatrixXd Mat(m_m,m_n);
-        for(int i=1;i<=m_m;i++){
-            for(int j=1;j<=m_n;j++){
-                Mat.coeffRef(i-1,j-1)=(*this)(i,j);
+        for(int i=0;i<m_m;i++){
+            for(int j=0;j<m_n;j++){
+                Mat.coeffRef(i,j)=(*this)(i,j);
             }
         }
         return Mat.determinant();
@@ -420,8 +401,8 @@ public:
      */
     inline MatrixXd transpose() const{
         MatrixXd temp(m_n,m_m);
-        for(int i=1;i<=m_m;i++){
-            for(int j=1;j<=m_n;j++){
+        for(int i=0;i<m_m;i++){
+            for(int j=0;j<m_n;j++){
                 temp(j,i)=(*this)(i,j);
             }
         }

@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/c/github/cfem/tests/MathUtils2d
+CMAKE_SOURCE_DIR = /home/c/github/cfem_copy/tests/MathUtils2d
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/c/github/cfem/tests/MathUtils2d/build
+CMAKE_BINARY_DIR = /home/c/github/cfem_copy/tests/MathUtils2d/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/c/github/cfem/tests/MathUtils2d/build/CMakeFiles /home/c/github/cfem/tests/MathUtils2d/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/c/github/cfem_copy/tests/MathUtils2d/build/CMakeFiles /home/c/github/cfem_copy/tests/MathUtils2d/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/c/github/cfem/tests/MathUtils2d/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/c/github/cfem_copy/tests/MathUtils2d/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -123,275 +123,329 @@ cfem-test/fast:
 	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/build
 .PHONY : cfem-test/fast
 
-home/c/github/cfem/src/MathUtils/MatrixXd.o: home/c/github/cfem/src/MathUtils/MatrixXd.cpp.o
+home/c/github/cfem_copy/src/MathUtils/MathFuns.o: home/c/github/cfem_copy/src/MathUtils/MathFuns.cpp.o
 
-.PHONY : home/c/github/cfem/src/MathUtils/MatrixXd.o
-
-# target to build an object file
-home/c/github/cfem/src/MathUtils/MatrixXd.cpp.o:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/MatrixXd.cpp.o
-.PHONY : home/c/github/cfem/src/MathUtils/MatrixXd.cpp.o
-
-home/c/github/cfem/src/MathUtils/MatrixXd.i: home/c/github/cfem/src/MathUtils/MatrixXd.cpp.i
-
-.PHONY : home/c/github/cfem/src/MathUtils/MatrixXd.i
-
-# target to preprocess a source file
-home/c/github/cfem/src/MathUtils/MatrixXd.cpp.i:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/MatrixXd.cpp.i
-.PHONY : home/c/github/cfem/src/MathUtils/MatrixXd.cpp.i
-
-home/c/github/cfem/src/MathUtils/MatrixXd.s: home/c/github/cfem/src/MathUtils/MatrixXd.cpp.s
-
-.PHONY : home/c/github/cfem/src/MathUtils/MatrixXd.s
-
-# target to generate assembly for a file
-home/c/github/cfem/src/MathUtils/MatrixXd.cpp.s:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/MatrixXd.cpp.s
-.PHONY : home/c/github/cfem/src/MathUtils/MatrixXd.cpp.s
-
-home/c/github/cfem/src/MathUtils/Rank2Tensor.o: home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp.o
-
-.PHONY : home/c/github/cfem/src/MathUtils/Rank2Tensor.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/MathFuns.o
 
 # target to build an object file
-home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp.o:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp.o
-.PHONY : home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp.o
+home/c/github/cfem_copy/src/MathUtils/MathFuns.cpp.o:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/MathFuns.cpp.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/MathFuns.cpp.o
 
-home/c/github/cfem/src/MathUtils/Rank2Tensor.i: home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp.i
+home/c/github/cfem_copy/src/MathUtils/MathFuns.i: home/c/github/cfem_copy/src/MathUtils/MathFuns.cpp.i
 
-.PHONY : home/c/github/cfem/src/MathUtils/Rank2Tensor.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/MathFuns.i
 
 # target to preprocess a source file
-home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp.i:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp.i
-.PHONY : home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp.i
+home/c/github/cfem_copy/src/MathUtils/MathFuns.cpp.i:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/MathFuns.cpp.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/MathFuns.cpp.i
 
-home/c/github/cfem/src/MathUtils/Rank2Tensor.s: home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp.s
+home/c/github/cfem_copy/src/MathUtils/MathFuns.s: home/c/github/cfem_copy/src/MathUtils/MathFuns.cpp.s
 
-.PHONY : home/c/github/cfem/src/MathUtils/Rank2Tensor.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/MathFuns.s
 
 # target to generate assembly for a file
-home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp.s:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp.s
-.PHONY : home/c/github/cfem/src/MathUtils/Rank2Tensor.cpp.s
+home/c/github/cfem_copy/src/MathUtils/MathFuns.cpp.s:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/MathFuns.cpp.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/MathFuns.cpp.s
 
-home/c/github/cfem/src/MathUtils/Rank2Tensor2d.o: home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp.o
+home/c/github/cfem_copy/src/MathUtils/MatrixXd.o: home/c/github/cfem_copy/src/MathUtils/MatrixXd.cpp.o
 
-.PHONY : home/c/github/cfem/src/MathUtils/Rank2Tensor2d.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/MatrixXd.o
 
 # target to build an object file
-home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp.o:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp.o
-.PHONY : home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp.o
+home/c/github/cfem_copy/src/MathUtils/MatrixXd.cpp.o:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/MatrixXd.cpp.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/MatrixXd.cpp.o
 
-home/c/github/cfem/src/MathUtils/Rank2Tensor2d.i: home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp.i
+home/c/github/cfem_copy/src/MathUtils/MatrixXd.i: home/c/github/cfem_copy/src/MathUtils/MatrixXd.cpp.i
 
-.PHONY : home/c/github/cfem/src/MathUtils/Rank2Tensor2d.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/MatrixXd.i
 
 # target to preprocess a source file
-home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp.i:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp.i
-.PHONY : home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp.i
+home/c/github/cfem_copy/src/MathUtils/MatrixXd.cpp.i:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/MatrixXd.cpp.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/MatrixXd.cpp.i
 
-home/c/github/cfem/src/MathUtils/Rank2Tensor2d.s: home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp.s
+home/c/github/cfem_copy/src/MathUtils/MatrixXd.s: home/c/github/cfem_copy/src/MathUtils/MatrixXd.cpp.s
 
-.PHONY : home/c/github/cfem/src/MathUtils/Rank2Tensor2d.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/MatrixXd.s
 
 # target to generate assembly for a file
-home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp.s:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp.s
-.PHONY : home/c/github/cfem/src/MathUtils/Rank2Tensor2d.cpp.s
+home/c/github/cfem_copy/src/MathUtils/MatrixXd.cpp.s:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/MatrixXd.cpp.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/MatrixXd.cpp.s
 
-home/c/github/cfem/src/MathUtils/Rank4Tensor.o: home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp.o
+home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.o: home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.cpp.o
 
-.PHONY : home/c/github/cfem/src/MathUtils/Rank4Tensor.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.o
 
 # target to build an object file
-home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp.o:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp.o
-.PHONY : home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp.o
+home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.cpp.o:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.cpp.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.cpp.o
 
-home/c/github/cfem/src/MathUtils/Rank4Tensor.i: home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp.i
+home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.i: home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.cpp.i
 
-.PHONY : home/c/github/cfem/src/MathUtils/Rank4Tensor.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.i
 
 # target to preprocess a source file
-home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp.i:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp.i
-.PHONY : home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp.i
+home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.cpp.i:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.cpp.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.cpp.i
 
-home/c/github/cfem/src/MathUtils/Rank4Tensor.s: home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp.s
+home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.s: home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.cpp.s
 
-.PHONY : home/c/github/cfem/src/MathUtils/Rank4Tensor.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.s
 
 # target to generate assembly for a file
-home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp.s:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp.s
-.PHONY : home/c/github/cfem/src/MathUtils/Rank4Tensor.cpp.s
+home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.cpp.s:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.cpp.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.cpp.s
 
-home/c/github/cfem/src/MathUtils/Vector2d.o: home/c/github/cfem/src/MathUtils/Vector2d.cpp.o
+home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.o: home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.cpp.o
 
-.PHONY : home/c/github/cfem/src/MathUtils/Vector2d.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.o
 
 # target to build an object file
-home/c/github/cfem/src/MathUtils/Vector2d.cpp.o:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Vector2d.cpp.o
-.PHONY : home/c/github/cfem/src/MathUtils/Vector2d.cpp.o
+home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.cpp.o:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.cpp.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.cpp.o
 
-home/c/github/cfem/src/MathUtils/Vector2d.i: home/c/github/cfem/src/MathUtils/Vector2d.cpp.i
+home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.i: home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.cpp.i
 
-.PHONY : home/c/github/cfem/src/MathUtils/Vector2d.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.i
 
 # target to preprocess a source file
-home/c/github/cfem/src/MathUtils/Vector2d.cpp.i:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Vector2d.cpp.i
-.PHONY : home/c/github/cfem/src/MathUtils/Vector2d.cpp.i
+home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.cpp.i:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.cpp.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.cpp.i
 
-home/c/github/cfem/src/MathUtils/Vector2d.s: home/c/github/cfem/src/MathUtils/Vector2d.cpp.s
+home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.s: home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.cpp.s
 
-.PHONY : home/c/github/cfem/src/MathUtils/Vector2d.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.s
 
 # target to generate assembly for a file
-home/c/github/cfem/src/MathUtils/Vector2d.cpp.s:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Vector2d.cpp.s
-.PHONY : home/c/github/cfem/src/MathUtils/Vector2d.cpp.s
+home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.cpp.s:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.cpp.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.cpp.s
 
-home/c/github/cfem/src/MathUtils/Vector3d.o: home/c/github/cfem/src/MathUtils/Vector3d.cpp.o
+home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.o: home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.cpp.o
 
-.PHONY : home/c/github/cfem/src/MathUtils/Vector3d.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.o
 
 # target to build an object file
-home/c/github/cfem/src/MathUtils/Vector3d.cpp.o:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Vector3d.cpp.o
-.PHONY : home/c/github/cfem/src/MathUtils/Vector3d.cpp.o
+home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.cpp.o:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.cpp.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.cpp.o
 
-home/c/github/cfem/src/MathUtils/Vector3d.i: home/c/github/cfem/src/MathUtils/Vector3d.cpp.i
+home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.i: home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.cpp.i
 
-.PHONY : home/c/github/cfem/src/MathUtils/Vector3d.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.i
 
 # target to preprocess a source file
-home/c/github/cfem/src/MathUtils/Vector3d.cpp.i:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Vector3d.cpp.i
-.PHONY : home/c/github/cfem/src/MathUtils/Vector3d.cpp.i
+home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.cpp.i:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.cpp.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.cpp.i
 
-home/c/github/cfem/src/MathUtils/Vector3d.s: home/c/github/cfem/src/MathUtils/Vector3d.cpp.s
+home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.s: home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.cpp.s
 
-.PHONY : home/c/github/cfem/src/MathUtils/Vector3d.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.s
 
 # target to generate assembly for a file
-home/c/github/cfem/src/MathUtils/Vector3d.cpp.s:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/Vector3d.cpp.s
-.PHONY : home/c/github/cfem/src/MathUtils/Vector3d.cpp.s
+home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.cpp.s:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.cpp.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.cpp.s
 
-home/c/github/cfem/src/MathUtils/VectorXd.o: home/c/github/cfem/src/MathUtils/VectorXd.cpp.o
+home/c/github/cfem_copy/src/MathUtils/TensorConst2D.o: home/c/github/cfem_copy/src/MathUtils/TensorConst2D.cpp.o
 
-.PHONY : home/c/github/cfem/src/MathUtils/VectorXd.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/TensorConst2D.o
 
 # target to build an object file
-home/c/github/cfem/src/MathUtils/VectorXd.cpp.o:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/VectorXd.cpp.o
-.PHONY : home/c/github/cfem/src/MathUtils/VectorXd.cpp.o
+home/c/github/cfem_copy/src/MathUtils/TensorConst2D.cpp.o:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/TensorConst2D.cpp.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/TensorConst2D.cpp.o
 
-home/c/github/cfem/src/MathUtils/VectorXd.i: home/c/github/cfem/src/MathUtils/VectorXd.cpp.i
+home/c/github/cfem_copy/src/MathUtils/TensorConst2D.i: home/c/github/cfem_copy/src/MathUtils/TensorConst2D.cpp.i
 
-.PHONY : home/c/github/cfem/src/MathUtils/VectorXd.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/TensorConst2D.i
 
 # target to preprocess a source file
-home/c/github/cfem/src/MathUtils/VectorXd.cpp.i:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/VectorXd.cpp.i
-.PHONY : home/c/github/cfem/src/MathUtils/VectorXd.cpp.i
+home/c/github/cfem_copy/src/MathUtils/TensorConst2D.cpp.i:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/TensorConst2D.cpp.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/TensorConst2D.cpp.i
 
-home/c/github/cfem/src/MathUtils/VectorXd.s: home/c/github/cfem/src/MathUtils/VectorXd.cpp.s
+home/c/github/cfem_copy/src/MathUtils/TensorConst2D.s: home/c/github/cfem_copy/src/MathUtils/TensorConst2D.cpp.s
 
-.PHONY : home/c/github/cfem/src/MathUtils/VectorXd.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/TensorConst2D.s
 
 # target to generate assembly for a file
-home/c/github/cfem/src/MathUtils/VectorXd.cpp.s:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/VectorXd.cpp.s
-.PHONY : home/c/github/cfem/src/MathUtils/VectorXd.cpp.s
+home/c/github/cfem_copy/src/MathUtils/TensorConst2D.cpp.s:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/TensorConst2D.cpp.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/TensorConst2D.cpp.s
 
-home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.o: home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp.o
+home/c/github/cfem_copy/src/MathUtils/Vector2d.o: home/c/github/cfem_copy/src/MathUtils/Vector2d.cpp.o
 
-.PHONY : home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Vector2d.o
 
 # target to build an object file
-home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp.o:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp.o
-.PHONY : home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp.o
+home/c/github/cfem_copy/src/MathUtils/Vector2d.cpp.o:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Vector2d.cpp.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Vector2d.cpp.o
 
-home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.i: home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp.i
+home/c/github/cfem_copy/src/MathUtils/Vector2d.i: home/c/github/cfem_copy/src/MathUtils/Vector2d.cpp.i
 
-.PHONY : home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Vector2d.i
 
 # target to preprocess a source file
-home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp.i:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp.i
-.PHONY : home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp.i
+home/c/github/cfem_copy/src/MathUtils/Vector2d.cpp.i:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Vector2d.cpp.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Vector2d.cpp.i
 
-home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.s: home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp.s
+home/c/github/cfem_copy/src/MathUtils/Vector2d.s: home/c/github/cfem_copy/src/MathUtils/Vector2d.cpp.s
 
-.PHONY : home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Vector2d.s
 
 # target to generate assembly for a file
-home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp.s:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp.s
-.PHONY : home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.cpp.s
+home/c/github/cfem_copy/src/MathUtils/Vector2d.cpp.s:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Vector2d.cpp.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Vector2d.cpp.s
 
-home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.o: home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp.o
+home/c/github/cfem_copy/src/MathUtils/Vector3d.o: home/c/github/cfem_copy/src/MathUtils/Vector3d.cpp.o
 
-.PHONY : home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Vector3d.o
 
 # target to build an object file
-home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp.o:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp.o
-.PHONY : home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp.o
+home/c/github/cfem_copy/src/MathUtils/Vector3d.cpp.o:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Vector3d.cpp.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Vector3d.cpp.o
 
-home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.i: home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp.i
+home/c/github/cfem_copy/src/MathUtils/Vector3d.i: home/c/github/cfem_copy/src/MathUtils/Vector3d.cpp.i
 
-.PHONY : home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Vector3d.i
 
 # target to preprocess a source file
-home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp.i:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp.i
-.PHONY : home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp.i
+home/c/github/cfem_copy/src/MathUtils/Vector3d.cpp.i:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Vector3d.cpp.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Vector3d.cpp.i
 
-home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.s: home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp.s
+home/c/github/cfem_copy/src/MathUtils/Vector3d.s: home/c/github/cfem_copy/src/MathUtils/Vector3d.cpp.s
 
-.PHONY : home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Vector3d.s
 
 # target to generate assembly for a file
-home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp.s:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp.s
-.PHONY : home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.cpp.s
+home/c/github/cfem_copy/src/MathUtils/Vector3d.cpp.s:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/Vector3d.cpp.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/Vector3d.cpp.s
 
-home/c/github/cfem/src/Utils/MessagePrinter.o: home/c/github/cfem/src/Utils/MessagePrinter.cpp.o
+home/c/github/cfem_copy/src/MathUtils/VectorXd.o: home/c/github/cfem_copy/src/MathUtils/VectorXd.cpp.o
 
-.PHONY : home/c/github/cfem/src/Utils/MessagePrinter.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/VectorXd.o
 
 # target to build an object file
-home/c/github/cfem/src/Utils/MessagePrinter.cpp.o:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/Utils/MessagePrinter.cpp.o
-.PHONY : home/c/github/cfem/src/Utils/MessagePrinter.cpp.o
+home/c/github/cfem_copy/src/MathUtils/VectorXd.cpp.o:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/VectorXd.cpp.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/VectorXd.cpp.o
 
-home/c/github/cfem/src/Utils/MessagePrinter.i: home/c/github/cfem/src/Utils/MessagePrinter.cpp.i
+home/c/github/cfem_copy/src/MathUtils/VectorXd.i: home/c/github/cfem_copy/src/MathUtils/VectorXd.cpp.i
 
-.PHONY : home/c/github/cfem/src/Utils/MessagePrinter.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/VectorXd.i
 
 # target to preprocess a source file
-home/c/github/cfem/src/Utils/MessagePrinter.cpp.i:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/Utils/MessagePrinter.cpp.i
-.PHONY : home/c/github/cfem/src/Utils/MessagePrinter.cpp.i
+home/c/github/cfem_copy/src/MathUtils/VectorXd.cpp.i:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/VectorXd.cpp.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/VectorXd.cpp.i
 
-home/c/github/cfem/src/Utils/MessagePrinter.s: home/c/github/cfem/src/Utils/MessagePrinter.cpp.s
+home/c/github/cfem_copy/src/MathUtils/VectorXd.s: home/c/github/cfem_copy/src/MathUtils/VectorXd.cpp.s
 
-.PHONY : home/c/github/cfem/src/Utils/MessagePrinter.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/VectorXd.s
 
 # target to generate assembly for a file
-home/c/github/cfem/src/Utils/MessagePrinter.cpp.s:
-	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem/src/Utils/MessagePrinter.cpp.s
-.PHONY : home/c/github/cfem/src/Utils/MessagePrinter.cpp.s
+home/c/github/cfem_copy/src/MathUtils/VectorXd.cpp.s:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/VectorXd.cpp.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/VectorXd.cpp.s
+
+home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.o: home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.cpp.o
+
+.PHONY : home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.o
+
+# target to build an object file
+home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.cpp.o:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.cpp.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.cpp.o
+
+home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.i: home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.cpp.i
+
+.PHONY : home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.i
+
+# target to preprocess a source file
+home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.cpp.i:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.cpp.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.cpp.i
+
+home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.s: home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.cpp.s
+
+.PHONY : home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.s
+
+# target to generate assembly for a file
+home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.cpp.s:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.cpp.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.cpp.s
+
+home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.o: home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.cpp.o
+
+.PHONY : home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.o
+
+# target to build an object file
+home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.cpp.o:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.cpp.o
+.PHONY : home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.cpp.o
+
+home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.i: home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.cpp.i
+
+.PHONY : home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.i
+
+# target to preprocess a source file
+home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.cpp.i:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.cpp.i
+.PHONY : home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.cpp.i
+
+home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.s: home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.cpp.s
+
+.PHONY : home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.s
+
+# target to generate assembly for a file
+home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.cpp.s:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.cpp.s
+.PHONY : home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.cpp.s
+
+home/c/github/cfem_copy/src/Utils/MessagePrinter.o: home/c/github/cfem_copy/src/Utils/MessagePrinter.cpp.o
+
+.PHONY : home/c/github/cfem_copy/src/Utils/MessagePrinter.o
+
+# target to build an object file
+home/c/github/cfem_copy/src/Utils/MessagePrinter.cpp.o:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/Utils/MessagePrinter.cpp.o
+.PHONY : home/c/github/cfem_copy/src/Utils/MessagePrinter.cpp.o
+
+home/c/github/cfem_copy/src/Utils/MessagePrinter.i: home/c/github/cfem_copy/src/Utils/MessagePrinter.cpp.i
+
+.PHONY : home/c/github/cfem_copy/src/Utils/MessagePrinter.i
+
+# target to preprocess a source file
+home/c/github/cfem_copy/src/Utils/MessagePrinter.cpp.i:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/Utils/MessagePrinter.cpp.i
+.PHONY : home/c/github/cfem_copy/src/Utils/MessagePrinter.cpp.i
+
+home/c/github/cfem_copy/src/Utils/MessagePrinter.s: home/c/github/cfem_copy/src/Utils/MessagePrinter.cpp.s
+
+.PHONY : home/c/github/cfem_copy/src/Utils/MessagePrinter.s
+
+# target to generate assembly for a file
+home/c/github/cfem_copy/src/Utils/MessagePrinter.cpp.s:
+	$(MAKE) -f CMakeFiles/cfem-test.dir/build.make CMakeFiles/cfem-test.dir/home/c/github/cfem_copy/src/Utils/MessagePrinter.cpp.s
+.PHONY : home/c/github/cfem_copy/src/Utils/MessagePrinter.cpp.s
 
 test.o: test.cpp.o
 
@@ -429,36 +483,42 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... cfem-test"
-	@echo "... home/c/github/cfem/src/MathUtils/MatrixXd.o"
-	@echo "... home/c/github/cfem/src/MathUtils/MatrixXd.i"
-	@echo "... home/c/github/cfem/src/MathUtils/MatrixXd.s"
-	@echo "... home/c/github/cfem/src/MathUtils/Rank2Tensor.o"
-	@echo "... home/c/github/cfem/src/MathUtils/Rank2Tensor.i"
-	@echo "... home/c/github/cfem/src/MathUtils/Rank2Tensor.s"
-	@echo "... home/c/github/cfem/src/MathUtils/Rank2Tensor2d.o"
-	@echo "... home/c/github/cfem/src/MathUtils/Rank2Tensor2d.i"
-	@echo "... home/c/github/cfem/src/MathUtils/Rank2Tensor2d.s"
-	@echo "... home/c/github/cfem/src/MathUtils/Rank4Tensor.o"
-	@echo "... home/c/github/cfem/src/MathUtils/Rank4Tensor.i"
-	@echo "... home/c/github/cfem/src/MathUtils/Rank4Tensor.s"
-	@echo "... home/c/github/cfem/src/MathUtils/Vector2d.o"
-	@echo "... home/c/github/cfem/src/MathUtils/Vector2d.i"
-	@echo "... home/c/github/cfem/src/MathUtils/Vector2d.s"
-	@echo "... home/c/github/cfem/src/MathUtils/Vector3d.o"
-	@echo "... home/c/github/cfem/src/MathUtils/Vector3d.i"
-	@echo "... home/c/github/cfem/src/MathUtils/Vector3d.s"
-	@echo "... home/c/github/cfem/src/MathUtils/VectorXd.o"
-	@echo "... home/c/github/cfem/src/MathUtils/VectorXd.i"
-	@echo "... home/c/github/cfem/src/MathUtils/VectorXd.s"
-	@echo "... home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.o"
-	@echo "... home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.i"
-	@echo "... home/c/github/cfem/src/MathUtils/ViogtRank2Tensor2D.s"
-	@echo "... home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.o"
-	@echo "... home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.i"
-	@echo "... home/c/github/cfem/src/MathUtils/ViogtRank4Tensor2D.s"
-	@echo "... home/c/github/cfem/src/Utils/MessagePrinter.o"
-	@echo "... home/c/github/cfem/src/Utils/MessagePrinter.i"
-	@echo "... home/c/github/cfem/src/Utils/MessagePrinter.s"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/MathFuns.o"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/MathFuns.i"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/MathFuns.s"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/MatrixXd.o"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/MatrixXd.i"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/MatrixXd.s"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.o"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.i"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Rank2Tensor2d.s"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.o"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.i"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Rank2Tensor3d.s"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.o"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.i"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Rank4Tensor3d.s"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/TensorConst2D.o"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/TensorConst2D.i"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/TensorConst2D.s"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Vector2d.o"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Vector2d.i"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Vector2d.s"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Vector3d.o"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Vector3d.i"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/Vector3d.s"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/VectorXd.o"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/VectorXd.i"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/VectorXd.s"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.o"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.i"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/ViogtRank2Tensor2D.s"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.o"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.i"
+	@echo "... home/c/github/cfem_copy/src/MathUtils/ViogtRank4Tensor2D.s"
+	@echo "... home/c/github/cfem_copy/src/Utils/MessagePrinter.o"
+	@echo "... home/c/github/cfem_copy/src/Utils/MessagePrinter.i"
+	@echo "... home/c/github/cfem_copy/src/Utils/MessagePrinter.s"
 	@echo "... test.o"
 	@echo "... test.i"
 	@echo "... test.s"

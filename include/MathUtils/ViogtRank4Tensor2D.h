@@ -13,12 +13,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # pragma once
 # include "MathUtils/MatrixXd.h"
-# include "MathUtils/ViogtRank2Tensor2D.h"
-# include "MathUtils/Rank2Tensor2d.h"
-# include "MathUtils/Rank4Tensor.h"
 class ViogtRank2Tensor2D;
 class Rank2Tensor2d;
-class Rank4Tensor;
+class Rank4Tensor3d;
 class ViogtRank4Tensor2D:public MatrixXd{
     public:
     /**
@@ -30,34 +27,28 @@ class ViogtRank4Tensor2D:public MatrixXd{
         RANDOM
     };
     public:
-    ViogtRank4Tensor2D():MatrixXd(3,3){};
-    ViogtRank4Tensor2D(const double &val):MatrixXd(3,3,val){};
+    ViogtRank4Tensor2D();
+    ViogtRank4Tensor2D(const double &val);
+    ViogtRank4Tensor2D(const double *vals);
+    ViogtRank4Tensor2D(const MatrixXd &matrix);
     ViogtRank4Tensor2D(InitMethod initmethod);
-    ViogtRank4Tensor2D(Rank4Tensor rank4Tensor);
+    ViogtRank4Tensor2D(Rank4Tensor3d rank4Tensor);
     /**
-     * return the corresponding Rank4Tensor
+     * return the corresponding Rank4Tensor3d
     */
-    Rank4Tensor toRank4Tensor();
-    /**
-     * @param indij viogt index sf 1
-     * @param indkl viogt index sf 1
-    */
-    inline double & operator()(const int indij,const int indkl){
-        return MatrixXd::operator()(indij,indkl);
-    }
+    Rank4Tensor3d toRank4Tensor();
     /**
      * @param indij viogt index sf 1
      * @param indkl viogt index sf 1
     */
-    inline double operator()(const int indij,const int indkl)const{
-        return MatrixXd::operator()(indij,indkl);
-    }   
-    inline double & operator()(const int i,const int j,const int k,const int l){
-        return MatrixXd::operator()(ij2ind[i-1][j-1],ij2ind[k-1][l-1]);
-    }
-    double operator()(const int i,const int j,const int k,const int l)const{
-        return MatrixXd::operator()(ij2ind[i-1][j-1],ij2ind[k-1][l-1]);
-    };
+    double & operator()(const int indij,const int indkl);
+    /**
+     * @param indij viogt index sf 1
+     * @param indkl viogt index sf 1
+    */
+    double operator()(const int indij,const int indkl)const;  
+    double & operator()(const int i,const int j,const int k,const int l);
+    double operator()(const int i,const int j,const int k,const int l)const;
     /**
      * return tmp_ij=a_ijkl*b_kl
     */
@@ -78,10 +69,17 @@ class ViogtRank4Tensor2D:public MatrixXd{
      * renturn tmp_ijkl=L_ijmn*R_mnkl
     */
     ViogtRank4Tensor2D operator*(const ViogtRank4Tensor2D &R);
+    ViogtRank4Tensor2D operator+(ViogtRank4Tensor2D &R);
+    ViogtRank4Tensor2D operator+(ViogtRank4Tensor2D R);
+    ViogtRank4Tensor2D operator-(const ViogtRank4Tensor2D &R);
+    /**
+     * return it's full matrix form, index order: 11->1 21->2 12->3 22->4
+    */
+    MatrixXd toFullMatrix()const;
     void print() const;
     public:
     static const int dim=2; /**< tensor dimension*/
     static const int NViogt=3; /**< number of viogt index*/
-    constexpr static const int ij2ind[2][2]={{1,3},{3,2}};
-    constexpr static const int ind2ij[3][2]={{1,1},{2,2},{1,2}};
+    constexpr static const int ij2ind[2][2]={{0,2},{2,1}};
+    constexpr static const int ind2ij[3][2]={{0,0},{1,1},{0,1}};
 };

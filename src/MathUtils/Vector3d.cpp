@@ -27,6 +27,6 @@ Vector3d::Vector3d(const Vector3d &a){
 
 Vector3d operator*(const double &val,const Vector3d &a){
     Vector3d temp(0.0);
-    temp(1)=val*a(1);temp(2)=val*a(2);temp(3)=val*a(3);
+    temp(0)=val*a(0);temp(1)=val*a(1);temp(2)=val*a(2);
     return temp;
 }

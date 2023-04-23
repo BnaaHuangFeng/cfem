@@ -17,7 +17,7 @@
 #include <cmath>
 #include <limits>
 #include "Utils/MessagePrinter.h"
-#include "MathUtils/Vector3d.h"
+
 using std::sqrt;
 using std::abs;
 using std::fill;
@@ -49,6 +49,7 @@ public:
      * @param a the right hand vector
     */
     Vector2d(const Vector2d &a);
+    Vector2d(const double val1,const double val2){m_vals[0]=val1;m_vals[1]=val2;};
     Vector2d(const InitMethod initmethod);
     //****************************************************
     //*** for operators
@@ -58,22 +59,22 @@ public:
      * @param i index
      */
     inline double& operator()(const int i){
-        if(i<1||i>2){
-            MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector3");
+        if(i<0||i>1){
+            MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector2");
             MessagePrinter::exitcfem();
         }
-        return m_vals[i-1];
+        return m_vals[i];
     }
     /**
      * const () operator
      * @param i index
      */
     inline double operator()(const int i)const{
-        if(i<1||i>2){
-            MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector3");
+        if(i<0||i>1){
+            MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector2");
             MessagePrinter::exitcfem();
         }
-        return m_vals[i-1];
+        return m_vals[i];
     }
     /**
      * = operator
@@ -247,7 +248,7 @@ public:
     Vector3d toVector3d()const;
     
     inline void print()const{
-        PetscPrintf(PETSC_COMM_WORLD,"*** %14.6e ,%14.6e***\n",(*this)(1),(*this)(2));
+        PetscPrintf(PETSC_COMM_WORLD,"*** %14.6e ,%14.6e***\n",(*this)(0),(*this)(1));
     }
 private:
     double m_vals[2];/**< components vector, its size is always 3! */

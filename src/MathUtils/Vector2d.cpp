@@ -12,9 +12,8 @@
 //+++ Purpose: defines the vector with only 3-components, this will
 //+++          be frequently used in shape function calculation.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 #include "MathUtils/Vector2d.h"
-
+#include "MathUtils/Vector3d.h"
 Vector2d::Vector2d(){
     m_vals[0]=0.0;m_vals[1]=0.0;
 }
@@ -43,13 +42,13 @@ Vector2d::Vector2d(const InitMethod initmethod){
 }
 Vector3d Vector2d::toVector3d()const{
     Vector3d tmp;
+    tmp(0)=(*this)(0);
     tmp(1)=(*this)(1);
-    tmp(2)=(*this)(2);
-    tmp(3)=0.0;
+    tmp(2)=0.0;
     return tmp;
 }
 Vector2d operator*(const double val,const Vector2d &a){
     Vector2d temp(0.0);
-    temp(1)=val*a(1);temp(2)=val*a(2);
+    temp(0)=val*a(0);temp(1)=val*a(1);
     return temp;
 }

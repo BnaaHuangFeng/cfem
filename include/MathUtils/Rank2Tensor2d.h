@@ -16,17 +16,15 @@
 #pragma once
 #include <iostream>
 #include <cmath>
-#include "MathUtils/Vector2d.h"
-#include "MathUtils/Vector3d.h"
-#include "MathUtils/Rank4Tensor.h"
-#include "Rank2Tensor.h"
 #include "MathUtils/ViogtRank2Tensor2D.h"
 #include "Utils/MessagePrinter.h"
+#include "Eigen/Eigen"
 using std::fill;
 using std::sqrt;
 using std::abs;
+class Vector2d;
 class ViogtRank2Tensor2D;
-class Rank2Tensor;
+class Rank2Tensor3d;
 /**
  * This class implement the general manipulation for rank-2 tensor.
  */
@@ -47,9 +45,10 @@ public:
     Rank2Tensor2d();
     Rank2Tensor2d(const double val);
     Rank2Tensor2d(const Rank2Tensor2d &a);
+    Rank2Tensor2d(const ViogtRank2Tensor2D &a);
     Rank2Tensor2d(const InitMethod &initmethod);
     ~Rank2Tensor2d();
-    Rank2Tensor toRank2Tensor3d()const;
+    Rank2Tensor3d toRank2Tensor3d()const;
     //**********************************************************************
     //*** for row, col and other elements access
     //**********************************************************************
@@ -57,22 +56,12 @@ public:
      * get the ith row of the rank-2 tensor
      * @param i i-th row number, start from 1 to 3
      */
-    inline Vector2d getIthRow(const int i)const{
-        Vector2d temp(0.0);
-        temp(1)=(*this)(i,1);
-        temp(2)=(*this)(i,2);
-        return temp;
-    }
+    Vector2d getIthRow(const int i)const;
     /**
      * get the ith column of the rank-2 tensor
      * @param i i-th col number, start from 1 to 3
      */
-    inline Vector2d getIthCol(const int i)const{
-        Vector2d temp(0.0);
-        temp(1)=(*this)(1,i);
-        temp(2)=(*this)(2,i);
-        return temp;
-    }
+    Vector2d getIthCol(const int i)const;
     //**********************************************************************
     //*** for operator override
     //**********************************************************************
@@ -84,22 +73,22 @@ public:
      * @param j j index of the rank-2 tensor, start from 1
      */
     inline double operator()(const int i,const int j) const{
-        if(i<1||i>N || j<1||j>N ){
+        if(i<0||i>=N || j<0||j>=N ){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" or j="+to_string(j)+" is out of range when you call a rank-2 tensor");
             MessagePrinter::exitcfem();
         }
-        return m_vals[(i-1)*N+j-1];
+        return m_vals[i*N+j];
     }
     /** for index based access(start from 1, instead of zero !!!)
      * @param i i index of the rank-2 tensor, start from 1
      * @param j j index of the rank-2 tensor, start from 1
      */
     inline double& operator()(const int i,const int j){
-        if(i<1||i>N || j<1||j>N ){
+        if(i<0||i>=N || j<0||j>=N ){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" or j="+to_string(j)+" is out of range when you call a rank-2 tensor");
             MessagePrinter::exitcfem();
         }
-        return m_vals[(i-1)*N+j-1];
+        return m_vals[i*N+j];
     }
     //*******************************
     //*** for []  operator
@@ -109,22 +98,22 @@ public:
      * @param i global index, range from 1~9
      */
     inline double operator[](const int i) const{
-        if(i<1||i>N2){
+        if(i<0||i>=N2){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" is out of range when you call a rank-2 tensor");
             MessagePrinter::exitcfem();
         }
-        return m_vals[i-1];
+        return m_vals[i];
     }
     /**
      * [] operator for element access
      * @param i global index, range from 1~9
      */
     inline double& operator[](const int i){
-        if(i<1||i>N2){
+        if(i<0||i>=N2){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" is out of range when you call a rank-2 tensor");
             MessagePrinter::exitcfem();
         }
-        return m_vals[i-1];
+        return m_vals[i];
     }
     //*******************************
     //*** for =  operator
@@ -190,8 +179,8 @@ public:
      * @param val the scalar value to be added
      */
     inline Rank2Tensor2d& addIa(const double val){
+        (*this)(0,0)+=val;
         (*this)(1,1)+=val;
-        (*this)(2,2)+=val;
         return *this;
     }
     //*******************************
@@ -250,13 +239,7 @@ public:
      * '*' operator for vector2d
      * @param a right hand side vector2d
      */
-    inline Vector2d operator*(const Vector2d &a) const{
-        Vector2d temp(0.0);
-        for(int i=1;i<=N;i++){
-            temp(i)=(*this)(i,1)*a(1)+(*this)(i,2)*a(2);
-        }
-        return temp;
-    }
+    Vector2d operator*(const Vector2d &a) const;
     /**
      * '*' operator for rank-2 tensor, return \f$a_{ij}=b_{ik}c_{kj}\f$
      * @param a the right hand side rank-2 tensor
@@ -264,9 +247,9 @@ public:
     inline Rank2Tensor2d operator*(const Rank2Tensor2d &a) const{
         // return A*B(still rank-2 tensor)
         Rank2Tensor2d temp(0.0);
-        for(int i=1;i<=N;i++){
-            for(int j=1;j<=N;j++){
-                temp(i,j)=(*this)(i,1)*a(1,j)+(*this)(i,2)*a(2,j);
+        for(int i=0;i<N;i++){
+            for(int j=0;j<N;j++){
+                temp(i,j)=(*this)(i,0)*a(0,j)+(*this)(i,1)*a(1,j);
             }
         }
         return temp;
@@ -283,10 +266,10 @@ public:
     inline double doubledot(const Rank2Tensor2d &a) const{
         // return A:B calculation
         double sum=0.0;
-        for(int i=1;i<=N;i++){
-            for(int j=1;j<=N;j++){
+        for(int i=0;i<N;i++){
+            for(int j=0;j<N;j++){
                 // You may see A:B=A_ijB_ji in other books/literature, here we use A_ijB_ij
-                // in Rank4Tensor, we follow the same definition!
+                // in Rank4Tensor3d, we follow the same definition!
                 sum+=(*this)(i,j)*a(i,j);// use this to get the positive definite case!!!
             }
         }
@@ -378,8 +361,8 @@ public:
      * set current rannk-2 tensor to be an identitiy tensor, where \f$a_{ij}=\delta_{ij}\f$.
      */
     inline void setToIdentity(){
-        for(int i=1;i<=N;++i){
-            for(int j=1;j<=N;++j){
+        for(int i=0;i<N;++i){
+            for(int j=0;j<N;++j){
                 if(i==j){
                     (*this)(i,j)=1.0;
                 }
@@ -394,8 +377,8 @@ public:
      */
     inline void setToRandom(){
         srand(time(0));
-        for(int i=1;i<=N;++i){
-            for(int j=1;j<=N;++j){
+        for(int i=0;i<N;++i){
+            for(int j=0;j<N;++j){
                 (*this)(i,j)=static_cast<double>(1.0*rand()/RAND_MAX);
             }
         }
@@ -406,9 +389,9 @@ public:
      * @param b vector<double> for 2nd dimension
      */
     inline void setFromVectorDyad(const vector<double> &a,const vector<double> &b){
-        for(int i=1;i<=N;i++){
-            for(int j=1;j<=N;j++){
-                (*this)(i,j)=a[i-1]*b[j-1];
+        for(int i=0;i<N;i++){
+            for(int j=0;j<N;j++){
+                (*this)(i,j)=a[i]*b[j];
             }
         }
     }
@@ -417,13 +400,7 @@ public:
      * @param a the first vector
      * @param b the second vector
      */ 
-    inline void setFromVectorDyad(const Vector2d &a,const Vector2d &b){
-        for(int i=1;i<=N;i++){
-            for(int j=1;j<=N;j++){
-                (*this)(i,j)=a(i)*b(j);
-            }
-        }
-    }
+    void setFromVectorDyad(const Vector2d &a,const Vector2d &b);
     //**********************************************************************
     //*** for some common mathematic manipulations
     //**********************************************************************
@@ -431,7 +408,7 @@ public:
      * return the trace of a rank-2 tensor, result is \f$\sum a_{ii}\f$
      */
     inline double trace() const{
-        return (*this)(1,1)+(*this)(2,2);
+        return (*this)(0,0)+(*this)(1,1);
     }
     /**
      * return the determinant of the current rank-2 tensor
@@ -439,7 +416,7 @@ public:
     inline double det() const{
         // taken from http://mathworld.wolfram.com/Determinant.html
         // Eq.10
-        return (*this)(1,1)*(*this)(2,2)-(*this)(1,2)*(*this)(2,1);
+        return (*this)(0,0)*(*this)(1,1)-(*this)(0,1)*(*this)(1,0);
     }
     /**
      * return the \f$L_{2}\f$ norm of current rank-2 tensor, result is \f$\sqrt{\sum a_{ij}^{2}}\f$
@@ -482,10 +459,10 @@ public:
             MessagePrinter::exitcfem();
         }
         Rank2Tensor2d inv(0.0);
-        inv(1,1)=(*this)(2,2)/J;
-        inv(1,2)=-(*this)(2,1)/J;
-        inv(2,1)=-(*this)(1,2)/J;
-        inv(2,2)=(*this)(1,1)/J;
+        inv(0,0)=(*this)(1,1)/J;
+        inv(0,1)=-(*this)(1,0)/J;
+        inv(1,0)=-(*this)(0,1)/J;
+        inv(1,1)=(*this)(0,0)/J;
         return inv;
     }
     /**
@@ -493,8 +470,8 @@ public:
      */
     inline Rank2Tensor2d transpose() const{
         Rank2Tensor2d temp(0.0);
-        for(int i=1;i<=N;i++){
-            for(int j=1;j<=N;j++){
+        for(int i=0;i<N;i++){
+            for(int j=0;j<N;j++){
                 temp(i,j)=(*this)(j,i);
             }
         }
@@ -522,22 +499,29 @@ public:
     //**********************************************************************
     /**
      * calculate the eigen value and eigen vector for current rank-2 tensor
-     * @param eigval the double array, which stores the eigen value
-     * @param eigvec the rank-2 tensor, where each column store the related eigen vector
+     * @param eigvalPtr the double array, which stores the eigen value
+     * @param eigvecPtr the related eigen vector2d
      */
-    void calcEigenValueAndEigenVectors(double (&eigval)[2],Rank2Tensor2d &eigvec) const;
+    void calcEigenValueAndEigenVectors(double eigvalPtr[2],Vector2d eigvecPtr[2]) const;
     //**********************************************************************
     //*** for decomposition
     //**********************************************************************
     /**
+     * spectral decomposition for symmtry matrix
+     * @param eigvalPtr < ref to eigen values
+     * @param eigprojPtr < ref to corresponding eigenvalues projection
+     * @param repeated < if the eigen values repeated
+    */
+    void spectralDecomposition(double eigvalPtr[2],ViogtRank2Tensor2D eigprojPtr[2],bool &repeated)const;
+    /**
      * print all the elements to the terminal
      */
     inline void print() const{
-        PetscPrintf(PETSC_COMM_WORLD,"*** %14.6e ,%14.6e ***\n",(*this)(1,1),(*this)(1,2));
-        PetscPrintf(PETSC_COMM_WORLD,"*** %14.6e ,%14.6e ***\n",(*this)(2,1),(*this)(2,2));
+        PetscPrintf(PETSC_COMM_WORLD,"*** %14.6e ,%14.6e ***\n",(*this)(0,0),(*this)(0,1));
+        PetscPrintf(PETSC_COMM_WORLD,"*** %14.6e ,%14.6e ***\n",(*this)(1,0),(*this)(1,1));
     }
-private:
-    static const int N=2;/**< the dimension of current rank-2 tensor */
-    static const int N2=4;/**< the total length of current rank-2 tensor */
-    double m_vals[N2];/**< vector for the elements of rank-2 tensor */
+public:
+    static const int N=2;                                               /**< the dimension of current rank-2 tensor */
+    static const int N2=4;                                              /**< the total length of current rank-2 tensor */
+    double m_vals[N2];                                                  /**< vector for the elements of rank-2 tensor */
 };
