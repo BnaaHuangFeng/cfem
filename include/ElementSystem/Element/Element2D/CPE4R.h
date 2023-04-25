@@ -26,7 +26,7 @@ class CPE4R:element{
      * @param nLarge > large strain flag
      * @param elmtParamPtr > ptr to the elmt's params
     */
-    virtual PetscErrorCode initElement(PetscInt t_elmt_rId, bool nLarge, Material *matPtr, PetscScalar *elmtParamPtr);
+    virtual PetscErrorCode initElement(PetscInt t_elmt_rId, bool nLarge,PetscScalar *elmtParamPtr);
     /**
      * get the elmt's inner force
      * @param t_elmtCoord2 > ptr to the elmt's last converged coords (Vector2d *, Vector3d *)

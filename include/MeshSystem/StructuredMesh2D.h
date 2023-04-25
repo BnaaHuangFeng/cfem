@@ -10,9 +10,54 @@
 using namespace std;
 class StructuredMesh2D:public MeshSystem{
 public:
-    inline StructuredMesh2D():m_array_nodes_coord0(nullptr),m_array_nodes_coord1(nullptr),m_array_nodes_coord2(nullptr){};
-    inline StructuredMesh2D(Timer *timerPtr):MeshSystem(timerPtr),m_array_nodes_coord0(nullptr),m_array_nodes_coord1(nullptr),m_array_nodes_coord2(nullptr){};
+    inline StructuredMesh2D():m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
+            m_array_nodes_uInc1(nullptr), m_array_nodes_residual(nullptr){};
+    inline StructuredMesh2D(Timer *timerPtr):MeshSystem(timerPtr),m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
+            m_array_nodes_uInc1(nullptr), m_array_nodes_residual(nullptr){};
+//**********************************************************************************************
+//** interface to creat mesh structure *********************************************************
+//**********************************************************************************************/
+    /**
+     * init the mesh systems,including data preallocation and nodes' coords set
+    */
     virtual PetscErrorCode MeshSystemInit(MeshDescription *t_meshDesPtr);
+/**********************************************************************************************/
+
+//**********************************************************************************************
+//** interface to output mesh to outer file ****************************************************
+//**********************************************************************************************
+    /**
+     * write mesh data to ouput mesh file
+    */
+    virtual PetscErrorCode outputMeshFile();
+//**********************************************************************************************
+
+//**********************************************************************************************
+//** interface to Vec access control ***********************************************************
+//**********************************************************************************************
+    
+    /**
+     * open access to the Vec of coords (including create local Vec with values copy from global Vec)
+     * @param vType > node variable type
+     * @param variableVecPtr > ptr to corresponding golbal node variable Vec
+     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
+     * @param mode > Vec access mode
+    */
+    virtual PetscErrorCode openNodeVariableVec(NodeVariableType vType, Vec *variableVecPtr, int state, VecAccessMode mode);
+    /**
+     * close access to the Vec of coords (including add local Vec's value to global Vec)
+     * @param vType > node variable type
+     * @param variableVecPtr > ptr to corresponding golbal node variable Vec
+     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
+     * @param mode > Vec access mode
+    */
+    virtual PetscErrorCode closeNodeVariableVec(NodeVariableType vType, Vec *variableVecPtr, int state, VecAccessMode mode);
+/**********************************************************************************************/
+
+
+//**********************************************************************************************
+//** interface to reading of data in mesh node *************************************************
+//**********************************************************************************************
     /**
      * get coords of the nodes in a element by element's id in rank
      * @param elmtRId > elment's id in rank
@@ -20,36 +65,103 @@ public:
      * @param coordsPtr < ptr to store the node's coords （nodes id in elmt, dof id in node）-> coords 
      * @param nodeNum < ptr to store the node number of this element
     */
-    virtual PetscErrorCode getElmtNodeCoord(PetscInt elmtRId,int state,PetscScalar **coordsPtr,PetscInt *nodeNum=nullptr);
+    virtual PetscErrorCode getElmtNodeCoord(PetscInt elmtRId,int state,Vector *coordsPtr,PetscInt *nodeNum=nullptr);
+    /**
+     * get coords of a node by its id in rank
+     * @param nodeRId > node's id in rank
+     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
+     * @param coordsPtr < ptr to store the node's coords （dof id in node）-> coords
+    */
+    virtual PetscErrorCode getNodeCoord(PetscInt nodeRId,int state,Vector *coordsPtr);
+    /**
+     * get UInc of the nodes in a element by element's id in rank
+     * @param elmtRId > elment's id in rank
+     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
+     * @param uIncPtr < ptr to store the node's UInc （nodes id in elmt, dof id in node）-> UInc 
+     * @param nodeNum < ptr to store the node number of this element
+    */
+    virtual PetscErrorCode getElmtNodeUInc(PetscInt elmtRId,int state,Vector *uIncPtr,PetscInt *nodeNum=nullptr);
+    /**
+     * get residuals of the nodes in a element by element's id in rank 
+     * @param elmtRId > elment's id in rank
+     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
+     * @param residualPtr < ptr to store the node's UInc （nodes id in elmt, dof id in node）-> UInc 
+     * @param nodeNum < ptr to store the node number of this element
+    */
+    virtual PetscErrorCode getElmtNodeResidual(PetscInt elmtRId,int state,Vector *residualPtr,PetscInt *nodeNum=nullptr);
+/**********************************************************************************************/
+
+
+//**********************************************************************************************
+//** interface to writting of data in mesh node ************************************************
+//**********************************************************************************************
+    /**
+     * Add a element's Jacobian (stiffness) matrix to global one (need to do MatAssembly after
+     * elmts in this rank have called this func)
+     * @param rId > elmt's id in this rank
+     * @param matrixPtr >ptr to the elmt matrix to add
+    */
+    virtual PetscErrorCode addElmtAMatrix(PetscInt rid,MatrixXd *matrixPtr,Mat *APtr);
+    /**
+     * Add a element's residual (unbalanced forces (f^int-f^ext) ) Vector to global one (need to do 
+     * closeNodeVariableVec after elmts in this rank have called this func in order to complete assembly)
+     * @param rId > elmt's id in this rank
+     * @param residualPtr >ptr to the elmt matrix to add (2 ind is node id in a elmt & dof id in a node)
+    */
+    virtual PetscErrorCode addElmtResidual(PetscInt rid,Vector *residualPtr, Vec *fPtr);
+/**********************************************************************************************/
+
+private:
     /**
      * get coords of the nodes in a element by elmt's x,y global index in dmda
      * @param xI > DMDA x index
      * @param yI > DMDA y index
      * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
-     * @param coordsPtr < ptr to store the node's coords （nodes id in elmt, dof id in node）-> coords 
+     * @param variablePtr < ptr to store the node's variable （nodes id in elmt, dof id in node）-> coords 
      * @param nodeNum < ptr to store the node number of this element
     */
-    PetscErrorCode getElmtNodeCoordByDmdaInd(PetscInt xI,PetscInt yI,int state,PetscScalar **coordsPtr,PetscInt *nodeNum=nullptr);
-    /**
-     * get coords of a node by node's id in rank
-     * @param nodeRId > node's id in rank
-     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
-     * @param coordsPtr < ptr to store the node's coords （nodes id in elmt, dof id in node）-> coords 
-    */
-    PetscErrorCode getNodeCoord(PetscInt nodeRId,int state,PetscScalar *coordsPtr);
+    PetscErrorCode getElmtNodeVariableByDmdaInd(NodeVariableType vType ,PetscInt xI,PetscInt yI,int state,Vector *variablePtr,PetscInt *nodeNum=nullptr);
     /**
      * get coords of a node in a element by node's x,y global index in dmda
+     * @param vType > node variable type
      * @param xI > DMDA x index
      * @param yI > DMDA y index
      * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
-     * @param coordsPtr < ptr to store the node's coords （dof id in node）-> coords 
+     * @param variablePtr < ptr to store the node's variable （dof id in node）-> coords 
      * @param nodeNum < ptr to store the node number of this element
     */
-    PetscErrorCode getNodeCoordByDmdaInd(PetscInt xI,PetscInt yI,int state,PetscScalar *coordsPtr);
+    PetscErrorCode getNodeVariableByDmdaInd(NodeVariableType vType, PetscInt xI,PetscInt yI,int state,Vector *variablePtr);
     /**
-     * write mesh data to ouput mesh file
+     * Add a element's Jacobian (stiffness) matrix to global one by DMDA index (need to do MatAssembly after
+     * elmts in this rank have called this func)
+     * @param vType > node variable type
+     * @param xI > DMDA x index
+     * @param yI > DMDA y index
+     * @param matrixPtr >ptr to the elmt matrix to add
+     * @param APtr > ptr to global Jacobian Mat 
     */
-    virtual PetscErrorCode outputMeshFile();
+    PetscErrorCode addElmtAMatrixByDmdaInd(PetscInt xI,PetscInt yI,MatrixXd *matrixPtr,Mat *APtr);  
+    /**
+     * Add a element's residual (unbalanced forces (f^int-f^ext) ) Vector to global one by DMDA index (need to do 
+     * closeNodeVariableVec after elmts in this rank have called this func in order to complete assembly)
+     * @param xI > DMDA x index
+     * @param yI > DMDA y index
+     * @param residualPtr >ptr to the elmt matrix to add (2 ind is node id in a elmt & dof id in a node)
+     * @param fPtr > ptr to global residual Vec
+    */
+    PetscErrorCode addElmtResidualByDmdaInd(PetscInt xI,PetscInt yI,Vector *residualPtr,Vec *fPtr);  
+    /**
+     * get the ref of local Vec of node varible
+     * @param vType > node variable type
+     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
+    */
+    Vec & getNodeLocalVariableVecRef(NodeVariableType vType, int state);
+    /**
+     * get the ref of the array to access node varible
+     * @param vType > node variable type
+     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
+    */
+    PetscScalar *** & getNodeVariablePtrRef(NodeVariableType vType, int state);
     /**
      * init a structured mesh
     */
@@ -60,21 +172,22 @@ public:
      * @param yI > global y DMDA index
      * @param aCoord < ptr to coord0 of a node
     */
-    void getRectCoord0ByDmdaInd(PetscInt xI,PetscInt yI,PetscScalar *aCoord);
+
+    void getRectCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector *aCoord);
     /**
      * Get the coords of sin mesh in ref config by DMDA index
      * @param xI > global x DMDA index
      * @param yI > global y DMDA index
      * @param aCoord < ptr to coord0 of a node
     */
-    void getSinCoord0ByDmdaInd(PetscInt xI,PetscInt yI, PetscScalar *aCoord);
+    void getSinCoord0ByDmdaInd(PetscInt xI,PetscInt yI, Vector *aCoord);
     /**
      * Get the coords of half sin mesh in ref config by DMDA index
      * @param xI > global x DMDA index
      * @param yI > global y DMDA index
      * @param aCoord < ptr to coord0 of a node
     */
-    void getHalfSinCoord0ByDmdaInd(PetscInt xI,PetscInt yI, PetscScalar *aCoord);
+    void getHalfSinCoord0ByDmdaInd(PetscInt xI,PetscInt yI, Vector *aCoord);
     /**
      * Get element's global DMDA id via its id in rank
      * @param rId > elmt's id in rank
@@ -90,21 +203,27 @@ public:
     */
     void getNodeDmdaIndByRId(PetscInt rId,PetscInt *xIPtr,PetscInt *yIPtr);
     void openMeshOutputFile(ofstream *of,ios_base::openmode mode);
-    /**
-     * set coord array ptr to access coord Vec
-     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
-    */
-    PetscErrorCode coordVecGetArray(int state);
-    /**
-     * restore coord array
-     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
-    */
-    PetscErrorCode coordVecRestoreArray(int state);
 public:
     static const int vtkType=9;             /**< vtk cell type*/
+    static const int m_mNode_elmt=4;        /**< node num per elmt*/
     DMDALocalInfo m_daInfo;                 /**< DMDA local info*/
     PetscScalar m_geoParam[3];              /**< geometry parameter to describe the regular mesh domain （for rectangular domain, is x length,y length in order; for sin or half sin domain, is span, amplitude, width in order)*/
+    DM  m_dm;                               /**< Petsc DM*/
+    Vec m_nodes_coord0;                     /**< global nodes' coords in ref config*/
+    Vec m_nodes_coord0_local;               /**< local nodes' coords in ref config*/
+    // Vec m_nodes_coord1;                     /**< global nodes' coords in current config*/
+    Vec m_nodes_coord2;                     /**< global nodes' coords of last converged config*/
+    Vec m_nodes_coord2_local;               /**< local nodes' coords of last converged config*/
+    Vec m_nodes_uInc1;                      /**< global nodes' incremental displacement in current config*/
+    Vec m_nodes_uInc1_local;                /**< local nodes' incremental displacement in current config*/
+    // Vec *m_nodes_uInc2;                      /**< global nodes' incremental displacement of last converged config*/
+    Mat m_AMatrix;                          /**< nolinear function's jacobian matrix, also tangent stiffness matrix*/
+    Vec m_Residual;                         /**< nolinear function's residual Vec, also unbalanced forces (f^int-f^ext)*/
+    Vec m_Residual_local;                   /**< local nolinear function's residual Vec, also unbalanced forces (f^int-f^ext)*/
     PetscScalar ***m_array_nodes_coord0;    /**< ptr for access m_nodes_coord0*/
-    PetscScalar ***m_array_nodes_coord1;    /**< ptr for access m_nodes_coord1*/
+    // PetscScalar ***m_array_nodes_coord1;    /**< ptr for access m_nodes_coord1*/
     PetscScalar ***m_array_nodes_coord2;    /**< ptr for access m_nodes_coord2*/
+    PetscScalar ***m_array_nodes_uInc1;     /**< ptr for access m_nodes_uInc1*/
+    // PetscScalar ***m_array_nodes_uInc2;     /**< ptr for access m_nodes_uInc2*/
+    PetscScalar ***m_array_nodes_residual;  /**< ptr for access m_Residual*/
 };

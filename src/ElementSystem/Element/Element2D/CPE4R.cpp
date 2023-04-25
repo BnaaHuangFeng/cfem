@@ -6,7 +6,12 @@ const int CPE4R::m_mNode=4;                   /**< a element's nodes number*/
 const int CPE4R::m_mQPoint=1;
 const int CPE4R::m_QPW=4.0;
 ShpfunQuad4 CPE4R::m_shpfun=ShpfunQuad4(Vector2d(0.0,0.0)); /**< shape function relative computer*/
-
+PetscErrorCode CPE4R::initElement(PetscInt t_elmt_rId, bool nLarge, PetscScalar *elmtParamPtr){
+    m_elmt_rId=t_elmt_rId;
+    m_nLarge=nLarge;
+    if(elmtParamPtr){}
+    return 0;
+}
 PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, VectorXd *t_elmtInnerForce, bool *t_converged){
     Vector2d *elmtCoord2=(Vector2d *)t_elmtCoord2;
     Vector2d *elmtDofInc=(Vector2d *)t_elmtDofInc;

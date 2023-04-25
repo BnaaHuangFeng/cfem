@@ -20,7 +20,7 @@
 #include <cmath>
 #include <algorithm>
 #include "Utils/MessagePrinter.h"
-
+#include "MathUtils/Vector.h"
 using std::sqrt;
 using std::abs;
 using std::fill;
@@ -28,7 +28,7 @@ using std::fill;
 /**
  * This class implements the vector with dynamic size, which is different from the vector3d(fixed size, mainly used in shape function calculation)
  */
-class VectorXd{
+class VectorXd:public Vector{
 public:
     /**
      * construtor for different purpose
@@ -76,7 +76,7 @@ public:
      * () operator for the element access of the vector
      * @param i the index of the single element
      */
-    inline double& operator()(const int i){
+    virtual inline double& operator()(const int i){
         if(i<0||i>=m_m){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" is out of range(m="+to_string(m_m)+")");
             MessagePrinter::exitcfem();
@@ -87,7 +87,7 @@ public:
      * const () operator for the elemenet access of the vector 
      * @param i the index of the single element
      */
-    inline double operator()(const int i)const{
+    virtual inline double operator()(const int i)const{
         if(i<0||i>=m_m){
             MessagePrinter::printErrorTxt("i="+to_string(i)+" is out of range(m="+to_string(m_m)+")");
             MessagePrinter::exitcfem();

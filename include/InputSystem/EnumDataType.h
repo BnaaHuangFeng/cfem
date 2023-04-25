@@ -73,3 +73,14 @@ enum class ElementVariableType{
     KIRCHOFFSTRESS,
     JACOBIAN
 };
+enum class NodeVariableType{
+    COORD,
+    U,
+    UINC,
+    RF,
+    RESIDUAL
+};
+enum class VecAccessMode{
+    WRITE,
+    READ
+};

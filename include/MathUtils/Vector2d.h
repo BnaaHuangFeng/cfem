@@ -17,7 +17,7 @@
 #include <cmath>
 #include <limits>
 #include "Utils/MessagePrinter.h"
-
+#include "MathUtils/Vector.h"
 using std::sqrt;
 using std::abs;
 using std::fill;
@@ -26,7 +26,7 @@ class Vector3d;
 /**
  * This class defines the vector with only 2-components
  */
-class Vector2d{
+class Vector2d:public Vector{
 public:
     /**
      * different initial method for rank-2 tensor
@@ -58,7 +58,7 @@ public:
      * () operator
      * @param i index
      */
-    inline double& operator()(const int i){
+    virtual inline double& operator()(const int i){
         if(i<0||i>1){
             MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector2");
             MessagePrinter::exitcfem();
@@ -69,7 +69,7 @@ public:
      * const () operator
      * @param i index
      */
-    inline double operator()(const int i)const{
+    virtual inline double operator()(const int i)const{
         if(i<0||i>1){
             MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector2");
             MessagePrinter::exitcfem();
