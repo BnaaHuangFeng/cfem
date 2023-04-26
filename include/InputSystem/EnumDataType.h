@@ -51,7 +51,7 @@ enum class HistoryOutputFormat{
 enum class SetType{
     NODE,
     ELEMENT,
-    BCELEMENT
+    BELEMENT
 };
 
 enum class FieldVariableType{

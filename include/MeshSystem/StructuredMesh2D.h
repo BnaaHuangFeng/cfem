@@ -91,6 +91,19 @@ public:
     virtual PetscErrorCode getElmtNodeResidual(PetscInt elmtRId,int state,Vector *residualPtr,PetscInt *nodeNum=nullptr);
 /**********************************************************************************************/
 
+//**********************************************************************************************
+//** interface to get rank local id by global id ***********************************************
+//**********************************************************************************************   
+    /**
+     * get node's id in rank id by global id
+     * @param gId > node's global id
+    */    
+    virtual int nodeGId2RId(int gId);
+    /**
+     * get elmt's id in rank id by global id
+     * @param gId > elmt's global id
+    */    
+    virtual int elmtGId2RId(int gId); 
 
 //**********************************************************************************************
 //** interface to writting of data in mesh node ************************************************
@@ -209,21 +222,16 @@ public:
     DMDALocalInfo m_daInfo;                 /**< DMDA local info*/
     PetscScalar m_geoParam[3];              /**< geometry parameter to describe the regular mesh domain （for rectangular domain, is x length,y length in order; for sin or half sin domain, is span, amplitude, width in order)*/
     DM  m_dm;                               /**< Petsc DM*/
-    Vec m_nodes_coord0;                     /**< global nodes' coords in ref config*/
     Vec m_nodes_coord0_local;               /**< local nodes' coords in ref config*/
     // Vec m_nodes_coord1;                     /**< global nodes' coords in current config*/
-    Vec m_nodes_coord2;                     /**< global nodes' coords of last converged config*/
     Vec m_nodes_coord2_local;               /**< local nodes' coords of last converged config*/
-    Vec m_nodes_uInc1;                      /**< global nodes' incremental displacement in current config*/
     Vec m_nodes_uInc1_local;                /**< local nodes' incremental displacement in current config*/
     // Vec *m_nodes_uInc2;                      /**< global nodes' incremental displacement of last converged config*/
-    Mat m_AMatrix;                          /**< nolinear function's jacobian matrix, also tangent stiffness matrix*/
-    Vec m_Residual;                         /**< nolinear function's residual Vec, also unbalanced forces (f^int-f^ext)*/
-    Vec m_Residual_local;                   /**< local nolinear function's residual Vec, also unbalanced forces (f^int-f^ext)*/
+    Vec m_node_residual1_local;                   /**< local nolinear function's residual Vec, also unbalanced forces (f^int-f^ext)*/
     PetscScalar ***m_array_nodes_coord0;    /**< ptr for access m_nodes_coord0*/
     // PetscScalar ***m_array_nodes_coord1;    /**< ptr for access m_nodes_coord1*/
     PetscScalar ***m_array_nodes_coord2;    /**< ptr for access m_nodes_coord2*/
     PetscScalar ***m_array_nodes_uInc1;     /**< ptr for access m_nodes_uInc1*/
     // PetscScalar ***m_array_nodes_uInc2;     /**< ptr for access m_nodes_uInc2*/
-    PetscScalar ***m_array_nodes_residual;  /**< ptr for access m_Residual*/
+    PetscScalar ***m_array_nodes_residual;  /**< ptr for access m_node_residual1*/
 };

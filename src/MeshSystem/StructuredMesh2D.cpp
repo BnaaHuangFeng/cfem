@@ -291,11 +291,12 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
     PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_coord0));
     PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_coord2));
     PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_uInc1));
-    PetscCall(DMCreateGlobalVector(m_dm,&m_Residual));
+    PetscCall(DMCreateGlobalVector(m_dm,&m_node_residual1));
     /**************************************************************************/
     /** Create AMatrix managed by DMDA)****************************************/
     /**************************************************************************/
-
+    PetscCall(DMCreateMatrix(m_dm,&m_AMatrix));
+    PetscCall(MatSetFromOptions(m_AMatrix));
     /**************************************************************************/
     /** cal node and element num***********************************************/
     /**************************************************************************/
@@ -322,7 +323,7 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
     PetscCall(PetscSynchronizedPrintf(              /**< print the node and element's global id range of every m_rank*/
             PETSC_COMM_WORLD,
             "[%d]: owned node global id: %d -> %d \t owned elment global id: %d -> %d\n",
-            m_rank, nodeGId, nodeGId+m_mNodes_p, elmtGId, m_mElmts_p
+            m_rank, nodeGId, nodeGId+m_mNodes_p, elmtGId, elmtGId+m_mElmts_p
     ));
     PetscCall(PetscSynchronizedPrintf(              /**< print the node and element's DMDA index range of every m_rank*/
             PETSC_COMM_WORLD,
@@ -537,13 +538,13 @@ void StructuredMesh2D::getHalfSinCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector 
 }
 
 void StructuredMesh2D::getElmtDmdaIndByRId(PetscInt rId,PetscInt *xIPtr,PetscInt *yIPtr){
-    *yIPtr=rId/m_daInfo.mx+m_daInfo.ys;
-    *xIPtr=rId%m_daInfo.mx+m_daInfo.xs;
+    *yIPtr=rId/(m_daInfo.mx-1)+m_daInfo.ys;
+    *xIPtr=rId%(m_daInfo.mx-1)+m_daInfo.xs;
 }
 
 void StructuredMesh2D::getNodeDmdaIndByRId(PetscInt rId,PetscInt *xIPtr,PetscInt *yIPtr){
-    *yIPtr=rId/(m_daInfo.mx-1)+m_daInfo.ys;
-    *xIPtr=rId%(m_daInfo.mx-1)+m_daInfo.xs;
+    *yIPtr=rId/m_daInfo.mx+m_daInfo.ys;
+    *xIPtr=rId%m_daInfo.mx+m_daInfo.xs;
 }
 
 Vec & StructuredMesh2D::getNodeLocalVariableVecRef(NodeVariableType vType, int state){
@@ -553,10 +554,10 @@ Vec & StructuredMesh2D::getNodeLocalVariableVecRef(NodeVariableType vType, int s
         switch (state)
         {
         case 0:
-            return m_nodes_coord0;
+            return m_nodes_coord0_local;
             break;
         case 2:
-            return m_nodes_coord2;
+            return m_nodes_coord2_local;
             break;       
         default:
             MessagePrinter::printErrorTxt("required Coords vec state must be 0 or 2.");
@@ -568,7 +569,7 @@ Vec & StructuredMesh2D::getNodeLocalVariableVecRef(NodeVariableType vType, int s
         switch (state)
         {
         case 1:
-            return m_nodes_uInc1;
+            return m_nodes_uInc1_local;
             break;    
         default:
             MessagePrinter::printErrorTxt("required incremental U vec state must be 1.");
@@ -578,7 +579,7 @@ Vec & StructuredMesh2D::getNodeLocalVariableVecRef(NodeVariableType vType, int s
         break;      
     case NodeVariableType::RESIDUAL:
         if (state==1){
-           return m_Residual;
+           return m_node_residual1_local;
         }
         else{
             MessagePrinter::printErrorTxt("required residual vec state must be 1.");
@@ -590,10 +591,11 @@ Vec & StructuredMesh2D::getNodeLocalVariableVecRef(NodeVariableType vType, int s
         MessagePrinter::exitcfem();       
         break;
     }
-    return m_nodes_coord0;    
+    return m_nodes_coord0_local;    
 }
 
 PetscScalar *** & StructuredMesh2D::getNodeVariablePtrRef(NodeVariableType vType, int state){
+    
     switch (vType)
     {
     case NodeVariableType::COORD:
@@ -638,4 +640,12 @@ PetscScalar *** & StructuredMesh2D::getNodeVariablePtrRef(NodeVariableType vType
         break;
     }
     return m_array_nodes_coord0;      
+}
+int StructuredMesh2D::nodeGId2RId(int gId){
+    PetscInt startGId=m_daInfo.mx*m_daInfo.ys;       /**< node's start global id in this rank*/
+    return gId-startGId;
+}
+int StructuredMesh2D::elmtGId2RId(int gId){
+    PetscInt startGId=(m_daInfo.mx-1)*m_daInfo.ys;       /**< node's start global id in this rank*/
+    return gId-startGId;    
 }

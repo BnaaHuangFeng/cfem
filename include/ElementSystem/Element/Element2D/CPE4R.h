@@ -15,7 +15,7 @@
  **************************************************
  * 4 node plane strain reduced quadrature elemnt***
  *************************************************/
-class CPE4R:element{
+class CPE4R:public element{
     public:
     CPE4R():element(false){}
     CPE4R(bool nLarge):element(nLarge){}
@@ -42,6 +42,10 @@ class CPE4R:element{
      * @param t_stfMatrix < ptr to receive the elmt's stiffness matrix (need preallocation)
     */
     virtual PetscErrorCode getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, MatrixXd *t_stfMatrix);
+    virtual int getDofNum(){return m_mDof_node*m_mNode;}
+    virtual int getDim(){return m_dim;}
+    virtual int getNodeNum(){return m_mNode;}
+    virtual int getDofPerNode(){return m_mDof_node;}
     public:/**< static member (all elements of this kind share them)*/
     static const int m_dim;                     /**< element dimension*/
     static const int m_mDof_node;               /**< dof num per node*/

@@ -24,6 +24,7 @@ struct MeshDescription{
 };
 struct ElementDescription
 {
+    bool s_nLarge;                      /**< if strain large?*/    
     vector<string> s_names;             /**< element name (used defined in input file)*/
     vector<ElementType> s_elmtTypes;    /**< element type*/
     vector<string> s_setNames;          /**< names of set ralative element assign to*/

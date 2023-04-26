@@ -9,7 +9,7 @@
 class ViogtRank2Tensor2D;
 class ViogtRank4Tensor2D;
 class Rank2Tensor2d;
-class Material2D:Material{
+class Material2D:public Material{
 public:
     /**
     * construction

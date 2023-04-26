@@ -23,7 +23,7 @@ protected:
 public:
     element(bool nLarge):m_nLarge(nLarge),m_matPtr(nullptr){}
     element():m_elmt_rId(0),m_nLarge(false),m_matPtr(nullptr){};
-    virtual ~element(){};
+    virtual ~element(){if(m_matPtr)delete m_matPtr;};
     /**
      * init element
      * @param matPtr > material ptr
@@ -46,6 +46,10 @@ public:
      * @param t_stfMatrix < ptr to receive the elmt's stiffness matrix (need preallocation)
     */
     virtual PetscErrorCode getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, MatrixXd *t_stfMatrix)=0;
+    virtual int getDofNum()=0;
+    virtual int getDim()=0;
+    virtual int getNodeNum()=0;
+    virtual int getDofPerNode()=0;
 public:
     PetscInt    m_elmt_rId;     /**< elmt's id in rank*/
     bool        m_nLarge;       /**< large strain flag*/

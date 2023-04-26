@@ -4,6 +4,7 @@
 #include "InputSystem/DescriptionInfo.h"
 #include "Utils/Timer.h"
 #include "MathUtils/MatrixXd.h"
+#include "MeshSystem/SetManager.h"
 /**
  * this class store the topnology structure of the mesh,including node's ID. coords, element's connectivity
  */
@@ -118,7 +119,7 @@ public:
     */
     virtual PetscErrorCode getElmtNodeResidual(PetscInt elmtRId,int state,Vector *residualPtr,PetscInt *nodeNum=nullptr)=0;
 /**********************************************************************************************/
-
+public:
 //**********************************************************************************************
 //** Mesh system's commom implement ************************************************************
 //**********************************************************************************************
@@ -128,6 +129,16 @@ public:
      * @param rId > node's id in this rank
     */
     inline int elmtRId2GId(int rId){return m_elmt_gId[rId];}
+    /**
+     * get node's id in rank id by global id
+     * @param gId > node's global id
+    */    
+    virtual int nodeGId2RId(int gId)=0;
+    /**
+     * get elmt's id in rank id by global id
+     * @param gId > elmt's global id
+    */    
+    virtual int elmtGId2RId(int gId)=0;    
     /**
      * get element's connectivity by elmt id in this rank.
      * @param rId > elmt's id in rank
@@ -163,4 +174,10 @@ public:
     vector<PetscInt> m_elmt_gId;            /**< element's ID in rank -> element's global ID*/
     vector<vector<PetscInt>> m_elmt_cnn;    /**< element's ID in rank -> element's global connectivity*/
     Timer *m_timerPtr;                      /**< clock ptr*/
+    SetManager m_setManager;                /**< FEM set manager*/
+    Vec m_nodes_coord0;                     /**< global nodes' coords in ref config*/
+    Vec m_nodes_coord2;                     /**< global nodes' coords of last converged config*/
+    Vec m_nodes_uInc1;                      /**< global nodes' incremental displacement in current config*/
+    Mat m_AMatrix;                          /**< nolinear function's jacobian matrix, also tangent stiffness matrix*/
+    Vec m_node_residual1;                         /**< nolinear function's residual Vec, also unbalanced forces (f^int-f^ext)*/
 };
