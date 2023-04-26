@@ -412,11 +412,12 @@ PetscErrorCode StructuredMesh2D::getNodeVariableByDmdaInd(NodeVariableType vType
 }
 
 PetscErrorCode StructuredMesh2D::addElmtAMatrixByDmdaInd(PetscInt xI,PetscInt yI,MatrixXd *matrixPtr,Mat *APtr){
-    int mNodePerElmt=m_dim*m_dim;                   /**< node num per elmt*/
-    int mDofPerElmt=mNodePerElmt*m_mDof_node;       /**< dof num per elmt*/
+    const int mNodePerElmt=m_dim*m_dim;             /**< node num per elmt*/
+    const int mDofPerElmt=mNodePerElmt*m_mDof_node; /**< dof num per elmt*/
     MatStencil row[mDofPerElmt], col[mDofPerElmt];  /**< row & col stencil for elmt's K*/
     PetscScalar entry[mDofPerElmt*mDofPerElmt];     /**< array storing elmt's K's entries*/
-    PetscInt rowI, rowJ, colI, colJ;                /**< tmp index for loop over Ke's row and col*/
+    static const int relPositon[4][2]=              /**< (node id in elmt, direction of DMDA) -> relative positon to elmt in specific direction*/
+    {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
     PetscInt rowDofI, colDofI;                      /**< tmp index for loop over Ke's elmt dof in row/col*/
     PetscInt nodeDofI, nodeDofI2;                   /**< tmp index for loop over dof of a node*/
     if(yI+m_dim-1>m_daInfo.gym-1||xI+m_dim-1>m_daInfo.gxm-1||
@@ -425,26 +426,46 @@ PetscErrorCode StructuredMesh2D::addElmtAMatrixByDmdaInd(PetscInt xI,PetscInt yI
                             xI+m_dim-1,yI+m_dim-1,m_daInfo.gxm-1,m_daInfo.gym-1));
         MessagePrinter::exitcfem();            
     }
+    int rowNodeI = 0; /**< node id of Ke's row in a elmt*/
+    int colNodeI = 0; /**< node id of Ke's col in a elmt*/
+    
     rowDofI=0;
-    for(rowJ=yI;rowJ<yI+m_dim;++rowJ){
-        for(rowI=xI;rowI<xI+m_dim;++rowI){
-            for(nodeDofI=0;nodeDofI<m_mDof_node;++nodeDofI){
-                row[rowDofI].i=rowI;        col[rowDofI].i=rowI;       
-                row[rowDofI].j=rowJ;        col[rowDofI].j=rowJ;    
-                row[rowDofI].c=nodeDofI;    col[rowDofI].c=nodeDofI;
-                colDofI=0;
-                for(colJ=yI;colJ<yI+m_dim;++colJ){
-                    for(colI=xI;colI<xI+m_dim;++colI){
-                        for(nodeDofI2=0;nodeDofI2<m_mDof_node;++nodeDofI2){
-                            entry[mDofPerElmt*rowDofI+colDofI]=(*matrixPtr)(rowDofI,colDofI);
-                            ++colDofI;
-                        }
-                    }
+    for(rowNodeI=0;rowNodeI<mNodePerElmt;++rowNodeI){
+        PetscInt rowI, rowJ;    /**< tmp index for loop over Ke's node's row*/
+        rowI=xI+relPositon[rowNodeI][0];  rowJ=yI+relPositon[rowNodeI][1];
+        for(nodeDofI=0;nodeDofI<m_mDof_node;++nodeDofI){
+            row[rowDofI].i=rowI;        col[rowDofI].i=rowI;       
+            row[rowDofI].j=rowJ;        col[rowDofI].j=rowJ;    
+            row[rowDofI].c=nodeDofI;    col[rowDofI].c=nodeDofI;
+            colDofI=0;
+            for(colNodeI=0;colNodeI<m_mDof_node;++colNodeI){
+                for(nodeDofI2=0;nodeDofI2<m_mDof_node;++nodeDofI2){
+                    entry[mDofPerElmt*rowDofI+colDofI]=(*matrixPtr)(rowDofI,colDofI);
+                    ++colDofI;
                 }
-                ++rowDofI;
             }
+            ++rowDofI;      
         }
     }
+    // for(rowJ=yI;rowJ<yI+m_dim;++rowJ){
+    //     for(rowI=xI;rowI<xI+m_dim;++rowI){
+    //         for(nodeDofI=0;nodeDofI<m_mDof_node;++nodeDofI){
+    //             row[rowDofI].i=rowI;        col[rowDofI].i=rowI;       
+    //             row[rowDofI].j=rowJ;        col[rowDofI].j=rowJ;    
+    //             row[rowDofI].c=nodeDofI;    col[rowDofI].c=nodeDofI;
+    //             colDofI=0;
+    //             for(colJ=yI;colJ<yI+m_dim;++colJ){
+    //                 for(colI=xI;colI<xI+m_dim;++colI){
+    //                     for(nodeDofI2=0;nodeDofI2<m_mDof_node;++nodeDofI2){
+    //                         entry[mDofPerElmt*rowDofI+colDofI]=(*matrixPtr)(rowDofI,colDofI);
+    //                         ++colDofI;
+    //                     }
+    //                 }
+    //             }
+    //             ++rowDofI;
+    //         }
+    //     }
+    // }
     PetscCall(MatSetValuesStencil(*APtr,mDofPerElmt,row,mDofPerElmt,col,entry,ADD_VALUES));
     return 0;
 }
