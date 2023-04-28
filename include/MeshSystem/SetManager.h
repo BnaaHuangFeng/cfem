@@ -6,9 +6,9 @@
 #include "InputSystem/EnumDataType.h"
 using namespace std;
 /**
- * this class manager FEM's set, a set is a vector<int> data to
- * store all FEM item's rid (id in this rank) in this set, if a set only has a
- * element and the element equal -1, then that mean this set contain
+ * this class manager FEM's set. for item in this rank, a set is a vector<int> data to
+ * store all FEM item's rid (id in this rank) in this set. For this rank's ghost item, 
+ * a set is a vector<int> data to store all FEM item's global id. then that mean this set contain
  * all item of corresponding FEM data type
 */
 class SetManager{
@@ -31,7 +31,7 @@ public:
     */
     vector<PetscInt> & getSet(string setName, SetType setType);
 public:
-    map<string,vector<PetscInt>> m_nodeSets;    /**< node set name -> node set*/
-    map<string,vector<PetscInt>> m_elmtSets;    /**< elmt set name -> elmt set*/
-    map<string,vector<PetscInt>> m_bElmtSets;   /**< bounday elmt set name -> boundary elmt set*/
+    map<string,vector<PetscInt>> m_nodeSets;        /**< node (stored in this rank) set name -> node set*/
+    map<string,vector<PetscInt>> m_elmtSets;        /**< elmt set name -> elmt set*/
+    map<string,vector<PetscInt>> m_bElmtSets;       /**< bounday elmt set name -> boundary elmt set*/
 };

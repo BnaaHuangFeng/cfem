@@ -40,7 +40,7 @@ public:
     /**
      * check if every elmts in this rank has specify elmt type and material type.
     */
-    bool checkElmtsAssigment();
+    bool checkElmtsAssigment(MeshSystem *meshPtr);
     /**
      * assemble global Jacobian matrix for Petsc's solver
      * @param t_meshPtr > ptr to the based mesh system
