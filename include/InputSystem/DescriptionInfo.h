@@ -72,7 +72,7 @@ struct SingleBCDes{
     string s_BCName;
     vector<int> s_presetDofIds; /**< each item is a dof kind's vec of a BC assignment*/
     double s_bcVals; /**< each item is for a BC assignment's dof preset val*/
-    vector<string> s_setName_vec; /**< set name BCs assign to*/    
+    string s_setName; /**< set name BCs assign to*/    
 };
 /**
  * Boundary condition description

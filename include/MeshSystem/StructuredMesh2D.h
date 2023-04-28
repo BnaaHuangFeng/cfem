@@ -221,7 +221,6 @@ public:
     static const int m_mNode_elmt=4;        /**< node num per elmt*/
     DMDALocalInfo m_daInfo;                 /**< DMDA local info*/
     PetscScalar m_geoParam[3];              /**< geometry parameter to describe the regular mesh domain （for rectangular domain, is x length,y length in order; for sin or half sin domain, is span, amplitude, width in order)*/
-    DM  m_dm;                               /**< Petsc DM*/
     Vec m_nodes_coord0_local;               /**< local nodes' coords in ref config*/
     // Vec m_nodes_coord1;                     /**< global nodes' coords in current config*/
     Vec m_nodes_coord2_local;               /**< local nodes' coords of last converged config*/

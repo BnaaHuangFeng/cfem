@@ -175,9 +175,10 @@ public:
     vector<vector<PetscInt>> m_elmt_cnn;    /**< element's ID in rank -> element's global connectivity*/
     Timer *m_timerPtr;                      /**< clock ptr*/
     SetManager m_setManager;                /**< FEM set manager*/
+    DM  m_dm;                               /**< Petsc DM*/
     Vec m_nodes_coord0;                     /**< global nodes' coords in ref config*/
     Vec m_nodes_coord2;                     /**< global nodes' coords of last converged config*/
     Vec m_nodes_uInc1;                      /**< global nodes' incremental displacement in current config*/
     Mat m_AMatrix;                          /**< nolinear function's jacobian matrix, also tangent stiffness matrix*/
-    Vec m_node_residual1;                         /**< nolinear function's residual Vec, also unbalanced forces (f^int-f^ext)*/
+    Vec m_node_residual1;                   /**< nolinear function's residual Vec, also unbalanced forces (f^int-f^ext)*/
 };

@@ -489,11 +489,8 @@ bool InputSystem::readBcBlock(nlohmann::json &t_json){
             singleBCDes.s_presetDofIds.push_back(static_cast<int>(dof_json.at(i)));
         }
         singleBCDes.s_bcVals=bc_json.at("bcvalue");
-        nlohmann::json set_json=bc_json.at("set");
-        int setNum=static_cast<int>(set_json.size());
-        for(int i=0;i<setNum;i++){
-            singleBCDes.s_setName_vec.push_back(set_json.at(i));
-        }
+        string setName=bc_json.at("set");
+        singleBCDes.s_setName=setName;
         m_bcDes.push_back(singleBCDes);
     }
     return true;
