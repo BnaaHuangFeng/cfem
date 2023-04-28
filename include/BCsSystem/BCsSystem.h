@@ -13,11 +13,11 @@ public:
     virtual ~BCsSystem(){};
     /**
      * apply boundary condition to global jacobian Mat, and global residual Vec
-     * @param factor > boundary condition scaling factor
+     * @param facInc > Incremental boundary condition scaling factor
      * @param residualPtr > ptr to global residual Vec
      * @param AMatrixPtr > ptr to global Jacobian Mat
     */
-    virtual PetscErrorCode applyBoundaryCondition(PetscScalar factor,Vec *residualPtr, Mat *AMatrixPtr)=0;
+    virtual PetscErrorCode applyBoundaryCondition(PetscScalar facInc,Vec *residualPtr, Mat *AMatrixPtr)=0;
 public:
     MeshSystem *m_meshPtr;                          /**< ptr to mesh system it relies on*/
     BCDescription *m_bcDesPtr;                      /**< ptr to boundary condition description*/

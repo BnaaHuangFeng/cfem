@@ -46,14 +46,14 @@ BCsSysStructured2d::~BCsSysStructured2d(){
     VecDestroy(&m_u);
     VecDestroy(&m_b);  
 }
-PetscErrorCode BCsSysStructured2d::applyBoundaryCondition(PetscScalar factor,Vec *residualPtr, Mat *AMatrixPtr){
+PetscErrorCode BCsSysStructured2d::applyBoundaryCondition(PetscScalar facInc,Vec *residualPtr, Mat *AMatrixPtr){
     PetscInt mConstrainedDof=m_bcValsMap.size();    /**< num of constrained dof in this rank*/
     PetscScalar pivot=1.0;
     PetscCall(VecZeroEntries(m_u));   PetscCall(VecZeroEntries(m_b));
     PetscInt *arrayConstrainedRows=new PetscInt[mConstrainedDof];
     PetscScalar *arrayPresetVals=new PetscScalar[mConstrainedDof];
     PetscScalar *arrayZero=nullptr;
-    if(factor!=0.0)
+    if(facInc!=0.0)
         arrayZero=new PetscScalar[mConstrainedDof];
     /**fill arrayConstrainedRows and arrayPresetVals*/
     /************************************************/
@@ -61,13 +61,13 @@ PetscErrorCode BCsSysStructured2d::applyBoundaryCondition(PetscScalar factor,Vec
     for(map<PetscInt,PetscScalar>::iterator itBCMap=m_bcValsMap.begin();
     itBCMap!=m_bcValsMap.end();++itBCMap){//loop over every constrained dof in this rank
         arrayConstrainedRows[mDof]=itBCMap->first;
-        if(factor!=0.0) arrayZero[mDof]=0.0;
-        arrayPresetVals[mDof++]=-factor*itBCMap->second;    /**< because residual=-RHS, so set to negative*/
+        if(facInc!=0.0) arrayZero[mDof]=0.0;
+        arrayPresetVals[mDof++]=-facInc*itBCMap->second;    /**< because residual=-RHS, so set to negative*/
     }
     /**set prescribed dof in Vec m_u*/
     PetscCall(VecSetValues(m_u,mDof,arrayConstrainedRows,arrayPresetVals,INSERT_VALUES));
     PetscCall(VecAssemblyBegin(m_u));
-    if(factor!=0.0){
+    if(facInc!=0.0){
         PetscCall(VecSetValues(*residualPtr,mDof,arrayConstrainedRows,arrayZero,INSERT_VALUES));       
     }
     else{
@@ -75,10 +75,10 @@ PetscErrorCode BCsSysStructured2d::applyBoundaryCondition(PetscScalar factor,Vec
     }
     PetscCall(VecAssemblyEnd(m_u));
     PetscCall(MatZeroRowsColumns(*AMatrixPtr,mDof,arrayConstrainedRows,pivot,m_u,m_b));
-    if(factor!=0.0)
+    if(facInc!=0.0)
         VecAYPX(*residualPtr,1.0,m_b); 
     delete[] arrayConstrainedRows;
     delete[] arrayPresetVals;
-    if(factor!=0.0) delete[] arrayZero;
+    if(facInc!=0.0) delete[] arrayZero;
     return 0;
 }

@@ -37,13 +37,16 @@ struct MaterialDescription{
 };
 struct StepDescriptiom
 {
-    SNESType s_SNESType; /**< Petsc nolinear solver SNES type*/
-    KSPType s_KSPType; /**< Petsc linear solver KSP type*/
-    PCType s_PCType; /**< Petsc precondition type*/
-    int s_maxIterNum; /**< max iteration number*/
-    double s_dt0; /**< first time increment*/
-    double s_dtmax; /**< max time increment*/
-    double s_dtmin; /**< min time increment*/
+    SNESType s_SNESType;        /**< Petsc nolinear solver SNES type*/
+    KSPType s_KSPType;          /**< Petsc linear solver KSP type*/
+    PCType s_PCType;            /**< Petsc precondition type*/
+    int s_maxIterNum;           /**< max iteration number*/
+    double s_t;                 /**< total time*/
+    double s_dt0;               /**< first time increment*/
+    double s_dtmax;             /**< max time increment*/
+    double s_dtmin;             /**< min time increment*/
+    double s_growFactor;        /**< factor growth ratio*/
+    double s_cutbackFactor;     /**< factor cutback ratio*/
     double s_absTol; /**< absolute tolerance*/
     double s_relTol; /**< realative tolerance*/
     double s_duTol; /**< delta U tolerance*/

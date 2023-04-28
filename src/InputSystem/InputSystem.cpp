@@ -380,10 +380,78 @@ bool InputSystem::readStepBlock(nlohmann::json &t_json){
         MessagePrinter::printErrorTxt(pcType+" is not a supported PCType.");
         MessagePrinter::exitcfem();
     }
-    // read t load controller
-    m_stepDes.s_dt0=t_json.at("dt0");
-    m_stepDes.s_dtmax=t_json.at("dtmax");
-    m_stepDes.s_dtmin=t_json.at("dtmin");
+    // read total t
+    if(t_json.at("t").is_number_float()){
+        m_stepDes.s_t=t_json.at("t");
+        if(m_stepDes.s_t<=0){
+            MessagePrinter::printErrorTxt("t must be positive.");
+            MessagePrinter::exitcfem();             
+        }
+    }
+    else{
+        MessagePrinter::printErrorTxt("t must be a float number.");
+        MessagePrinter::exitcfem();              
+    }
+    // read dtmin
+    if(t_json.at("dtmin").is_number_float()){
+        m_stepDes.s_dtmin=t_json.at("dtmin");
+        if(m_stepDes.s_dtmin<=0||m_stepDes.s_dtmin>m_stepDes.s_t){
+            MessagePrinter::printErrorTxt("t must be in (0.0, t]");
+            MessagePrinter::exitcfem();
+        }
+    }
+    else{
+        MessagePrinter::printErrorTxt("dtmin must be a float number.");
+        MessagePrinter::exitcfem();        
+    }
+    // read dtmax
+    if(t_json.at("dtmax").is_number_float()){
+        m_stepDes.s_dtmax=t_json.at("dtmax");
+        if(m_stepDes.s_dtmax<m_stepDes.s_dtmin||m_stepDes.s_dtmax>m_stepDes.s_t){
+            MessagePrinter::printErrorTxt("dtmax must be in [dtmin, t]");
+            MessagePrinter::exitcfem();
+        }
+    }
+    else{
+        MessagePrinter::printErrorTxt("dtmax must be a float number.");
+        MessagePrinter::exitcfem();              
+    }
+    // read dt0
+    if(t_json.at("dt0").is_number_float()){
+        m_stepDes.s_dt0=t_json.at("dt0");
+        if(m_stepDes.s_dt0<m_stepDes.s_dtmin||m_stepDes.s_dt0>m_stepDes.s_dtmax){
+            MessagePrinter::printErrorTxt("dto must be in [dtmin, dtmax].");
+            MessagePrinter::exitcfem();
+        }
+    }
+    else{
+        MessagePrinter::printErrorTxt("dt0 must be a float number.");
+        MessagePrinter::exitcfem();               
+    }
+    // read growth factor
+    if(t_json.at("growth-factor").is_number_float()){
+        m_stepDes.s_growFactor=t_json.at("growth-factor");
+        if(m_stepDes.s_growFactor<1.0){
+            MessagePrinter::printErrorTxt("growth-factor must be greater than 1.0.");
+            MessagePrinter::exitcfem();            
+        }
+    }
+    else{
+        MessagePrinter::printErrorTxt("growth-factor must be a float number.");
+        MessagePrinter::exitcfem();               
+    }
+    // read cutback factor
+    if(t_json.at("cutback-factor").is_number_float()){
+        m_stepDes.s_cutbackFactor=t_json.at("growth-factor");
+        if(m_stepDes.s_cutbackFactor<=0.0||m_stepDes.s_cutbackFactor>=1.0){
+            MessagePrinter::printErrorTxt("cutback-factor must be in (0.0, 1.0).");
+            MessagePrinter::exitcfem();            
+        }
+    }
+    else{
+        MessagePrinter::printErrorTxt("cutback-factor must be a float number.");
+        MessagePrinter::exitcfem();               
+    }    
     // read converage tolerance
     m_stepDes.s_relTol=t_json.at("rel-tolerance");
     m_stepDes.s_absTol=t_json.at("abs-tolerance");
