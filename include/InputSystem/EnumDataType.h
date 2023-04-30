@@ -8,6 +8,8 @@ enum class MeshShape{
     RECTANGULAR,
     SIN,
     HALFSIN,
+    COS,
+    HALFCOS,
     COMPLEX
 };
 enum class MeshMode{

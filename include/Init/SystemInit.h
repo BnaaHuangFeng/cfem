@@ -1,10 +1,10 @@
 #pragma once
 #include"petsc.h"
-#include"MeshSystem/StructuredMesh2D.h"
+#include"MeshSystem/MeshSystem.h"
 #include"InputSystem/InputSystem.h"
-#include"InputSystem/DescriptionInfo.h"
 /**
  * Init Mesh System
- * @param 
+ * @param MeshDesPtr > ptr to mesh description
+ * @param meshSysPtr > ptr to dynamic created mesh system
 */
-PetscErrorCode MeshSystemInit(MeshDescription *MeshDesPtr,MeshSystem *meshSystemPtr);
+PetscErrorCode MeshSystemInit(Timer *timerPtr, MeshDescription *MeshDesPtr,MeshSystem *meshSysPtr);

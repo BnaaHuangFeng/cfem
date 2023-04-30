@@ -36,6 +36,7 @@ PetscErrorCode ElementSystem::init(ElementDescription *elmtDesPtr,MaterialDescri
     /*******************************/
     readMatDes(matDesPtr);  
     init(meshPtr);
+    return 0;
 }
 PetscErrorCode ElementSystem::init(MeshSystem *meshPtr){
     setMeshSysPtr(meshPtr);
@@ -105,6 +106,18 @@ PetscErrorCode ElementSystem::assignMatType(){
             switch(m_matTypes[matTypeId]){
                 case MaterialType::LINEARELASTIC:
                     m_elmtPtrs[elmtSet[i]]->m_matPtr=new LinearElasticMat2D(m_nLarge);
+                    break;
+                case MaterialType::NEOHOOKEAN:
+                    MessagePrinter::printErrorTxt("material NEOHOOKEAN is not developed now.");
+                    MessagePrinter::exitcfem();
+                    break;
+                case MaterialType::VONMISESPLAS:
+                    MessagePrinter::printErrorTxt("material VONMISESPLAS is not developed now.");
+                    MessagePrinter::exitcfem();
+                    break;
+                default:
+                    MessagePrinter::printErrorTxt("unsupported material type.");
+                    MessagePrinter::exitcfem();                   
             }
             m_elmtPtrs[elmtSet[i]]->m_matPtr->initProperty(&(m_properties[matTypeId]));
         }
@@ -148,8 +161,6 @@ PetscErrorCode ElementSystem::assembleAMatrix(Vec *t_uInc1Ptr, Mat *t_AMatrixPtr
         element *elmtPtr=m_elmtPtrs[eI];
         int mDofInElmt=elmtPtr->getDofNum();
         int dim=elmtPtr->getDim();
-        int mNode=elmtPtr->getNodeNum();
-        int mDofPerNode=elmtPtr->getDofPerNode();
         Vector *coord2Ptr, *uIncPtr;
         if(dim==2){
             coord2Ptr=coord2Ptr2d;
@@ -166,7 +177,6 @@ PetscErrorCode ElementSystem::assembleAMatrix(Vec *t_uInc1Ptr, Mat *t_AMatrixPtr
         m_meshSysPtr->getElmtNodeCoord(elmtPtr->m_elmt_rId,2,coord2Ptr);
         m_meshSysPtr->getElmtNodeUInc(elmtPtr->m_elmt_rId,1,uIncPtr);
         MatrixXd AMatrixElmt=MatrixXd(mDofInElmt,mDofInElmt,0.0);   /**< elmt's jacobian matrix*/
-        bool ifMatUpdateConvergerd=false;
         elmtPtr->getElmtStfMatrix(coord2Ptr,uIncPtr,&AMatrixElmt);
         m_meshSysPtr->addElmtAMatrix(elmtPtr->m_elmt_rId,&AMatrixElmt,t_AMatrixPtr);
     }
@@ -176,6 +186,7 @@ PetscErrorCode ElementSystem::assembleAMatrix(Vec *t_uInc1Ptr, Mat *t_AMatrixPtr
     PetscCall(MatAssemblyEnd(*t_AMatrixPtr,MAT_FINAL_ASSEMBLY));
     m_meshSysPtr->closeNodeVariableVec(NodeVariableType::COORD,&(m_meshSysPtr->m_nodes_coord2),2,VecAccessMode::READ);
     m_meshSysPtr->closeNodeVariableVec(NodeVariableType::UINC,t_uInc1Ptr,1,VecAccessMode::READ);
+    return 0;
 }
 PetscErrorCode ElementSystem::assemblRVec(Vec *t_uInc1Ptr, Vec *t_RVecPtr){
     const int MNodeElmt2d=9, MNodeElmt3d=27;
@@ -224,6 +235,7 @@ PetscErrorCode ElementSystem::assemblRVec(Vec *t_uInc1Ptr, Vec *t_RVecPtr){
     m_meshSysPtr->closeNodeVariableVec(NodeVariableType::COORD,&(m_meshSysPtr->m_nodes_coord2),2,VecAccessMode::READ);
     m_meshSysPtr->closeNodeVariableVec(NodeVariableType::UINC,t_uInc1Ptr,1,VecAccessMode::READ);
     m_meshSysPtr->closeNodeVariableVec(NodeVariableType::RESIDUAL,t_RVecPtr,1,VecAccessMode::WRITE);
+    return 1;
 }
 void ElementSystem::readElmtDes(ElementDescription *elmtDesPtr){
     if(m_ifElmtDesRead)return;

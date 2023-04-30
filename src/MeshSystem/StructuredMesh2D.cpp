@@ -371,8 +371,16 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
                 break;
             case MeshShape::HALFSIN:
                 getHalfSinCoord0ByDmdaInd(xI,yI,&CoordLocal);
-                break;                
+                break;
+            case MeshShape::COS:
+                getCosCoord0ByDmdaInd(xI,yI,&CoordLocal);
+                break;
+            case MeshShape::HALFCOS:
+                getHalfCosCoord0ByDmdaInd(xI,yI,&CoordLocal);
+                break;                            
             default:
+                MessagePrinter::printErrorTxt("unsupported mesh shape.");
+                MessagePrinter::exitcfem();
                 break;
             }
             for(int dofI=0;dofI<m_mDof_node;dofI++){
@@ -515,9 +523,9 @@ void StructuredMesh2D::getSinCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector *aCo
     /**m_geoParam < geometry parameter to describe the regular mesh domain
      * (for rectangular domain, is x length,y length in order; 
      * for sin or half sin domain, is span l, amplitude a, width w in order)*/
-    (*aCoord)(1)=yI*m_geoParam[0]/m_daInfo.my;
-    /** x=a*sin(pi*y/l)*/
-    (*aCoord)(0)=m_geoParam[1]*sin(M_PI*(*aCoord)(1)/m_geoParam[0])+xI*m_geoParam[2]/m_daInfo.mx;
+    (*aCoord)(1)=yI*m_geoParam[0]/(m_daInfo.my-1);
+    /** x=a*sin(2pi*y/l)*/
+    (*aCoord)(0)=m_geoParam[1]*sin(2.0*M_PI*(*aCoord)(1)/m_geoParam[0])+xI*m_geoParam[2]/(m_daInfo.mx-1);
 }
 
 void StructuredMesh2D::getHalfSinCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector *aCoord){
@@ -525,10 +533,26 @@ void StructuredMesh2D::getHalfSinCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector 
      * (for rectangular domain, is x length,y length in order; 
      * for sin or half sin domain, is span l, amplitude a, width w in order)*/
     (*aCoord)(1)=yI*m_geoParam[0]/m_daInfo.my;
-    /** x=a*sin(pi*y/2l)*/
-    (*aCoord)(0)=m_geoParam[1]*sin(M_PI*(*aCoord)(1)/(2*m_geoParam[0]))+xI*m_geoParam[2]/m_daInfo.mx;  
+    /** x=a*sin(pi*y/l)*/
+    (*aCoord)(0)=m_geoParam[1]*sin(M_PI*(*aCoord)(1)/m_geoParam[0])+xI*m_geoParam[2]/(m_daInfo.mx-1);  
+}
+void StructuredMesh2D::getCosCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector *aCoord){
+    /**m_geoParam < geometry parameter to describe the regular mesh domain
+     * (for rectangular domain, is x length,y length in order; 
+     * for sin or half sin domain, is span l, amplitude a, width w in order)*/
+    (*aCoord)(1)=-0.5*m_geoParam[0]+yI*m_geoParam[0]/(m_daInfo.my-1);
+    /** x=a*cos(2pi*y/l)*/
+    (*aCoord)(0)=m_geoParam[1]*cos(2.0*M_PI*(*aCoord)(1)/m_geoParam[0])+xI*m_geoParam[2]/(m_daInfo.mx-1);
 }
 
+void StructuredMesh2D::getHalfCosCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector *aCoord){
+    /**m_geoParam < geometry parameter to describe the regular mesh domain
+     * (for rectangular domain, is x length,y length in order; 
+     * for sin or half sin domain, is span l, amplitude a, width w in order)*/
+    (*aCoord)(1)=-m_geoParam[0]+yI*m_geoParam[0]/(m_daInfo.my-1);
+    /** x=a*cos(pi*y/l)*/
+    (*aCoord)(0)=m_geoParam[1]*cos(M_PI*(*aCoord)(1)/m_geoParam[0])+xI*m_geoParam[2]/(m_daInfo.mx-1); 
+}
 void StructuredMesh2D::getElmtDmdaIndByRId(PetscInt rId,PetscInt *xIPtr,PetscInt *yIPtr){
     *yIPtr=rId/(m_daInfo.mx-1)+m_daInfo.ys;
     *xIPtr=rId%(m_daInfo.mx-1)+m_daInfo.xs;

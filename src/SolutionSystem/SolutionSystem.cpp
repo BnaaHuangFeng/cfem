@@ -1,8 +1,8 @@
 #include "SolutionSystem/SolutionSystem.h"
 SolutionSystem::SolutionSystem():
                 m_stepDesPtr(nullptr),m_meshSysPtr(nullptr),
-                m_ifShowIterInfo(true),m_increI(0),m_iterI(0),m_mIter(0),
-                m_rnorm(0.0),m_duNorm(0.0),m_rnorm0(0.0),m_uNorm(0.0)
+                m_increI(0),m_iterI(0),m_mIter(0),
+                m_rnorm(0.0),m_duNorm(0.0),m_rnorm0(0.0),m_uNorm(0.0),m_ifShowIterInfo(true)
 {
     m_solutionCtx.s_bcsSysPtr=nullptr;
     m_solutionCtx.s_elmtSysPtr=nullptr;
@@ -14,8 +14,8 @@ SolutionSystem::SolutionSystem():
 }
 SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr):
                 m_meshSysPtr(nullptr),
-                m_ifShowIterInfo(true),m_increI(0),m_iterI(0),m_mIter(0),
-                m_rnorm(0.0),m_duNorm(0.0),m_rnorm0(0.0),m_uNorm(0.0)
+                m_increI(0),m_iterI(0),m_mIter(0),
+                m_rnorm(0.0),m_duNorm(0.0),m_rnorm0(0.0),m_uNorm(0.0),m_ifShowIterInfo(true)
 {
     m_solutionCtx.s_bcsSysPtr=nullptr;
     m_solutionCtx.s_elmtSysPtr=nullptr;
@@ -26,8 +26,8 @@ SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr):
     m_ifSolutionCtxInit=false;
 }
 SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr, MeshSystem *t_meshSysPtr):
-                m_ifShowIterInfo(true),m_increI(0),m_iterI(0),m_mIter(0),
-                m_rnorm(0.0),m_duNorm(0.0),m_rnorm0(0.0),m_uNorm(0.0)
+                m_increI(0),m_iterI(0),m_mIter(0),
+                m_rnorm(0.0),m_duNorm(0.0),m_rnorm0(0.0),m_uNorm(0.0),m_ifShowIterInfo(true)
 {
     m_solutionCtx.s_bcsSysPtr=nullptr;
     m_solutionCtx.s_elmtSysPtr=nullptr;
@@ -52,6 +52,7 @@ PetscErrorCode SolutionSystem::init(StepDescriptiom *t_stepDesPtr,MeshSystem *t_
         PetscCall(SNESMonitorSet(m_snes,monitorFunction,&m_monitorCtx,nullptr));
     }
     bindCallBack();
+    return 0;
 };
 PetscErrorCode SolutionSystem::checkInit(){
     if(!m_ifStepDesRead){
@@ -95,7 +96,7 @@ PetscErrorCode SolutionSystem::initStep(){
     PetscCall(PCSetFromOptions(m_pc));
     // extra setting for PC*******/
     /*****************************/
-    if(m_PCType==PCLU)
+    if(strcmp(m_PCType,PCLU)==0)
         PetscCall(PCFactorSetMatSolverType(m_pc,MATSOLVERSUPERLU_DIST));
     PetscCall(PCFactorSetReuseOrdering(m_pc,PETSC_TRUE)); // ???
     // basic setting for SNES*****/
@@ -104,22 +105,22 @@ PetscErrorCode SolutionSystem::initStep(){
     PetscCall(SNESSetDivergenceTolerance(m_snes,-1));
     // for different types of SNES solver**/
     /**************************************/
-    if(m_SNESType==SNESNEWTONLS){
+    if(strcmp(m_SNESType,SNESNEWTONLS)==0){
         PetscCall(SNESSetType(m_snes,SNESNEWTONLS));
         PetscCall(SNESGetLineSearch(m_snes,&m_snesLinesearch));
         PetscCall(SNESLineSearchSetType(m_snesLinesearch,SNESLINESEARCHBT));
         PetscCall(SNESLineSearchSetOrder(m_snesLinesearch,3));
     }
-    else if(m_SNESType==SNESNEWTONTR){
+    else if(strcmp(m_SNESType,SNESNEWTONTR)==0){
         PetscCall(SNESSetType(m_snes,SNESNEWTONTR));
     }
-    else if(m_SNESType==SNESNRICHARDSON){
+    else if(strcmp(m_SNESType,SNESNRICHARDSON)==0){
         PetscCall(SNESSetType(m_snes,SNESNRICHARDSON));
     }
-    else if(m_SNESType==SNESKSPONLY){
+    else if(strcmp(m_SNESType,SNESKSPONLY)==0){
         PetscCall(SNESSetType(m_snes,SNESKSPONLY));
     }
-    else if(m_SNESType==SNESNGMRES){
+    else if(strcmp(m_SNESType,SNESNGMRES)==0){
         PetscCall(SNESSetType(m_snes,SNESNGMRES));
     }
     PetscCall(SNESSetFromOptions(m_snes));
@@ -171,7 +172,7 @@ PetscErrorCode SolutionSystem::showIterInfo(bool t_ifShowIterInfo){
     return 0;
 }
 PetscErrorCode SolutionSystem::run(bool t_ifLastConverged, bool *t_ifConverged, bool *t_ifcompleted){
-    const int buffLen=70;
+    const int buffLen=100;
     char charBuff[buffLen];
     string increInfo;
     m_iterI=0;
@@ -239,12 +240,15 @@ PetscErrorCode SolutionSystem::run(bool t_ifLastConverged, bool *t_ifConverged, 
     return 0;
 }
 PetscErrorCode formFunction(SNES t_snes, Vec t_uInc, Vec t_function, void *ctx){
+    if(ctx||t_snes){}
     SolutionCtx *ctxPtr=(SolutionCtx *)ctx;
     ctxPtr->s_elmtSysPtr->assemblRVec(&t_uInc,&t_function);
     ctxPtr->s_loadCtrlPtr->applyLoad(ctxPtr->s_loadCtrlPtr->m_factor1,&t_function);
     ctxPtr->s_bcsSysPtr->applyResidualBoundaryCondition(&t_function);
+    return 0;
 }
 PetscErrorCode formJacobian(SNES t_snes, Vec t_uInc, Mat t_AMat, Mat t_PMat, void *ctx){
+    if(ctx||t_snes){}
     SolutionCtx *ctxPtr=(SolutionCtx *)ctx;
     ctxPtr->s_elmtSysPtr->assembleAMatrix(&t_uInc,&t_PMat);
     ctxPtr->s_bcsSysPtr->applyJacobianBoundaryCondition(&t_PMat);
