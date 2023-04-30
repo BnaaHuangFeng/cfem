@@ -277,8 +277,18 @@ bool InputSystem::readMaterialBlock(nlohmann::json &t_json){
 }
 
 bool InputSystem::readStepBlock(nlohmann::json &t_json){
-    // read iterational method
-    // read SNESType (it's include some method implemented by the coder not petsc)
+    // read solution algorithm method
+    string algorithm=t_json.at("method");
+    if(algorithm=="standard"){
+        m_stepDes.s_algorithm=AlgorithmType::STANDARD;
+    }
+    else if(algorithm=="arclength_cylender"){
+        m_stepDes.s_algorithm=AlgorithmType::ARCLENGTH_CYLENDER;
+    }
+    else{
+        MessagePrinter::printErrorTxt(algorithm+" is not a supported solution algorithm method");
+        MessagePrinter::exitcfem();
+    }
     string nlsolver=t_json.at("nlsolver");
     if(nlsolver=="newtonls"){
         m_stepDes.s_SNESType=SNESNEWTONLS;
@@ -286,32 +296,14 @@ bool InputSystem::readStepBlock(nlohmann::json &t_json){
     else if(nlsolver=="newtontr"){
         m_stepDes.s_SNESType=SNESNEWTONTR;
     }
-    else if(nlsolver=="newtontrdc"){
-        m_stepDes.s_SNESType=SNESNEWTONTRDC;
-    }
-    else if(nlsolver=="python"){
-        m_stepDes.s_SNESType=SNESPYTHON;
-    }
     else if(nlsolver=="nrichardson"){
         m_stepDes.s_SNESType=SNESNRICHARDSON;
     }
     else if(nlsolver=="ksponly"){
         m_stepDes.s_SNESType=SNESKSPONLY;
     }
-    else if(nlsolver=="ksptransposeonly"){
-        m_stepDes.s_SNESType=SNESKSPTRANSPOSEONLY;
-    }
-    else if(nlsolver=="vinewtonrsls"){
-        m_stepDes.s_SNESType=SNESVINEWTONRSLS;
-    }
-    else if(nlsolver=="vinewtonssls"){
-        m_stepDes.s_SNESType=SNESVINEWTONSSLS;
-    }
     else if(nlsolver=="ngmres"){
         m_stepDes.s_SNESType=SNESNGMRES;
-    }
-    else if(nlsolver=="qn"){
-        m_stepDes.s_SNESType=SNESQN;
     }
     else{
         MessagePrinter::printErrorTxt(nlsolver+" is not a supported SNESType.");

@@ -38,10 +38,10 @@ enum class MaterialType{
     NEOHOOKEAN,
     VONMISESPLAS
 };
-// enum class AlgorithmType{
-//     TANGENTNEWTON,
-//     ARCLENGTH_CYLENDER
-// };
+enum class AlgorithmType{
+    STANDARD,
+    ARCLENGTH_CYLENDER
+};
 enum class FiledOutputFormat{
     VTU
 };

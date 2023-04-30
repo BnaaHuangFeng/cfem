@@ -5,13 +5,11 @@
 class LoadController
 {
 private:
-    /* data */
-public:
-    LoadController():m_stepDesPtr(nullptr){};
-    LoadController(StepDescriptiom *t_stepDesPtr);
-    ~LoadController(){};
-private:
+    bool m_ifReadStepDes;   /**< if has read step desctiption*/
+    bool m_ifSetMeshSys;    /**< if has set mesh system ptr*/
+    bool m_ifHasNodeLoad;     /**< if appliy outer load, set by load controller*/
     StepDescriptiom *m_stepDesPtr;  /**< ptr to step description*/
+    MeshSystem *m_meshPtr;  /**< ptr to its relied mesh system*/
     double m_factorFinal;   /**< final factor to end simulation*/
     double m_growthRatio;   /**< factor growth ratio*/
     double m_cutbackRatio;  /**< factor cut back ratio*/
@@ -27,9 +25,18 @@ public:
     double m_factor1;       /**< current total factor*/
     double m_factorInc1;    /**< current incremental factor*/
     double m_l0;            /**< arc length of latest convergence*/
-    MeshSystem *m_meshPtr;  /**< ptr to its relied mesh system*/
     Vec *m_loadVecPtr;      /**< global load Vec ptr*/
 public:
+    LoadController();
+    LoadController(StepDescriptiom *t_stepDesPtr);
+    LoadController(StepDescriptiom *t_stepDesPtr, MeshSystem *t_meshSysPtr);
+    void readStepDes(StepDescriptiom *t_stepDesPtr);
+    void setMeshSysPtr(MeshSystem *t_meshSysPtr);
+    /**
+     * check if the load controller's init completed
+    */
+    PetscErrorCode checkInit();
+    ~LoadController(){};
     /**
      * apply outer load to global residual Vec
      * @param factor > total load scaling factor

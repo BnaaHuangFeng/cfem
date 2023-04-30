@@ -67,6 +67,11 @@ public:
 //** interface to writting of data in mesh node ************************************************
 //**********************************************************************************************
     /**
+     * update mesh configuration set converged m_nodes_coord2 and  converged incremental u m_nodes_uInc2
+     * @param snesPtr > ptr to SNES
+    */
+    virtual PetscErrorCode updateConfig(SNES *sensPtr)=0;
+    /**
      * Add a element's Jacobian (stiffness) matrix to global one by elmt id in rank (need to do MatAssembly after
      * elmts in this rank have called this func)
      * @param rId > elmt's id in this rank
@@ -178,7 +183,11 @@ public:
     DM  m_dm;                               /**< Petsc DM*/
     Vec m_nodes_coord0;                     /**< global nodes' coords in ref config*/
     Vec m_nodes_coord2;                     /**< global nodes' coords of last converged config*/
-    Vec m_nodes_uInc1;                      /**< global nodes' incremental displacement in current config*/
-    Mat m_AMatrix;                          /**< nolinear function's jacobian matrix, also tangent stiffness matrix*/
-    Vec m_node_residual1;                   /**< nolinear function's residual Vec, also unbalanced forces (f^int-f^ext)*/
+    /**< m_nodes_uInc1 is managered by SNES*/
+    Vec m_nodes_uInc2;                      /**< global nodes' incremental displacement in current config*/
+    /**< m_AMatrix1 is managered by SNES*/
+    Mat m_AMatrix2;                         /**< nolinear function's jacobian matrix, also tangent stiffness matrix*/
+    /**< m_node_residual2 is managered by SNES*/
+    Vec m_node_residual2;                   /**< nolinear function's residual Vec, also unbalanced forces (f^int-f^ext)*/
+    Vec m_node_load;                        /**< node outer load Vec*/
 };

@@ -222,7 +222,11 @@ PetscErrorCode StructuredMesh2D::getElmtNodeResidual(PetscInt elmtRId,int state,
     getElmtNodeVariableByDmdaInd(NodeVariableType::RESIDUAL,*xIPtr,*yIPtr,state,residualPtr,nodeNum);
     return 0;    
 }
-
+PetscErrorCode StructuredMesh2D::updateConfig(SNES *sensPtr){
+    PetscCall(SNESGetSolution(*sensPtr,&m_nodes_uInc2));
+    PetscCall(VecAYPX(m_nodes_coord2,1.0,m_nodes_uInc2));
+    return 0;
+}
 PetscErrorCode StructuredMesh2D::addElmtAMatrix(PetscInt rid,MatrixXd *matrixPtr,Mat *APtr){
     checkElmtRId(rid);
     PetscInt *xIPtr=nullptr, *yIPtr=nullptr;
@@ -290,13 +294,20 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
     /**************************************************************************/
     PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_coord0));
     PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_coord2));
-    PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_uInc1));
-    PetscCall(DMCreateGlobalVector(m_dm,&m_node_residual1));
+    PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_uInc2));
+    PetscCall(DMCreateGlobalVector(m_dm,&m_node_residual2));
+    PetscCall(DMCreateGlobalVector(m_dm,&m_node_load));
+    PetscCall(VecZeroEntries(m_nodes_coord0));
+    PetscCall(VecZeroEntries(m_nodes_coord2));
+    PetscCall(VecZeroEntries(m_nodes_uInc2));
+    PetscCall(VecZeroEntries(m_node_residual2));
+    PetscCall(VecZeroEntries(m_node_load));
     /**************************************************************************/
     /** Create AMatrix managed by DMDA)****************************************/
     /**************************************************************************/
-    PetscCall(DMCreateMatrix(m_dm,&m_AMatrix));
-    PetscCall(MatSetFromOptions(m_AMatrix));
+    PetscCall(DMCreateMatrix(m_dm,&m_AMatrix2));
+    PetscCall(MatSetFromOptions(m_AMatrix2));
+    PetscCall(MatZeroEntries(m_AMatrix2));
     /**************************************************************************/
     /** cal node and element num***********************************************/
     /**************************************************************************/
@@ -448,25 +459,6 @@ PetscErrorCode StructuredMesh2D::addElmtAMatrixByDmdaInd(PetscInt xI,PetscInt yI
             ++rowDofI;      
         }
     }
-    // for(rowJ=yI;rowJ<yI+m_dim;++rowJ){
-    //     for(rowI=xI;rowI<xI+m_dim;++rowI){
-    //         for(nodeDofI=0;nodeDofI<m_mDof_node;++nodeDofI){
-    //             row[rowDofI].i=rowI;        col[rowDofI].i=rowI;       
-    //             row[rowDofI].j=rowJ;        col[rowDofI].j=rowJ;    
-    //             row[rowDofI].c=nodeDofI;    col[rowDofI].c=nodeDofI;
-    //             colDofI=0;
-    //             for(colJ=yI;colJ<yI+m_dim;++colJ){
-    //                 for(colI=xI;colI<xI+m_dim;++colI){
-    //                     for(nodeDofI2=0;nodeDofI2<m_mDof_node;++nodeDofI2){
-    //                         entry[mDofPerElmt*rowDofI+colDofI]=(*matrixPtr)(rowDofI,colDofI);
-    //                         ++colDofI;
-    //                     }
-    //                 }
-    //             }
-    //             ++rowDofI;
-    //         }
-    //     }
-    // }
     PetscCall(MatSetValuesStencil(*APtr,mDofPerElmt,row,mDofPerElmt,col,entry,ADD_VALUES));
     return 0;
 }
@@ -571,8 +563,11 @@ Vec & StructuredMesh2D::getNodeLocalVariableVecRef(NodeVariableType vType, int s
         case 1:
             return m_nodes_uInc1_local;
             break;    
+        case 2:
+            return m_nodes_uInc2_local;
+            break;    
         default:
-            MessagePrinter::printErrorTxt("required incremental U vec state must be 1.");
+            MessagePrinter::printErrorTxt("required incremental U vec state must be 1 or 2.");
             MessagePrinter::exitcfem();
             break;
         }
@@ -581,8 +576,11 @@ Vec & StructuredMesh2D::getNodeLocalVariableVecRef(NodeVariableType vType, int s
         if (state==1){
            return m_node_residual1_local;
         }
+        if (state==2){
+           return m_node_residual2_local;
+        }
         else{
-            MessagePrinter::printErrorTxt("required residual vec state must be 1.");
+            MessagePrinter::printErrorTxt("required residual vec state must be 1 or 2.");
             MessagePrinter::exitcfem();           
         }
         break;
@@ -619,19 +617,28 @@ PetscScalar *** & StructuredMesh2D::getNodeVariablePtrRef(NodeVariableType vType
         case 1:
             return m_array_nodes_uInc1;
             break;     
+        case 2:
+            return m_array_nodes_uInc2;
+            break;
         default:
-            MessagePrinter::printErrorTxt("required incremental U array address state must be 1.");
+            MessagePrinter::printErrorTxt("required incremental U array address state must be 1 or 2.");
             MessagePrinter::exitcfem();
             break;
         }
         break;      
     case NodeVariableType::RESIDUAL:
-        if (state==1){
-            return m_array_nodes_residual;
-        }
-        else{
-            MessagePrinter::printErrorTxt("required residual array address state must be 1.");
-            MessagePrinter::exitcfem();           
+        switch (state)
+        {
+        case 1:
+            return m_array_nodes_residual1;
+            break;     
+        case 2:
+            return m_array_nodes_residual2;
+            break;
+        default:
+            MessagePrinter::printErrorTxt("required residual array address state must be 1 or 2.");
+            MessagePrinter::exitcfem();    
+            break;
         }
         break;
     default:

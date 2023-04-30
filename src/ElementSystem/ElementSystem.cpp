@@ -3,11 +3,13 @@
 #include "MaterialSystem/MaterialPack2d.h"
 #include "MathUtils/VectorXd.h"
 ElementSystem::ElementSystem():
-    m_timerPtr(nullptr),m_hasElmtDes(false),m_hasMatDes(false){
+    m_timerPtr(nullptr),m_ifElmtDesRead(false),m_ifMatDesRead(false),
+    m_ifSetMeshSysPtr(nullptr),m_ifAssignElmtType(nullptr),m_ifAssignMatype(nullptr){
     MPI_Comm_rank(MPI_COMM_WORLD,&m_rank);
     MPI_Comm_size(MPI_COMM_WORLD,&m_rankNum);    
 }
-ElementSystem::ElementSystem(Timer* timerPtr,ElementDescription *elmtDesPtr,MaterialDescription *matDesPtr){
+ElementSystem::ElementSystem(Timer* timerPtr,ElementDescription *elmtDesPtr,MaterialDescription *matDesPtr):
+    m_ifSetMeshSysPtr(nullptr),m_ifAssignElmtType(nullptr),m_ifAssignMatype(nullptr){
     m_timerPtr=timerPtr;
     MPI_Comm_rank(MPI_COMM_WORLD,&m_rank);
     MPI_Comm_size(MPI_COMM_WORLD,&m_rankNum); 
@@ -36,43 +38,44 @@ PetscErrorCode ElementSystem::init(ElementDescription *elmtDesPtr,MaterialDescri
     init(meshPtr);
 }
 PetscErrorCode ElementSystem::init(MeshSystem *meshPtr){
-    if(!m_hasElmtDes){
+    setMeshSysPtr(meshPtr);
+    if(!m_ifElmtDesRead){
         MessagePrinter::printErrorTxt("need to read element description before init element system!");
         MessagePrinter::exitcfem();
     }
-    else if(!m_hasMatDes){
+    else if(!m_ifMatDesRead){
         MessagePrinter::printErrorTxt("need to read material description before init element system!");
         MessagePrinter::exitcfem();
     }
     else{
         m_elmtPtrs.resize(meshPtr->m_mElmts_p,nullptr);
-        assignElmtType(meshPtr);
-        assignMatType(meshPtr);
+        assignElmtType();
+        assignMatType();
     }
     return 0;
 }
-bool ElementSystem::checkElmtsAssigment(MeshSystem *meshPtr){
+bool ElementSystem::checkElmtsAssigment(){
     PetscInt mElmt_p=m_elmtPtrs.size(); /**< elmt num in this rank*/
     for(PetscInt i=0;i<mElmt_p;++i){
         if(!m_elmtPtrs[i]){
             MessagePrinter::printErrorTxt("a elemnt (global id = "+
-                                to_string(meshPtr->elmtRId2GId(i))+
+                                to_string(m_meshSysPtr->elmtRId2GId(i))+
                                 ") has lost the element type assigment.");
             MessagePrinter::exitcfem();
         }
         if(!(m_elmtPtrs[i]->m_matPtr)){
             MessagePrinter::printErrorTxt("a elemnt (global id = "+
-                                to_string(meshPtr->elmtRId2GId(i))+
+                                to_string(m_meshSysPtr->elmtRId2GId(i))+
                                 ") has lost the material assigment.");
             MessagePrinter::exitcfem();            
         }
     }
     return true;
 }
-PetscErrorCode ElementSystem::assignElmtType(MeshSystem *meshPtr){
+PetscErrorCode ElementSystem::assignElmtType(){
     const int mElmtType=m_elmtTypeNames.size();
     for(int elmtTypeI=0;elmtTypeI<mElmtType;++elmtTypeI){// loop over every elmt type
-        vector<PetscInt> &elmtSet=meshPtr->m_setManager.getSet(
+        vector<PetscInt> &elmtSet=m_meshSysPtr->m_setManager.getSet(
             m_elmtAssignSetNames[elmtTypeI],SetType::ELEMENT);
         PetscInt mElmtInSet=elmtSet.size(); /**< num of elmts in this set*/
         for(PetscInt i=0;i<mElmtInSet;i++){// loop over every elmt of this elmt type
@@ -89,12 +92,13 @@ PetscErrorCode ElementSystem::assignElmtType(MeshSystem *meshPtr){
             m_elmtPtrs[elmtSet[i]]->initElement(elmtSet[i],m_nLarge,nullptr);
         }
     }
+    m_ifAssignElmtType=true;
     return 0;
 }
-PetscErrorCode ElementSystem::assignMatType(MeshSystem *meshPtr){
+PetscErrorCode ElementSystem::assignMatType(){
     const int mMatType=m_matTypeNames.size();
     for(int matTypeId=0;matTypeId<mMatType;++matTypeId){// loop over every material type
-        vector<PetscInt> &elmtSet=meshPtr->m_setManager.getSet(
+        vector<PetscInt> &elmtSet=m_meshSysPtr->m_setManager.getSet(
             m_materialAssignSetNames[matTypeId],SetType::ELEMENT);
         PetscInt mElmtInSet=elmtSet.size(); /**< num of elmts in this materia; type*/
         for(PetscInt i=0;i<mElmtInSet;i++){
@@ -105,17 +109,42 @@ PetscErrorCode ElementSystem::assignMatType(MeshSystem *meshPtr){
             m_elmtPtrs[elmtSet[i]]->m_matPtr->initProperty(&(m_properties[matTypeId]));
         }
     }
+    m_ifAssignMatype=true;
     return 0;
 }
-PetscErrorCode ElementSystem::assembleAMatrix(MeshSystem *t_meshPtr,Mat *t_AMatrixPtr){
+PetscErrorCode ElementSystem::checkInit(){
+    if(!m_ifElmtDesRead){
+        MessagePrinter::printErrorTxt("ElemntSystem: it has not read element description.");
+        MessagePrinter::exitcfem();        
+    }
+    if(!m_ifMatDesRead){
+        MessagePrinter::printErrorTxt("ElemntSystem: it has not read material description.");
+        MessagePrinter::exitcfem();
+    }
+    if(!m_ifSetMeshSysPtr){
+        MessagePrinter::printErrorTxt("ElemntSystem: its relied mesh system has not yet been set.");
+        MessagePrinter::exitcfem();        
+    }
+    if(!m_ifAssignElmtType){
+        MessagePrinter::printErrorTxt("ElemntSystem: it has not assign element type.");
+        MessagePrinter::exitcfem();          
+    }
+    if(!m_ifAssignMatype){
+        MessagePrinter::printErrorTxt("ElemntSystem: it has not assign material type.");
+        MessagePrinter::exitcfem();          
+    }
+    checkElmtsAssigment();
+    return 0;    
+}
+PetscErrorCode ElementSystem::assembleAMatrix(Vec *t_uInc1Ptr, Mat *t_AMatrixPtr){
     const int MNodeElmt2d=9, MNodeElmt3d=27;
     Vector2d coord2Ptr2d[MNodeElmt2d], uIncPtr2d[MNodeElmt2d];
     Vector3d coord2Ptr3d[MNodeElmt3d], uIncPtr3d[MNodeElmt3d];
     /**open access to node variable Vec***********************************************/
     /*********************************************************************************/
-    t_meshPtr->openNodeVariableVec(NodeVariableType::COORD,&(t_meshPtr->m_nodes_coord2),2,VecAccessMode::READ);
-    t_meshPtr->openNodeVariableVec(NodeVariableType::UINC,&(t_meshPtr->m_nodes_uInc1),1,VecAccessMode::READ);
-    for(PetscInt eI=0;eI<t_meshPtr->m_mElmts_p;eI++){// loop over every element in this rank
+    m_meshSysPtr->openNodeVariableVec(NodeVariableType::COORD,&(m_meshSysPtr->m_nodes_coord2),2,VecAccessMode::READ);
+    m_meshSysPtr->openNodeVariableVec(NodeVariableType::UINC,t_uInc1Ptr,1,VecAccessMode::READ);
+    for(PetscInt eI=0;eI<m_meshSysPtr->m_mElmts_p;eI++){// loop over every element in this rank
         element *elmtPtr=m_elmtPtrs[eI];
         int mDofInElmt=elmtPtr->getDofNum();
         int dim=elmtPtr->getDim();
@@ -134,30 +163,30 @@ PetscErrorCode ElementSystem::assembleAMatrix(MeshSystem *t_meshPtr,Mat *t_AMatr
             MessagePrinter::printErrorTxt("dim = "+to_string(dim)+" is not supported now");
             MessagePrinter::exitcfem();
         }
-        t_meshPtr->getElmtNodeCoord(elmtPtr->m_elmt_rId,2,coord2Ptr);
-        t_meshPtr->getElmtNodeUInc(elmtPtr->m_elmt_rId,1,uIncPtr);
+        m_meshSysPtr->getElmtNodeCoord(elmtPtr->m_elmt_rId,2,coord2Ptr);
+        m_meshSysPtr->getElmtNodeUInc(elmtPtr->m_elmt_rId,1,uIncPtr);
         MatrixXd AMatrixElmt=MatrixXd(mDofInElmt,mDofInElmt,0.0);   /**< elmt's jacobian matrix*/
         bool ifMatUpdateConvergerd=false;
-        elmtPtr->getElmtStfMatrix(coord2Ptr2d,uIncPtr,&AMatrixElmt);
-        t_meshPtr->addElmtAMatrix(elmtPtr->m_elmt_rId,&AMatrixElmt,t_AMatrixPtr);
+        elmtPtr->getElmtStfMatrix(coord2Ptr,uIncPtr,&AMatrixElmt);
+        m_meshSysPtr->addElmtAMatrix(elmtPtr->m_elmt_rId,&AMatrixElmt,t_AMatrixPtr);
     }
     /** assemble or restore global Mat**************************************/
     /***********************************************************************/
     PetscCall(MatAssemblyBegin(*t_AMatrixPtr,MAT_FINAL_ASSEMBLY));
     PetscCall(MatAssemblyEnd(*t_AMatrixPtr,MAT_FINAL_ASSEMBLY));
-    t_meshPtr->closeNodeVariableVec(NodeVariableType::COORD,&(t_meshPtr->m_nodes_coord2),2,VecAccessMode::READ);
-    t_meshPtr->closeNodeVariableVec(NodeVariableType::UINC,&(t_meshPtr->m_nodes_uInc1),1,VecAccessMode::READ);
+    m_meshSysPtr->closeNodeVariableVec(NodeVariableType::COORD,&(m_meshSysPtr->m_nodes_coord2),2,VecAccessMode::READ);
+    m_meshSysPtr->closeNodeVariableVec(NodeVariableType::UINC,t_uInc1Ptr,1,VecAccessMode::READ);
 }
-PetscErrorCode ElementSystem::assemblRVec(MeshSystem *t_meshPtr, Vec *t_RVecPtr){
+PetscErrorCode ElementSystem::assemblRVec(Vec *t_uInc1Ptr, Vec *t_RVecPtr){
     const int MNodeElmt2d=9, MNodeElmt3d=27;
     Vector2d coord2Ptr2d[MNodeElmt2d], uIncPtr2d[MNodeElmt2d], fIVector2d[MNodeElmt2d];
     Vector3d coord2Ptr3d[MNodeElmt3d], uIncPtr3d[MNodeElmt3d], fIVector3d[MNodeElmt3d];
     /**open access to node variable Vec***********************************************/
     /*********************************************************************************/
-    t_meshPtr->openNodeVariableVec(NodeVariableType::COORD,&(t_meshPtr->m_nodes_coord2),2,VecAccessMode::READ);
-    t_meshPtr->openNodeVariableVec(NodeVariableType::UINC,&(t_meshPtr->m_nodes_uInc1),1,VecAccessMode::READ);
-    t_meshPtr->openNodeVariableVec(NodeVariableType::RESIDUAL,&(t_meshPtr->m_node_residual1),1,VecAccessMode::WRITE);
-    for(PetscInt eI=0;eI<t_meshPtr->m_mElmts_p;eI++){// loop over every element in this rank
+    m_meshSysPtr->openNodeVariableVec(NodeVariableType::COORD,&(m_meshSysPtr->m_nodes_coord2),2,VecAccessMode::READ);
+    m_meshSysPtr->openNodeVariableVec(NodeVariableType::UINC,t_uInc1Ptr,1,VecAccessMode::READ);
+    m_meshSysPtr->openNodeVariableVec(NodeVariableType::RESIDUAL,t_RVecPtr,1,VecAccessMode::WRITE);
+    for(PetscInt eI=0;eI<m_meshSysPtr->m_mElmts_p;eI++){// loop over every element in this rank
         element *elmtPtr=m_elmtPtrs[eI];
         int mDofInElmt=elmtPtr->getDofNum();
         int dim=elmtPtr->getDim();
@@ -177,8 +206,8 @@ PetscErrorCode ElementSystem::assemblRVec(MeshSystem *t_meshPtr, Vec *t_RVecPtr)
             MessagePrinter::printErrorTxt("dim = "+to_string(dim)+" is not supported now");
             MessagePrinter::exitcfem();
         }
-        t_meshPtr->getElmtNodeCoord(elmtPtr->m_elmt_rId,2,coord2Ptr);
-        t_meshPtr->getElmtNodeUInc(elmtPtr->m_elmt_rId,1,uIncPtr);
+        m_meshSysPtr->getElmtNodeCoord(elmtPtr->m_elmt_rId,2,coord2Ptr);
+        m_meshSysPtr->getElmtNodeUInc(elmtPtr->m_elmt_rId,1,uIncPtr);
         VectorXd fI=VectorXd(mDofInElmt,0.0);
         bool ifMatUpdateConvergerd=false;
         elmtPtr->getElmtInnerForce(coord2Ptr,uIncPtr,&fI,&ifMatUpdateConvergerd);
@@ -188,27 +217,27 @@ PetscErrorCode ElementSystem::assemblRVec(MeshSystem *t_meshPtr, Vec *t_RVecPtr)
                 fIVector[nodeI](dofI)=fI(nodeI*mDofPerNode+dofI);
             }
         }
-        t_meshPtr->addElmtResidual(elmtPtr->m_elmt_rId,fIVector,t_RVecPtr);
+        m_meshSysPtr->addElmtResidual(elmtPtr->m_elmt_rId,fIVector,t_RVecPtr);
     }
     /** assemble or restore global Vec**************************************/
     /***********************************************************************/
-    t_meshPtr->closeNodeVariableVec(NodeVariableType::COORD,&(t_meshPtr->m_nodes_coord2),2,VecAccessMode::READ);
-    t_meshPtr->closeNodeVariableVec(NodeVariableType::UINC,&(t_meshPtr->m_nodes_uInc1),1,VecAccessMode::READ);
-    t_meshPtr->closeNodeVariableVec(NodeVariableType::RESIDUAL,&(t_meshPtr->m_node_residual1),1,VecAccessMode::WRITE);
+    m_meshSysPtr->closeNodeVariableVec(NodeVariableType::COORD,&(m_meshSysPtr->m_nodes_coord2),2,VecAccessMode::READ);
+    m_meshSysPtr->closeNodeVariableVec(NodeVariableType::UINC,t_uInc1Ptr,1,VecAccessMode::READ);
+    m_meshSysPtr->closeNodeVariableVec(NodeVariableType::RESIDUAL,t_RVecPtr,1,VecAccessMode::WRITE);
 }
 void ElementSystem::readElmtDes(ElementDescription *elmtDesPtr){
-    if(m_hasElmtDes)return;
+    if(m_ifElmtDesRead)return;
     m_elmtTypeNames=elmtDesPtr->s_names;
     m_elmtTypes=elmtDesPtr->s_elmtTypes;
     m_elmtAssignSetNames=elmtDesPtr->s_setNames;
     m_nLarge=elmtDesPtr->s_nLarge;
-    m_hasElmtDes=true;
+    m_ifElmtDesRead=true;
 }
 void ElementSystem::readMatDes(MaterialDescription *matDesPtr){
-    if(m_hasMatDes)return;
+    if(m_ifMatDesRead)return;
     m_matTypeNames=matDesPtr->s_names;
     m_matTypes=matDesPtr->s_matType;
     m_properties=matDesPtr->s_properties;
     m_materialAssignSetNames=matDesPtr->s_setName;    
-    m_hasMatDes=true;
+    m_ifMatDesRead=true;
 }

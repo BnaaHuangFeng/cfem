@@ -10,10 +10,14 @@
 using namespace std;
 class StructuredMesh2D:public MeshSystem{
 public:
-    inline StructuredMesh2D():m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
-            m_array_nodes_uInc1(nullptr), m_array_nodes_residual(nullptr){};
-    inline StructuredMesh2D(Timer *timerPtr):MeshSystem(timerPtr),m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
-            m_array_nodes_uInc1(nullptr), m_array_nodes_residual(nullptr){};
+    inline StructuredMesh2D():
+            m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
+            m_array_nodes_uInc1(nullptr),m_array_nodes_uInc2(nullptr),
+            m_array_nodes_residual1(nullptr),m_array_nodes_residual2(nullptr){};
+    inline StructuredMesh2D(Timer *timerPtr):MeshSystem(timerPtr),
+            m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
+            m_array_nodes_uInc1(nullptr),m_array_nodes_uInc2(nullptr),
+            m_array_nodes_residual1(nullptr),m_array_nodes_residual2(nullptr){};
 //**********************************************************************************************
 //** interface to creat mesh structure *********************************************************
 //**********************************************************************************************/
@@ -108,6 +112,11 @@ public:
 //**********************************************************************************************
 //** interface to writting of data in mesh node ************************************************
 //**********************************************************************************************
+    /**
+     * update mesh configuration set converged m_nodes_coord2 and  converged incremental u m_nodes_uInc2
+     * @param snesPtr > ptr to SNES
+    */
+    virtual PetscErrorCode updateConfig(SNES *sensPtr);
     /**
      * Add a element's Jacobian (stiffness) matrix to global one (need to do MatAssembly after
      * elmts in this rank have called this func)
@@ -222,15 +231,15 @@ public:
     DMDALocalInfo m_daInfo;                 /**< DMDA local info*/
     PetscScalar m_geoParam[3];              /**< geometry parameter to describe the regular mesh domain （for rectangular domain, is x length,y length in order; for sin or half sin domain, is span, amplitude, width in order)*/
     Vec m_nodes_coord0_local;               /**< local nodes' coords in ref config*/
-    // Vec m_nodes_coord1;                     /**< global nodes' coords in current config*/
     Vec m_nodes_coord2_local;               /**< local nodes' coords of last converged config*/
     Vec m_nodes_uInc1_local;                /**< local nodes' incremental displacement in current config*/
-    // Vec *m_nodes_uInc2;                      /**< global nodes' incremental displacement of last converged config*/
-    Vec m_node_residual1_local;                   /**< local nolinear function's residual Vec, also unbalanced forces (f^int-f^ext)*/
-    PetscScalar ***m_array_nodes_coord0;    /**< ptr for access m_nodes_coord0*/
-    // PetscScalar ***m_array_nodes_coord1;    /**< ptr for access m_nodes_coord1*/
-    PetscScalar ***m_array_nodes_coord2;    /**< ptr for access m_nodes_coord2*/
-    PetscScalar ***m_array_nodes_uInc1;     /**< ptr for access m_nodes_uInc1*/
-    // PetscScalar ***m_array_nodes_uInc2;     /**< ptr for access m_nodes_uInc2*/
-    PetscScalar ***m_array_nodes_residual;  /**< ptr for access m_node_residual1*/
+    Vec m_nodes_uInc2_local;                /**< local nodes' incremental displacement of last converged config*/
+    Vec m_node_residual1_local;             /**< local nolinear function's residual Vec in current iteration, also unbalanced forces (f^int-f^ext)*/
+    Vec m_node_residual2_local;             /**< local nolinear function's residual Vec in last converged increment, also unbalanced forces (f^int-f^ext)*/
+    PetscScalar ***m_array_nodes_coord0;    /**< ptr for access m_nodes_coord0_local*/
+    PetscScalar ***m_array_nodes_coord2;    /**< ptr for access m_nodes_coord2_local*/
+    PetscScalar ***m_array_nodes_uInc1;     /**< ptr for access m_nodes_uInc1_local*/
+    PetscScalar ***m_array_nodes_uInc2;     /**< ptr for access m_nodes_uInc2_local*/
+    PetscScalar ***m_array_nodes_residual1; /**< ptr for access m_node_residual1_local*/
+    PetscScalar ***m_array_nodes_residual2; /**< ptr for access m_node_residual1_local*/
 };

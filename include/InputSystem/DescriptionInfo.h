@@ -9,7 +9,6 @@
 #include"petsc.h"
 #include"Utils/JsonUtils.h"
 #include"nlohmann/json.hpp"
-# define ARCLENGTH_CYLENDER "arclength_cylender"
 using namespace std;
 struct MeshDescription{
     MeshMode s_mode;    /**< structured, unstructured,...*/
@@ -37,6 +36,7 @@ struct MaterialDescription{
 };
 struct StepDescriptiom
 {
+    AlgorithmType s_algorithm;  /**< solution algorithm method type*/
     SNESType s_SNESType;        /**< Petsc nolinear solver SNES type*/
     KSPType s_KSPType;          /**< Petsc linear solver KSP type*/
     PCType s_PCType;            /**< Petsc precondition type*/
