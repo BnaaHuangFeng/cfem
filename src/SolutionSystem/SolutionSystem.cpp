@@ -20,6 +20,7 @@ SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr):
     m_solutionCtx.s_bcsSysPtr=nullptr;
     m_solutionCtx.s_elmtSysPtr=nullptr;
     m_solutionCtx.s_loadCtrlPtr=nullptr;
+    m_ifStepDesRead=false;
     readStepDes(t_stepDesPtr);
     m_ifSetMeshSysPtr=false;
     m_ifSolerInit=false;
@@ -32,6 +33,8 @@ SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr, MeshSystem *t_mesh
     m_solutionCtx.s_bcsSysPtr=nullptr;
     m_solutionCtx.s_elmtSysPtr=nullptr;
     m_solutionCtx.s_loadCtrlPtr=nullptr;
+    m_ifStepDesRead=false;
+    m_ifSetMeshSysPtr=false;
     readStepDes(t_stepDesPtr);
     setMeshSysPtr(t_meshSysPtr);
     m_ifSolerInit=false;
@@ -39,11 +42,9 @@ SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr, MeshSystem *t_mesh
 }
 SolutionSystem::~SolutionSystem(){
     SNESDestroy(&m_snes);
-    KSPDestroy(&m_ksp);
-    PCDestroy(&m_pc);
-    SNESLineSearchDestroy(&m_snesLinesearch);
 }
 PetscErrorCode SolutionSystem::init(StepDescriptiom *t_stepDesPtr,MeshSystem *t_meshSysPtr,ElementSystem *t_elmtSysPtr,BCsSystem *t_bcsSysPtr, LoadController *t_loadCtrlPtr){
+    readStepDes(t_stepDesPtr);
     setMeshSysPtr(t_meshSysPtr);
     initStep(t_stepDesPtr);
     initSolutionCtx(t_elmtSysPtr, t_bcsSysPtr, t_loadCtrlPtr);

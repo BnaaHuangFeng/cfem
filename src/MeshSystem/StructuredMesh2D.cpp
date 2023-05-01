@@ -17,6 +17,22 @@
 #include"petsc.h"
 #include<cmath>
 #include<fstream>
+StructuredMesh2D::StructuredMesh2D():
+        m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
+        m_array_nodes_uInc1(nullptr),m_array_nodes_uInc2(nullptr),
+        m_array_nodes_residual1(nullptr),m_array_nodes_residual2(nullptr){
+    m_dim=2;
+    m_mDof_node=2;
+    m_meshMode=MeshMode::STRUCTURED;
+};
+StructuredMesh2D::StructuredMesh2D(Timer *timerPtr):MeshSystem(timerPtr),
+        m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
+        m_array_nodes_uInc1(nullptr),m_array_nodes_uInc2(nullptr),
+        m_array_nodes_residual1(nullptr),m_array_nodes_residual2(nullptr){
+    m_dim=2;
+    m_mDof_node=2;   
+    m_meshMode=MeshMode::STRUCTURED; 
+}
 PetscErrorCode StructuredMesh2D::MeshSystemInit(MeshDescription *t_meshDesPtr){
     PetscErrorCode err=0;
     MeshMode meshMode=t_meshDesPtr->s_mode;
@@ -253,11 +269,9 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
         m_geoParam[1]=t_meshDesPtr->s_size_json.at("ymax");
         break;
     case MeshShape::SIN:
-        m_geoParam[0]=t_meshDesPtr->s_size_json.at("span");
-        m_geoParam[1]=t_meshDesPtr->s_size_json.at("amplitude");
-        m_geoParam[2]=t_meshDesPtr->s_size_json.at("width");
-        break;
     case MeshShape::HALFSIN:
+    case MeshShape::COS:
+    case MeshShape::HALFCOS:
         m_geoParam[0]=t_meshDesPtr->s_size_json.at("span");
         m_geoParam[1]=t_meshDesPtr->s_size_json.at("amplitude");
         m_geoParam[2]=t_meshDesPtr->s_size_json.at("width");
@@ -326,29 +340,37 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
     m_node_gId.resize(m_mNodes_p);
     m_elmt_gId.resize(m_mElmts_p);
     m_elmt_cnn.resize(m_mElmts_p);
-
     const int mNodePElmt=4; /**< node num per element*/
     PetscInt nodeRId=0,elmtRId=0;                   /**< current ndoe/element's m_rank id*/
     PetscInt nodeGId=m_daInfo.mx*m_daInfo.ys;       /**< current node's global id*/
     PetscInt elmtGId=(m_daInfo.mx-1)*m_daInfo.ys;   /**< current node's global id*/
+    PetscCall(PetscPrintf(PETSC_COMM_WORLD,"\033[1;33m"));// set color to yellow
     PetscCall(PetscSynchronizedPrintf(              /**< print the node and element's global id range of every m_rank*/
             PETSC_COMM_WORLD,
-            "[%d]: owned node global id: %d -> %d \t owned elment global id: %d -> %d\n",
+            "[%2d]: owned node global id: %d -> %d \n      owned elment global id: %d -> %d\n",
             m_rank, nodeGId, nodeGId+m_mNodes_p, elmtGId, elmtGId+m_mElmts_p
     ));
     PetscCall(PetscSynchronizedPrintf(              /**< print the node and element's DMDA index range of every m_rank*/
             PETSC_COMM_WORLD,
-            "[%d]: owned node DMDA index: [%d, %d] X [%d, %d] \t owned elment DMDA index: [%d, %d] X [%d, %d]\n",
+            "[%2d]: owned node DMDA index: [%d, %d] X [%d, %d] \n      owned elment DMDA index: [%d, %d] X [%d, %d]\n",
             m_rank, m_daInfo.xs, m_daInfo.ys, m_daInfo.xs+m_daInfo.xm, m_daInfo.ys+m_daInfo.ym,                     // node DMDA index range
                     m_daInfo.xs, m_daInfo.ys, m_daInfo.xs+m_daInfo.xm-1, m_daInfo.ys+m_daInfo.ym-(m_rank==m_rankNum-1)
     ));
     PetscCall(PetscSynchronizedFlush(PETSC_COMM_WORLD,PETSC_STDOUT));
+    PetscCall(PetscPrintf(PETSC_COMM_WORLD,"\033[0m"));// recover color
     PetscScalar ***aCoord0;         /** ptr to the node's coords in ref config*/
     Vector2d CoordLocal;          /** store coord0 of a node*/
     PetscCall(DMDAVecGetArrayDOF(m_dm,m_nodes_coord0,&aCoord0));
+    /**************************************************************************/
+    /** create node set "left", "right" vector ********************************/
+    /**************************************************************************/
+    vector<PetscInt> leftSet;
+    vector<PetscInt> rightSet;
     for(int yI=m_daInfo.ys;yI<m_daInfo.ys+m_daInfo.ym;yI++){    // loop over every row
         for(int xI=m_daInfo.xs;xI<m_daInfo.xs+m_daInfo.xm;xI++){// loop over every col
-            m_node_gId[nodeRId]=nodeGId;        // set node's global id
+            m_node_gId[nodeRId]=nodeGId;                    // set node's global id
+            if(yI==0) leftSet.push_back(nodeRId);           // append node to set left
+            if(yI==m_daInfo.my-1) rightSet.push_back(nodeRId);//append node to set right
             if(yI<m_daInfo.my-1&&xI<m_daInfo.mx-1){
                 m_elmt_gId[elmtRId]=elmtGId;    // set element's global id
                 /** Set element's connectivity*/
@@ -390,6 +412,25 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
             ++nodeGId;
         }
     }
+    // ************************************************************************/
+    // create set "all"                                                     ***/
+    // ************************************************************************/
+    vector<PetscInt> elmtAll;
+    vector<PetscInt> nodeAll;
+    elmtAll.resize(m_mElmts_p);
+    nodeAll.resize(m_mNodes_p);
+    PetscInt rid=0;
+    for(vector<PetscInt>::iterator it=nodeAll.begin();it!=nodeAll.end();++it){
+        *it=rid++;
+    }
+    rid=0;
+    for(vector<PetscInt>::iterator it=elmtAll.begin();it!=elmtAll.end();++it){
+        *it=rid++;
+    }
+    m_setManager.createSet("all",SetType::ELEMENT,&elmtAll);
+    m_setManager.createSet("all",SetType::NODE,&nodeAll);
+    m_setManager.createSet("left",SetType::NODE,&leftSet);
+    m_setManager.createSet("right",SetType::NODE,&rightSet);
     PetscCall(DMDAVecRestoreArrayDOF(m_dm,m_nodes_coord0,&aCoord0));
     PetscCall(VecAssemblyBegin(m_nodes_coord0));
     PetscCall(VecAssemblyEnd(m_nodes_coord0));
@@ -515,43 +556,43 @@ void StructuredMesh2D::getRectCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector *aC
     /**m_geoParam < geometry parameter to describe the regular mesh domain
      * (for rectangular domain, is x length,y length in order; 
      * for sin or half sin domain, is span, amplitude, width in order)*/
-    (*aCoord)(0)=xI*m_geoParam[0]/m_daInfo.mx;
-    (*aCoord)(1)=yI*m_geoParam[1]/m_daInfo.my;
+    (*aCoord)(1)=xI*m_geoParam[0]/(m_daInfo.mx-1);
+    (*aCoord)(0)=yI*m_geoParam[1]/(m_daInfo.my-1);
 }
 
 void StructuredMesh2D::getSinCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector *aCoord){
     /**m_geoParam < geometry parameter to describe the regular mesh domain
      * (for rectangular domain, is x length,y length in order; 
      * for sin or half sin domain, is span l, amplitude a, width w in order)*/
-    (*aCoord)(1)=yI*m_geoParam[0]/(m_daInfo.my-1);
+    (*aCoord)(0)=yI*m_geoParam[0]/(m_daInfo.my-1);
     /** x=a*sin(2pi*y/l)*/
-    (*aCoord)(0)=m_geoParam[1]*sin(2.0*M_PI*(*aCoord)(1)/m_geoParam[0])+xI*m_geoParam[2]/(m_daInfo.mx-1);
+    (*aCoord)(1)=m_geoParam[1]*sin(2.0*M_PI*(*aCoord)(0)/m_geoParam[0])+xI*m_geoParam[2]/(m_daInfo.mx-1);
 }
 
 void StructuredMesh2D::getHalfSinCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector *aCoord){
     /**m_geoParam < geometry parameter to describe the regular mesh domain
      * (for rectangular domain, is x length,y length in order; 
      * for sin or half sin domain, is span l, amplitude a, width w in order)*/
-    (*aCoord)(1)=yI*m_geoParam[0]/m_daInfo.my;
+    (*aCoord)(0)=yI*m_geoParam[0]/(m_daInfo.my-1);
     /** x=a*sin(pi*y/l)*/
-    (*aCoord)(0)=m_geoParam[1]*sin(M_PI*(*aCoord)(1)/m_geoParam[0])+xI*m_geoParam[2]/(m_daInfo.mx-1);  
+    (*aCoord)(1)=m_geoParam[1]*sin(M_PI*(*aCoord)(0)/m_geoParam[0])+xI*m_geoParam[2]/(m_daInfo.mx-1);  
 }
 void StructuredMesh2D::getCosCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector *aCoord){
     /**m_geoParam < geometry parameter to describe the regular mesh domain
      * (for rectangular domain, is x length,y length in order; 
      * for sin or half sin domain, is span l, amplitude a, width w in order)*/
-    (*aCoord)(1)=-0.5*m_geoParam[0]+yI*m_geoParam[0]/(m_daInfo.my-1);
+    (*aCoord)(0)=-0.5*m_geoParam[0]+yI*m_geoParam[0]/(m_daInfo.my-1);
     /** x=a*cos(2pi*y/l)*/
-    (*aCoord)(0)=m_geoParam[1]*cos(2.0*M_PI*(*aCoord)(1)/m_geoParam[0])+xI*m_geoParam[2]/(m_daInfo.mx-1);
+    (*aCoord)(1)=m_geoParam[1]*cos(2.0*M_PI*(*aCoord)(0)/m_geoParam[0])+xI*m_geoParam[2]/(m_daInfo.mx-1);
 }
 
 void StructuredMesh2D::getHalfCosCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector *aCoord){
     /**m_geoParam < geometry parameter to describe the regular mesh domain
      * (for rectangular domain, is x length,y length in order; 
      * for sin or half sin domain, is span l, amplitude a, width w in order)*/
-    (*aCoord)(1)=-m_geoParam[0]+yI*m_geoParam[0]/(m_daInfo.my-1);
+    (*aCoord)(0)=-m_geoParam[0]+yI*m_geoParam[0]/(m_daInfo.my-1);
     /** x=a*cos(pi*y/l)*/
-    (*aCoord)(0)=m_geoParam[1]*cos(M_PI*(*aCoord)(1)/m_geoParam[0])+xI*m_geoParam[2]/(m_daInfo.mx-1); 
+    (*aCoord)(1)=m_geoParam[1]*cos(M_PI*(*aCoord)(0)/m_geoParam[0])+xI*m_geoParam[2]/(m_daInfo.mx-1); 
 }
 void StructuredMesh2D::getElmtDmdaIndByRId(PetscInt rId,PetscInt *xIPtr,PetscInt *yIPtr){
     *yIPtr=rId/(m_daInfo.mx-1)+m_daInfo.ys;

@@ -4,13 +4,17 @@
 #include "MathUtils/VectorXd.h"
 ElementSystem::ElementSystem():
     m_timerPtr(nullptr),m_ifElmtDesRead(false),m_ifMatDesRead(false),
-    m_ifSetMeshSysPtr(nullptr),m_ifAssignElmtType(nullptr),m_ifAssignMatype(nullptr){
+    m_ifSetMeshSysPtr(false),m_ifAssignElmtType(false),m_ifAssignMatype(false),
+    m_nLarge(false){
     MPI_Comm_rank(MPI_COMM_WORLD,&m_rank);
     MPI_Comm_size(MPI_COMM_WORLD,&m_rankNum);    
 }
 ElementSystem::ElementSystem(Timer* timerPtr,ElementDescription *elmtDesPtr,MaterialDescription *matDesPtr):
-    m_ifSetMeshSysPtr(nullptr),m_ifAssignElmtType(nullptr),m_ifAssignMatype(nullptr){
+    m_ifSetMeshSysPtr(false),m_ifAssignElmtType(false),m_ifAssignMatype(false){
     m_timerPtr=timerPtr;
+    m_nLarge=elmtDesPtr->s_nLarge;
+    m_ifElmtDesRead=false;
+    m_ifMatDesRead=false;
     MPI_Comm_rank(MPI_COMM_WORLD,&m_rank);
     MPI_Comm_size(MPI_COMM_WORLD,&m_rankNum); 
     /** int elemt description  **/
@@ -29,6 +33,7 @@ ElementSystem::~ElementSystem(){
     }
 }
 PetscErrorCode ElementSystem::init(ElementDescription *elmtDesPtr,MaterialDescription *matDesPtr,MeshSystem *meshPtr){
+    m_nLarge=elmtDesPtr->s_nLarge;
     /** int elemt description  **/
     /****************************/
     readElmtDes(elmtDesPtr);
@@ -44,8 +49,12 @@ PetscErrorCode ElementSystem::init(MeshSystem *meshPtr){
         MessagePrinter::printErrorTxt("need to read element description before init element system!");
         MessagePrinter::exitcfem();
     }
-    else if(!m_ifMatDesRead){
+    if(!m_ifMatDesRead){
         MessagePrinter::printErrorTxt("need to read material description before init element system!");
+        MessagePrinter::exitcfem();
+    }
+    if(!m_ifSetMeshSysPtr){
+        MessagePrinter::printErrorTxt("need to set mesh system pointer before init element system!");
         MessagePrinter::exitcfem();
     }
     else{

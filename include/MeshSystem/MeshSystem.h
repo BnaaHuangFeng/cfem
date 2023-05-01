@@ -169,6 +169,7 @@ public:
     std::string m_inputMeshFile_Name;
     PetscMPIInt m_rankNum;                  /**< processor num*/
     PetscMPIInt m_rank;                     /**< current rank*/
+    MeshMode m_meshMode;                    /**< mesh mode*/
     PetscInt m_dim;                         /**< mesh dimension*/
     PetscInt m_mDof_node;                   /**< dof num per node*/
     PetscInt m_mNodes;                      /**< the sum of nodes in all processors*/

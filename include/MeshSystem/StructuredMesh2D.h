@@ -10,14 +10,8 @@
 using namespace std;
 class StructuredMesh2D:public MeshSystem{
 public:
-    inline StructuredMesh2D():
-            m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
-            m_array_nodes_uInc1(nullptr),m_array_nodes_uInc2(nullptr),
-            m_array_nodes_residual1(nullptr),m_array_nodes_residual2(nullptr){};
-    inline StructuredMesh2D(Timer *timerPtr):MeshSystem(timerPtr),
-            m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
-            m_array_nodes_uInc1(nullptr),m_array_nodes_uInc2(nullptr),
-            m_array_nodes_residual1(nullptr),m_array_nodes_residual2(nullptr){};
+    StructuredMesh2D();
+    StructuredMesh2D(Timer *timerPtr);
 //**********************************************************************************************
 //** interface to creat mesh structure *********************************************************
 //**********************************************************************************************/
@@ -134,6 +128,9 @@ public:
 /**********************************************************************************************/
 
 private:
+    /**
+     * 
+    */
     /**
      * get coords of the nodes in a element by elmt's x,y global index in dmda
      * @param xI > DMDA x index

@@ -172,7 +172,7 @@ vector<PetscInt> & SetManager::getSet(string setName, SetType setType){
     }
     it=mapPtr->find(setName);
     if(it==mapPtr->end()){
-        MessagePrinter::printErrorTxt("getSet error: set does not exist.");
+        MessagePrinter::printErrorTxt("getSet error: set "+setName+" does not exist.");
         MessagePrinter::exitcfem();
     }
     else{

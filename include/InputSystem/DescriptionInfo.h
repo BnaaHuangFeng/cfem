@@ -11,6 +11,7 @@
 #include"nlohmann/json.hpp"
 using namespace std;
 struct MeshDescription{
+    bool s_nLarge;      /**< if strain large?*/ 
     MeshMode s_mode;    /**< structured, unstructured,...*/
     MeshType s_type;    /**< quad4, quad8, ...*/
     Dimension s_dim;    /**< 1D, 2D, 3D*/
@@ -29,6 +30,7 @@ struct ElementDescription
     vector<string> s_setNames;          /**< names of set ralative element assign to*/
 };
 struct MaterialDescription{
+    bool s_nLarge;                          /**< if strain large?*/ 
     vector<string> s_names;                 /**< material name (used defined in input file)*/
     vector<MaterialType> s_matType;         /**< material type*/
     vector<nlohmann::json> s_properties;    /**< material properties json type*/
@@ -36,6 +38,7 @@ struct MaterialDescription{
 };
 struct StepDescriptiom
 {
+    bool s_nLarge;              /**< if strain large?*/ 
     AlgorithmType s_algorithm;  /**< solution algorithm method type*/
     SNESType s_SNESType;        /**< Petsc nolinear solver SNES type*/
     KSPType s_KSPType;          /**< Petsc linear solver KSP type*/

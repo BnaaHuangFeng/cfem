@@ -14,7 +14,13 @@ MeshSystem::MeshSystem(Timer *timerPtr){
     m_timerPtr=timerPtr;   
 }
 MeshSystem::~MeshSystem(){
-    
+    VecDestroy(&m_nodes_coord0);
+    VecDestroy(&m_nodes_coord2);
+    VecDestroy(&m_nodes_uInc2);
+    VecDestroy(&m_node_residual2);
+    VecDestroy(&m_node_load);
+    MatDestroy(&m_AMatrix2);
+    DMDestroy(&m_dm);
 }
 bool MeshSystem::getElmtCnnByRId(int rId,const vector<int> *elmtCnn){
     checkElmtRId(rId);

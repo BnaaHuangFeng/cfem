@@ -82,6 +82,17 @@ void InputSystem::readFile(){
     in.close();
     m_json=nlohmann::json::parse(str);
     /*******************************************
+     * step reading                 ************
+    ********************************************/
+    if(m_json.contains("step")){
+        readStepBlock(m_json.at("step"));
+        MessagePrinter::printNormalTxt("step reading completed!");
+    }
+    else{
+        MessagePrinter::printErrorTxt("Mesh block is missing!");
+        MessagePrinter::exitcfem();
+    }
+    /*******************************************
      * mesh reading                 ************
     ********************************************/
     if(m_json.contains("mesh")){
@@ -112,17 +123,6 @@ void InputSystem::readFile(){
     }
     else{
         MessagePrinter::printErrorTxt("material block is missing!");
-        MessagePrinter::exitcfem();
-    }
-    /*******************************************
-     * step reading                 ************
-    ********************************************/
-    if(m_json.contains("step")){
-        readStepBlock(m_json.at("step"));
-        MessagePrinter::printNormalTxt("step reading completed!");
-    }
-    else{
-        MessagePrinter::printErrorTxt("Mesh block is missing!");
         MessagePrinter::exitcfem();
     }
     /*******************************************
@@ -220,6 +220,12 @@ bool InputSystem::readMeshBlock(nlohmann::json &t_json){
     else if(shapeName=="half-sin"){
         m_meshDes.s_shape=MeshShape::HALFSIN;
     }
+    else if(shapeName=="cos"){
+        m_meshDes.s_shape=MeshShape::COS;
+    }
+    else if(shapeName=="half-cos"){
+        m_meshDes.s_shape=MeshShape::HALFCOS;
+    }
     else{
         MessagePrinter::printErrorTxt(shapeName+" is not a supported mesh shape");
         MessagePrinter::exitcfem();
@@ -277,6 +283,19 @@ bool InputSystem::readMaterialBlock(nlohmann::json &t_json){
 }
 
 bool InputSystem::readStepBlock(nlohmann::json &t_json){
+    // read large strain flag
+    if(!t_json.contains("nLarge")){
+        MessagePrinter::printErrorTxt("step->nLarge not found.");
+        MessagePrinter::exitcfem();
+    }
+    if(!t_json.at("nLarge").is_boolean()){
+        MessagePrinter::printErrorTxt("mesh->nLarge must be boolean.");
+        MessagePrinter::exitcfem();
+    }
+    m_stepDes.s_nLarge=t_json.at("nLarge");
+    m_meshDes.s_nLarge=t_json.at("nLarge");
+    m_ElDes.s_nLarge=t_json.at("nLarge");
+    m_MatDes.s_nLarge=t_json.at("nLarge");
     // read solution algorithm method
     string algorithm=t_json.at("method");
     if(algorithm=="standard"){
@@ -434,7 +453,7 @@ bool InputSystem::readStepBlock(nlohmann::json &t_json){
     }
     // read cutback factor
     if(t_json.at("cutback-factor").is_number_float()){
-        m_stepDes.s_cutbackFactor=t_json.at("growth-factor");
+        m_stepDes.s_cutbackFactor=t_json.at("cutback-factor");
         if(m_stepDes.s_cutbackFactor<=0.0||m_stepDes.s_cutbackFactor>=1.0){
             MessagePrinter::printErrorTxt("cutback-factor must be in (0.0, 1.0).");
             MessagePrinter::exitcfem();            
@@ -444,6 +463,16 @@ bool InputSystem::readStepBlock(nlohmann::json &t_json){
         MessagePrinter::printErrorTxt("cutback-factor must be a float number.");
         MessagePrinter::exitcfem();               
     }    
+    // read max iteration num
+    if(!t_json.contains("maxiters")){
+        MessagePrinter::printErrorTxt("step->maxiters not found.");
+        MessagePrinter::exitcfem();               
+    }
+    if(!t_json.at("maxiters").is_number_integer()){
+        MessagePrinter::printErrorTxt("step->maxiters must be integer.");
+        MessagePrinter::exitcfem();         
+    }
+    m_stepDes.s_maxIterNum=t_json.at("maxiters");
     // read converage tolerance
     m_stepDes.s_relTol=t_json.at("rel-tolerance");
     m_stepDes.s_absTol=t_json.at("abs-tolerance");

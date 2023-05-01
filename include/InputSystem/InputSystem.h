@@ -8,21 +8,7 @@ class Timer;
  * it also implement the init of any system including and preallocation of variable.
 */
 class InputSystem{
-public:
-    InputSystem():m_timer(NULL){};
-    InputSystem(Timer *t_timer);
-    InputSystem(int argc, char ** argv);
-    ~InputSystem();
-    /**
-     * initialize the input file reading system
-     * @param args integer number of total argv
-     * @param argv char vector taken from command line
-     */
-    void init(int args,char *argv[]);
-    /**
-     * Read input file: xxx.json
-    */
-    void readFile();
+private:
     /**
      * Read the Mesh description block of input json file,
      * and set the Mesh description
@@ -53,6 +39,21 @@ public:
      * and set the Boundaty condition description
     */
     bool readBcBlock(nlohmann::json &t_json);   
+public:
+    InputSystem():m_timer(NULL){};
+    InputSystem(Timer *t_timer);
+    InputSystem(int argc, char ** argv);
+    ~InputSystem();
+    /**
+     * initialize the input file reading system
+     * @param args integer number of total argv
+     * @param argv char vector taken from command line
+     */
+    void init(int args,char *argv[]);
+    /**
+     * Read input file: xxx.json
+    */
+    void readFile();
 public:
     bool m_readonly;    /**< if it's true, it will only read the mesh block*/
     bool m_completed;   /**< if ture mean the input file's read is completed*/

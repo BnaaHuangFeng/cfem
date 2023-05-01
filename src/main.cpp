@@ -8,7 +8,7 @@
 int main(int args,char *argv[]){
     int *FLAG=new int;
     FLAG[0]=1;
-    while(FLAG[0])sleep(2);
+    // while(FLAG[0])sleep(2);
     PetscCall(PetscInitialize(&args,&argv,NULL,NULL));
     Timer timer;
     InputSystem inputSystem(&timer);
@@ -20,16 +20,35 @@ int main(int args,char *argv[]){
     /******************************************************/
     /** create all kinds of system's ptr                ***/
     /******************************************************/
+    timer.startTimer();
+    MessagePrinter::printDashLine(MessageColor::BLUE);
+    MessagePrinter::printNormalTxt("Start to dynamically create and init every system and controller",MessageColor::BLUE);    
     MeshSystem *meshSysPtr=nullptr;
+    ElementSystem *elmtSysPtr=nullptr;
+    BCsSystem *BCsSysPtr=nullptr;
+    LoadController *loadCtrlPtr=nullptr;
+    SolutionSystem *solSysPtr=nullptr;
     /******************************************************/
     /** init all system                                 ***/
     /******************************************************/
-    // init mesh system
-    MeshSystemInit(&timer,&inputSystem.m_meshDes,meshSysPtr);
+    MeshSystemInit(&timer,&inputSystem.m_meshDes,&meshSysPtr);
+    ElmtSystemInit(&timer,&elmtSysPtr,&inputSystem.m_ElDes,&inputSystem.m_MatDes,meshSysPtr);
+    BCsSystemInit(&BCsSysPtr,&inputSystem.m_bcDes,meshSysPtr);
+    LoadCtrolInit(&loadCtrlPtr,&inputSystem.m_stepDes,meshSysPtr);
+    SolutionSysInit(&solSysPtr,&inputSystem.m_stepDes,meshSysPtr,elmtSysPtr,BCsSysPtr,loadCtrlPtr);
+    timer.endTimer();
+    timer.printElapseTime("system and controller inition is done",false);
+    MessagePrinter::printNormalTxt("All system and controller inition completed!",MessageColor::BLUE);  
+    MessagePrinter::printDashLine(MessageColor::BLUE); 
     /******************************************************/
     /** delete the class created by new                 ***/
     /******************************************************/
-    delete meshSysPtr;
+    if(meshSysPtr) delete meshSysPtr;
+    if(elmtSysPtr) delete elmtSysPtr;
+    if(BCsSysPtr) delete BCsSysPtr;
+    if(loadCtrlPtr) delete loadCtrlPtr;
+    if(solSysPtr) delete solSysPtr;
     PetscCall(PetscFinalize());
+    delete FLAG;
     return 0;
 }

@@ -12,6 +12,7 @@ LoadController::LoadController(StepDescriptiom *t_stepDesPtr):
 m_meshPtr(nullptr),
 m_mGrowth(5),m_convergeCnt(0),m_iterCnt2(0),m_iterCnt1(0),
 m_factor2(0.0),m_factorInc2(0.0),m_factor1(0.0),m_factorInc1(0.0){
+    m_ifReadStepDes=false;
     readStepDes(t_stepDesPtr);
     m_ifSetMeshSys=false;
     m_ifHasNodeLoad=false;
@@ -19,6 +20,8 @@ m_factor2(0.0),m_factorInc2(0.0),m_factor1(0.0),m_factorInc1(0.0){
 LoadController::LoadController(StepDescriptiom *t_stepDesPtr, MeshSystem *t_meshSysPtr):
 m_mGrowth(5),m_convergeCnt(0),m_iterCnt2(0),m_iterCnt1(0),
 m_factor2(0.0),m_factorInc2(0.0),m_factor1(0.0),m_factorInc1(0.0){
+    m_ifReadStepDes=false;
+    m_ifSetMeshSys=false;
     readStepDes(t_stepDesPtr);
     setMeshSysPtr(t_meshSysPtr);
     m_ifHasNodeLoad=false;

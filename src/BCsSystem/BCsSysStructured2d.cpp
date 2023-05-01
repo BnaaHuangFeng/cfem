@@ -25,10 +25,10 @@ PetscErrorCode BCsSysStructured2d::init(){
                 PetscInt nodeGId=m_meshSysPtr->m_node_gId[*itNodeI];
                 for(vector<int>::iterator itDofI=itBCBlock->s_presetDofIds.begin();
                 itDofI!=itBCBlock->s_presetDofIds.end();++itDofI){// loop over every constrained dof in a constrained node
-                    PetscInt dofGId=nodeGId*m_meshSysPtr->m_mDof_node+*itDofI;/**< constrained dof's global id*/\
+                    PetscInt dofGId=nodeGId*m_meshSysPtr->m_mDof_node+*itDofI;/**< constrained dof's global id*/
                     PetscScalar presetval=itBCBlock->s_bcVals;
                     map<PetscInt,PetscScalar>::iterator itBcMap=m_bcValsMap.find(dofGId);
-                    if(itBcMap==m_bcValsMap.end()){
+                    if(itBcMap!=m_bcValsMap.end()){
                         MessagePrinter::printErrorTxt("dof "+to_string(dofGId)+" is repeatedly constrained!");
                         MessagePrinter::exitcfem();
                     }
