@@ -345,6 +345,9 @@ bool InputSystem::readStepBlock(nlohmann::json &t_json){
     else if(kspType=="bcgs"){
         m_stepDes.s_KSPType=KSPBCGS;
     }
+    else if(kspType=="preonly"){
+        m_stepDes.s_KSPType=KSPPREONLY;
+    }
     else{
         MessagePrinter::printErrorTxt(kspType+" is not a supported KSPType.");
         MessagePrinter::exitcfem();

@@ -126,7 +126,10 @@ public:
     */
     virtual PetscErrorCode addElmtResidual(PetscInt rid,Vector *residualPtr, Vec *fPtr);
 /**********************************************************************************************/
-
+    /**
+     * for debug print
+    */
+    virtual PetscErrorCode printVaribale(NodeVariableType vType, Vec *variableVecPtr, int state, int comp);
 private:
     /**
      * 
@@ -243,14 +246,18 @@ public:
     PetscScalar m_geoParam[3];              /**< geometry parameter to describe the regular mesh domain （for rectangular domain, is x length,y length in order; for sin or half sin domain, is span, amplitude, width in order)*/
     Vec m_nodes_coord0_local;               /**< local nodes' coords in ref config*/
     Vec m_nodes_coord2_local;               /**< local nodes' coords of last converged config*/
+    Vec m_nodes_u2_local;                   /**< local nodes' u of last converged config*/
     Vec m_nodes_uInc1_local;                /**< local nodes' incremental displacement in current config*/
     Vec m_nodes_uInc2_local;                /**< local nodes' incremental displacement of last converged config*/
     Vec m_node_residual1_local;             /**< local nolinear function's residual Vec in current iteration, also unbalanced forces (f^int-f^ext)*/
     Vec m_node_residual2_local;             /**< local nolinear function's residual Vec in last converged increment, also unbalanced forces (f^int-f^ext)*/
+    Vec m_node_load_local;                  /**< local outer load Vec*/
     PetscScalar ***m_array_nodes_coord0;    /**< ptr for access m_nodes_coord0_local*/
     PetscScalar ***m_array_nodes_coord2;    /**< ptr for access m_nodes_coord2_local*/
     PetscScalar ***m_array_nodes_uInc1;     /**< ptr for access m_nodes_uInc1_local*/
     PetscScalar ***m_array_nodes_uInc2;     /**< ptr for access m_nodes_uInc2_local*/
+    PetscScalar ***m_array_nodes_u2;        /**< ptr for access m_nodes_uInc2_local*/
     PetscScalar ***m_array_nodes_residual1; /**< ptr for access m_node_residual1_local*/
     PetscScalar ***m_array_nodes_residual2; /**< ptr for access m_node_residual1_local*/
+    PetscScalar ***m_array_nodes_load;      /**< ptr for access m_node_load_local*/
 };

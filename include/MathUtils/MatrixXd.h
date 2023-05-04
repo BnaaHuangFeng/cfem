@@ -35,6 +35,7 @@ public:
     MatrixXd(const int m,const int n);
     MatrixXd(const int m,const int n,const double val);
     MatrixXd(const int  m,const int  n,const double *vals);
+    void print();
     /**
      * Resize the matrix, the memory is reallocated, the matrix is set to zero by default
      * @param m integer, the size of the 1st dimention

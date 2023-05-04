@@ -42,10 +42,6 @@ public:
      */
     Vector2d();
     /**
-     * @param val the scalar value
-    */
-    Vector2d(const double val);
-    /**
      * @param a the right hand vector
     */
     Vector2d(const Vector2d &a);

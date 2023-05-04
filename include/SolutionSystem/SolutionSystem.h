@@ -46,7 +46,7 @@ private:
     PetscScalar m_absTol;           /**< absolute tolerance*/
     PetscScalar m_relTol;           /**< relative tolerance*/
     PetscScalar m_uIncTol;          /**< incremental dof tolerance*/
-    SNES m_snes;                    /**< snes solver*/
+    PetscScalar m_div_tol;            /**< the divergence tolerance. Use -1 to deactivate the test, default is 1e4*/
     KSP m_ksp;                      /**< ksp solver*/
     PC m_pc;                        /**< preconditioner*/
     SNESLineSearch m_snesLinesearch;/**< snes line search solver*/
@@ -55,6 +55,8 @@ private:
     bool m_ifSetMeshSysPtr;         /**< if has set mesh system ptr*/
     bool m_ifSolutionCtxInit;       /**< if solution context inited*/
 
+    const int m_maxAttempt=10;      /**< max diverged increments tolerance*/
+    int m_mDiverged;             /**< consecutive divergence num*/
     int m_increI;                   /**< current increment id*/
     int m_iterI;                    /**< current iteration id*/
     int m_mIter;                    /**< iteration num of the latest convergence*/
@@ -76,6 +78,10 @@ private:
      * bind call back function for SNES solver
     */
     PetscErrorCode bindCallBack();
+    /**
+     * print the increment's SNES calculation's convergence(divergence) reason
+    */
+    PetscErrorCode printConvergedReason(SNESConvergedReason converReason);
 public:
     SolutionSystem();
     SolutionSystem(StepDescriptiom *t_stepDesPtr);
@@ -102,5 +108,5 @@ public:
     bool m_ifShowIterInfo;          /**< if show every iteration's information*/
     SolutionCtx m_solutionCtx;      /**< solution context*/
     MoniterCtx m_monitorCtx;        /**< monitor context*/
-
+    SNES m_snes;                    /**< snes solver*/
 };

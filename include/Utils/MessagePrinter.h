@@ -39,8 +39,13 @@ public:
     /**
      * constructor
      */
-    MessagePrinter();
-
+    MessagePrinter(){};
+    /**
+     * print out the text as an error message (not collective)
+     * @param str the string to be printed
+     * @param flag true->print out the star in red color, otherwise in white color
+     */
+    static void printRankError(string str,bool flag=true);    
     /**
      * print out the standard text
      * @param str the string to be printed
@@ -87,7 +92,11 @@ public:
      * @param str the string to be printed
      */
     static void printWelcomeTxt(string str);
-
+    /**
+     * print out a star line
+     * @param color the color for starts, default is white
+     */
+    static void printStarsRank(MessageColor color=MessageColor::WHITE);
     /**
      * print out a star line
      * @param color the color for starts, default is white
@@ -114,15 +123,20 @@ public:
      * this will stop all the process and exit the asfem program!
      */
     static void exitcfem();
-
+    /**
+     * set the color which will be used in your terminal output
+     * @param color the color for terminal output
+     */
+    static void setColorRank(const MessageColor &color);
     /**
      * set the color which will be used in your terminal output
      * @param color the color for terminal output
      */
     static void setColor(const MessageColor &color);
-
+    static const int buffLen=200;
+    static char charBuff[buffLen];
 private:
-    static const int _nWords=78;/**< the number of characters in one single line output */
+    static const int _nWords=120;/**< the number of characters in one single line output */
 
     /**
      * this function split the str into several substring once it is beyond the length limit

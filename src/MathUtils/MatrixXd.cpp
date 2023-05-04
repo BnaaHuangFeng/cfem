@@ -123,3 +123,11 @@ VectorXd MatrixXd::operator*(const ViogtRank2Tensor2D &a)const{
     }
     return temp;       
 }
+void MatrixXd::print(){
+    for(int rowI=0;rowI<m_m;++rowI){
+        for(int colI=0;colI<m_n;++colI){
+            printf("%12.5e",(*this)(rowI,colI));
+        }
+        printf("\n");
+    }
+}

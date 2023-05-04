@@ -14,10 +14,10 @@ public:
     /**
     * construction
     */
-    Material2D(bool nLarge):m_nLarge(nLarge),
-                            m_F(TensorConst2D::I),m_F0(TensorConst2D::I),m_S(0.0),m_J(1.0){}
+    Material2D(bool nLarge,double t_det_dx0dr):m_nLarge(nLarge),
+                            m_F(TensorConst2D::I),m_F0(TensorConst2D::I),m_S(),m_J(1.0),m_det_dx0dr(t_det_dx0dr){}
     Material2D():m_nLarge(false),
-                m_F(TensorConst2D::I),m_F0(TensorConst2D::I),m_S(0.0),m_J(1.0){}
+                m_F(TensorConst2D::I),m_F0(TensorConst2D::I),m_S(),m_J(1.0),m_det_dx0dr(0.0){}
     /**
     * destruction
     */
@@ -29,5 +29,5 @@ public:
     Rank2Tensor2d       m_F0;       /**< deformation Tensor F of last converged*/
     ViogtRank2Tensor2D  m_S;        /**< cauchy stress S*/
     double              m_J;        /**< det(m_F)*/
-
+    double              m_det_dx0dr;/**< det(dx0/dr), x0 is elmt's coords in ref config*/
 };

@@ -2,6 +2,7 @@
 # include "petsc.h"
 # include "MaterialSystem/Material.h"
 # include "MathUtils/Vector2d.h"
+# include "MeshSystem/MeshSystem.h"
 class element{
 protected:
     /**
@@ -30,7 +31,7 @@ public:
      * @param nLarge > large strain flag
      * @param elmtParamPtr > ptr to the elmt's params
     */
-    virtual PetscErrorCode initElement(PetscInt t_elmt_rId, bool nLarge, PetscScalar *elmtParamPtr)=0;
+    virtual PetscErrorCode initElement(PetscInt t_elmt_rId, bool nLarge,MeshSystem *t_meshSysPtr,PetscScalar *elmtParamPtr)=0;
     /**
      * get the elmt's inner force
      * @param t_elmtCoord2 > ptr to the elmt's last converged coords (Vector2d *, Vector3d *)
@@ -50,6 +51,11 @@ public:
     virtual int getDim()=0;
     virtual int getNodeNum()=0;
     virtual int getDofPerNode()=0;
+    /**
+     * get det of dx0/dr of i-th qpoint
+     * @param i > qpoint id in a elmt 
+    */
+    virtual double getDetdx0dr(int i)=0;
 public:
     PetscInt    m_elmt_rId;     /**< elmt's id in rank*/
     bool        m_nLarge;       /**< large strain flag*/

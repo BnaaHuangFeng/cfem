@@ -17,9 +17,6 @@
 Rank4Tensor3d::Rank4Tensor3d(){
     m_vals.resize(81,0.0);
 }
-Rank4Tensor3d::Rank4Tensor3d(const double val){
-    m_vals.resize(81,val);
-}
 Rank4Tensor3d::Rank4Tensor3d(const Rank4Tensor3d &a){
     m_vals.resize(81,0.0);
     for(int i=0;i<N4;i++) m_vals[i]=a.m_vals[i];
@@ -76,7 +73,7 @@ double& Rank4Tensor3d::voigtComponent(const int &i,const int &j){
 }
 //************************************************************************
 Rank4Tensor3d Rank4Tensor3d::operator*(const Rank2Tensor3d &a) const{
-    Rank4Tensor3d temp(0.0);
+    Rank4Tensor3d temp(Rank4Tensor3d::InitMethod::ZERO);
     for(int i=0;i<N;i++){
         for(int j=0;j<N;j++){
             for(int k=0;k<N;k++){
@@ -92,7 +89,7 @@ Rank4Tensor3d Rank4Tensor3d::operator*(const Rank2Tensor3d &a) const{
     return temp;
 }
 Rank2Tensor3d Rank4Tensor3d::doubledot(const Rank2Tensor3d &a) const{
-    Rank2Tensor3d temp(0.0);
+    Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
     for(int i=0;i<N;i++){
         for(int j=0;j<N;j++){
             temp(i,j)=0.0;
@@ -106,7 +103,7 @@ Rank2Tensor3d Rank4Tensor3d::doubledot(const Rank2Tensor3d &a) const{
     return temp;
 }
 Rank4Tensor3d Rank4Tensor3d::doubledot(const Rank4Tensor3d &a) const{
-    Rank4Tensor3d temp(0.0);
+    Rank4Tensor3d temp(Rank4Tensor3d::InitMethod::ZERO);
     for(int i=0;i<N;i++){
         for(int j=0;j<N;j++){
             for(int k=0;k<N;k++){
@@ -127,13 +124,13 @@ Rank4Tensor3d Rank4Tensor3d::doubledot(const Rank4Tensor3d &a) const{
 //*** for left hand side manipulation
 //*******************************************************************
 Rank4Tensor3d operator*(const double &lhs,const Rank4Tensor3d &a){
-    Rank4Tensor3d temp(0.0);
+    Rank4Tensor3d temp(Rank4Tensor3d::InitMethod::ZERO);
     for(int i=0;i<a.N4;i++) temp.m_vals[i]=lhs*a.m_vals[i];
     return temp;
 }
 Rank4Tensor3d operator*(const Rank2Tensor3d &lhs,const Rank4Tensor3d &a){
     // C_ijkl=B_ip*A_pjkl
-    Rank4Tensor3d temp(0.0);
+    Rank4Tensor3d temp(Rank4Tensor3d::InitMethod::ZERO);
     for(int i=0;i<a.N;i++){
         for(int j=0;j<a.N;j++){
             for(int k=0;k<a.N;k++){

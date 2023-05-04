@@ -28,9 +28,8 @@ class ViogtRank4Tensor2D:public MatrixXd{
     };
     public:
     ViogtRank4Tensor2D();
-    ViogtRank4Tensor2D(const double &val);
-    ViogtRank4Tensor2D(const double *vals);
     ViogtRank4Tensor2D(const MatrixXd &matrix);
+    ViogtRank4Tensor2D(const double *vals);
     ViogtRank4Tensor2D(InitMethod initmethod);
     ViogtRank4Tensor2D(Rank4Tensor3d rank4Tensor);
     /**
@@ -49,6 +48,8 @@ class ViogtRank4Tensor2D:public MatrixXd{
     double operator()(const int indij,const int indkl)const;  
     double & operator()(const int i,const int j,const int k,const int l);
     double operator()(const int i,const int j,const int k,const int l)const;
+    ViogtRank4Tensor2D operator*(double R)const;
+    friend ViogtRank4Tensor2D operator*(double L, const ViogtRank4Tensor2D &R);
     /**
      * return tmp_ij=a_ijkl*b_kl
     */

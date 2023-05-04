@@ -83,6 +83,8 @@ bool ElementSystem::checkElmtsAssigment(){
     return true;
 }
 PetscErrorCode ElementSystem::assignElmtType(){
+    m_meshSysPtr->openNodeVariableVec(NodeVariableType::COORD,
+                                    &m_meshSysPtr->m_nodes_coord0,0,VecAccessMode::READ);
     const int mElmtType=m_elmtTypeNames.size();
     for(int elmtTypeI=0;elmtTypeI<mElmtType;++elmtTypeI){// loop over every elmt type
         vector<PetscInt> &elmtSet=m_meshSysPtr->m_setManager.getSet(
@@ -99,9 +101,11 @@ PetscErrorCode ElementSystem::assignElmtType(){
                 MessagePrinter::exitcfem();
                 break;
             }
-            m_elmtPtrs[elmtSet[i]]->initElement(elmtSet[i],m_nLarge,nullptr);
+            m_elmtPtrs[elmtSet[i]]->initElement(elmtSet[i],m_nLarge,m_meshSysPtr,nullptr);
         }
     }
+    m_meshSysPtr->closeNodeVariableVec(NodeVariableType::COORD,
+                                    &m_meshSysPtr->m_nodes_coord0,0,VecAccessMode::READ);
     m_ifAssignElmtType=true;
     return 0;
 }
@@ -114,7 +118,7 @@ PetscErrorCode ElementSystem::assignMatType(){
         for(PetscInt i=0;i<mElmtInSet;i++){
             switch(m_matTypes[matTypeId]){
                 case MaterialType::LINEARELASTIC:
-                    m_elmtPtrs[elmtSet[i]]->m_matPtr=new LinearElasticMat2D(m_nLarge);
+                    m_elmtPtrs[elmtSet[i]]->m_matPtr=new LinearElasticMat2D(m_nLarge,m_elmtPtrs[elmtSet[i]]->getDetdx0dr(0));
                     break;
                 case MaterialType::NEOHOOKEAN:
                     MessagePrinter::printErrorTxt("material NEOHOOKEAN is not developed now.");
@@ -166,6 +170,7 @@ PetscErrorCode ElementSystem::assembleAMatrix(Vec *t_uInc1Ptr, Mat *t_AMatrixPtr
     /*********************************************************************************/
     m_meshSysPtr->openNodeVariableVec(NodeVariableType::COORD,&(m_meshSysPtr->m_nodes_coord2),2,VecAccessMode::READ);
     m_meshSysPtr->openNodeVariableVec(NodeVariableType::UINC,t_uInc1Ptr,1,VecAccessMode::READ);
+    PetscCall(MatZeroEntries(*t_AMatrixPtr));
     for(PetscInt eI=0;eI<m_meshSysPtr->m_mElmts_p;eI++){// loop over every element in this rank
         element *elmtPtr=m_elmtPtrs[eI];
         int mDofInElmt=elmtPtr->getDofNum();
@@ -232,10 +237,22 @@ PetscErrorCode ElementSystem::assemblRVec(Vec *t_uInc1Ptr, Vec *t_RVecPtr){
         bool ifMatUpdateConvergerd=false;
         elmtPtr->getElmtInnerForce(coord2Ptr,uIncPtr,&fI,&ifMatUpdateConvergerd);
         if(!ifMatUpdateConvergerd) return 7890; // material updation failed
-        for(int nodeI=0;nodeI<mNode;nodeI++){
-            for(int dofI=0;dofI<mDofPerNode;dofI++){
-                fIVector[nodeI](dofI)=fI(nodeI*mDofPerNode+dofI);
+        if(dim==2){
+            // for debug
+            // MessagePrinter::printRankError("elmt f^int:");
+            for(int nodeI=0;nodeI<mNode;nodeI++){
+                for(int dofI=0;dofI<mDofPerNode;dofI++){
+                    fIVector2d[nodeI](dofI)=fI(nodeI*mDofPerNode+dofI);
+                }
+                // fIVector2d[nodeI].print();
             }
+        }
+        else if(dim==3){
+            for(int nodeI=0;nodeI<mNode;nodeI++){
+                for(int dofI=0;dofI<mDofPerNode;dofI++){
+                    fIVector3d[nodeI](dofI)=fI(nodeI*mDofPerNode+dofI);
+                }
+            }            
         }
         m_meshSysPtr->addElmtResidual(elmtPtr->m_elmt_rId,fIVector,t_RVecPtr);
     }
@@ -244,7 +261,10 @@ PetscErrorCode ElementSystem::assemblRVec(Vec *t_uInc1Ptr, Vec *t_RVecPtr){
     m_meshSysPtr->closeNodeVariableVec(NodeVariableType::COORD,&(m_meshSysPtr->m_nodes_coord2),2,VecAccessMode::READ);
     m_meshSysPtr->closeNodeVariableVec(NodeVariableType::UINC,t_uInc1Ptr,1,VecAccessMode::READ);
     m_meshSysPtr->closeNodeVariableVec(NodeVariableType::RESIDUAL,t_RVecPtr,1,VecAccessMode::WRITE);
-    return 1;
+    // for debug
+    // PetscCall(VecView(*t_uInc1Ptr,PETSC_VIEWER_STDOUT_WORLD));
+    // PetscCall(VecView(*t_RVecPtr,PETSC_VIEWER_STDOUT_WORLD));
+    return 0;
 }
 void ElementSystem::readElmtDes(ElementDescription *elmtDesPtr){
     if(m_ifElmtDesRead)return;

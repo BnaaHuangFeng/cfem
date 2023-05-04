@@ -19,9 +19,6 @@
 Rank2Tensor3d::Rank2Tensor3d(){
     m_vals.resize(9,0.0);
 }
-Rank2Tensor3d::Rank2Tensor3d(const double val){
-    m_vals.resize(9,val);
-}
 Rank2Tensor3d::Rank2Tensor3d(const Rank2Tensor3d &a){
     m_vals.resize(9,0.0);
     for(int i=0;i<N2;i++) m_vals[i]=a.m_vals[i];
@@ -48,12 +45,12 @@ Rank2Tensor3d::~Rank2Tensor3d(){
 }
 //**********************************************************************
 Rank2Tensor3d operator*(const double &lhs,const Rank2Tensor3d &a){
-    Rank2Tensor3d temp(0.0);
+    Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
     for(int i=0;i<a.N2;i++) temp.m_vals[i]=lhs*a.m_vals[i];
     return temp;
 }
 Vector3d operator*(const Vector3d &lhs,const Rank2Tensor3d &a){
-    Vector3d temp(0.0);
+    Vector3d temp(Vector3d::InitMethod::ZERO);
     for(int j=0;j<a.N;j++){
         temp(j)=lhs(0)*a(0,j)+lhs(1)*a(1,j)+lhs(2)*a(2,j);
     }
@@ -61,7 +58,7 @@ Vector3d operator*(const Vector3d &lhs,const Rank2Tensor3d &a){
 }
 Rank2Tensor3d Rank2Tensor3d::doubledot(const Rank4Tensor3d &a) const{
         // return A:B calculation
-        Rank2Tensor3d temp(0.0);
+        Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N;i++){
             for(int j=0;j<N;j++){
                 for(int k=0;k<N;k++){

@@ -3,10 +3,13 @@
 #include "MaterialSystem/ElasticConst.h"
 #include "MathUtils/ViogtRank2Tensor2D.h"
 #include <cmath>
-LinearElasticMat2D::LinearElasticMat2D(nlohmann::json *t_propPtr):m_strain(0.0){
+LinearElasticMat2D::LinearElasticMat2D(bool ifLarge,double t_det_dx0dr,nlohmann::json *t_propPtr):
+                                Material2D(ifLarge,t_det_dx0dr),m_ifPropInit(false),
+                                m_strain(),m_lame(0.0),m_G(0.0),m_planeState(false){
     initProperty(t_propPtr);
 }
 void LinearElasticMat2D::initProperty(nlohmann::json *t_propPtr){
+    if(m_ifPropInit)return;
     if(t_propPtr->contains("lame")&&t_propPtr->contains("G")){
         if(t_propPtr->at("lame").is_number_float()&&t_propPtr->at("G").is_number_float()){
             m_lame=t_propPtr->at("lame"); m_G=t_propPtr->at("G");
@@ -29,6 +32,7 @@ void LinearElasticMat2D::initProperty(nlohmann::json *t_propPtr){
         MessagePrinter::printErrorTxt("properties are not paired");
         MessagePrinter::exitcfem();        
     }
+    m_ifPropInit=true;
 }
 double exp2x(double x){return exp(2*x);}
 void LinearElasticMat2D::updateMaterialBydudx(void *t_incStrainPtr,bool *t_converged){

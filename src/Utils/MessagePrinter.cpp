@@ -13,19 +13,38 @@
 //+++          This class is general to provide almost all the
 //+++          message print in AsFem
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 #include "Utils/MessagePrinter.h"
-
-MessagePrinter::MessagePrinter(){
-}
-
+char MessagePrinter::charBuff[MessagePrinter::buffLen]={'\0'};
 void MessagePrinter::exitcfem(){
-    printStars(MessageColor::RED);
-    printTxt("AsFem exit due to some errors",MessageColor::RED);
-    printStars(MessageColor::RED);
     PetscEnd();
 }
-
+void MessagePrinter::setColorRank(const MessageColor &color){
+    switch (color) {
+        case MessageColor::WHITE:
+            printf("\033[1;37m");// set color to white
+            break;
+        case MessageColor::RED:
+            printf("\033[1;91m");// set color to bright red
+            break;
+        case MessageColor::BLUE:
+            printf("\033[1;94m");// set color to bright blue
+            break;
+        case MessageColor::GREEN:
+            printf("\033[1;32m");// set color to green
+            break;
+        case MessageColor::YELLOW:
+            printf("\033[1;33m");// set color to yellow
+            break;
+        case MessageColor::MAGENTA:
+            printf("\033[1;35m");// set color to megenta
+            break;
+        case MessageColor::CYAN:
+            printf("\033[1;36m");// set color to cyan
+            break;
+        default:
+            break;
+    }    
+}
 void MessagePrinter::setColor(const MessageColor &color){
     switch (color) {
         case MessageColor::WHITE:
@@ -64,6 +83,14 @@ void MessagePrinter::printDashLine(MessageColor color){
     PetscPrintf(PETSC_COMM_WORLD,"\033[0m");// recover color
 }
 //*********************************************
+void MessagePrinter::printStarsRank(MessageColor color){
+    setColorRank(color);
+    for(int i=0;i<_nWords;i++){
+        printf("*");
+    }
+    printf("\n");
+    printf("\033[0m");// recover color    
+}
 void MessagePrinter::printStars(MessageColor color){
     setColor(color);
     for(int i=0;i<_nWords;i++){
@@ -273,6 +300,61 @@ vector<string> MessagePrinter::splitErrorStr2Vec(string str){
     return strvec;
 }
 //****************************************************
+/**
+ * print out the text as an error message (not collective)
+ * @param str the string to be printed
+ * @param flag true->print out the star in red color, otherwise in white color
+ */
+void MessagePrinter::printRankError(string str,bool flag){
+    setColorRank(MessageColor::RED);
+    string _Head ="***       ";
+    string _Head1="*** Error:";
+    string _End=" !!! ***";
+    int i1=static_cast<int>(_Head1.size());
+    int i2=static_cast<int>(_End.size());
+    int i3=static_cast<int>(str.size());
+    if(i3<=_nWords-i1-i2){
+        if(flag) printStarsRank(MessageColor::RED);
+        setColorRank(MessageColor::RED);
+        printf("%s",_Head1.c_str());
+        printf("%s",str.c_str());
+        for(int i=0;i<_nWords-i1-i2-i3;i++){
+            printf(" ");
+        }
+        printf("%s\n",_End.c_str());
+        if(flag) printStarsRank(MessageColor::RED);
+        setColorRank(MessageColor::RED);
+    }
+    else{
+        string substr1,substr2;
+        vector<string> strvec;
+        substr1=str.substr(0,_nWords-i1-i2);
+        substr2=str.substr(_nWords-i1-i2);
+        // for the first line
+        if(flag) printStarsRank(MessageColor::RED);
+        setColorRank(MessageColor::RED);
+        printf("%s",_Head1.c_str());
+        printf("%s",substr1.c_str());
+        printf("%s\n",_End.c_str());
+        // for the later lines
+        MessagePrinter printer;
+        strvec=printer.splitErrorStr2Vec(substr2);
+        i1=static_cast<int>(_Head.size());
+        for(const auto &it:strvec){
+            // cout<<"str("<<it.size()<<")="<<it<<endl;
+            printf("%s",_Head.c_str());
+            printf("%s",it.c_str());
+            i3=static_cast<int>(it.size());
+            for(int i=0;i<_nWords-i1-i2-i3;i++){
+                printf(" ");
+            }
+            printf("%s\n",_End.c_str());
+        }
+        if(flag) printStarsRank(MessageColor::RED);
+        setColorRank(MessageColor::RED);
+    }
+    printf("\033[0m");// recover color
+}
 void MessagePrinter::printErrorTxt(string str,bool flag){
     setColor(MessageColor::RED);
     string _Head ="***       ";

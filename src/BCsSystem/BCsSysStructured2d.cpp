@@ -7,6 +7,8 @@ BCsSysStructured2d::~BCsSysStructured2d(){
     m_arrayPresetVals=nullptr;
     m_arrayZero=nullptr;
     VecDestroy(&m_uIncInitial);
+    if(m_drclt_method==DirichletMethod::SETLARGE)
+        VecDestroy(&m_max_entry_vec);
 }
 PetscErrorCode BCsSysStructured2d::init(){
     if(m_ifHasReadBCDes){
@@ -25,7 +27,7 @@ PetscErrorCode BCsSysStructured2d::init(){
                 PetscInt nodeGId=m_meshSysPtr->m_node_gId[*itNodeI];
                 for(vector<int>::iterator itDofI=itBCBlock->s_presetDofIds.begin();
                 itDofI!=itBCBlock->s_presetDofIds.end();++itDofI){// loop over every constrained dof in a constrained node
-                    PetscInt dofGId=nodeGId*m_meshSysPtr->m_mDof_node+*itDofI;/**< constrained dof's global id*/
+                    PetscInt dofGId=nodeGId*m_meshSysPtr->m_mDof_node+*itDofI-1;/**< constrained dof's global id*/
                     PetscScalar presetval=itBCBlock->s_bcVals;
                     map<PetscInt,PetscScalar>::iterator itBcMap=m_bcValsMap.find(dofGId);
                     if(itBcMap!=m_bcValsMap.end()){
@@ -43,12 +45,13 @@ PetscErrorCode BCsSysStructured2d::init(){
         m_arrayConstrainedRows=new PetscInt[m_mConstrainedDof];
         m_arrayPresetVals=new PetscScalar[m_mConstrainedDof];
         m_arrayZero=new PetscScalar[m_mConstrainedDof];
+        m_penalty=0;
         PetscInt dofI=0;
         for(map<PetscInt,PetscScalar>::iterator itBCMap=m_bcValsMap.begin();
         itBCMap!=m_bcValsMap.end();++itBCMap){//loop over every constrained dof in this rank
             m_arrayConstrainedRows[dofI]=itBCMap->first;
             m_arrayZero[dofI]=0.0;
-            m_arrayPresetVals[dofI++]=itBCMap->second;    /**< because residual=-RHS, so set to negative*/
+            m_arrayPresetVals[dofI++]=itBCMap->second;
         }
         if(dofI!=m_mConstrainedDof){
             MessagePrinter::printErrorTxt("constrained dof num comes from m_bcValsMap.size() is not equal to that comes from iterator.");
@@ -59,6 +62,9 @@ PetscErrorCode BCsSysStructured2d::init(){
         MessagePrinter::exitcfem();
     }
     PetscCall(DMCreateGlobalVector(m_meshSysPtr->m_dm,&m_uIncInitial));
+    if(m_drclt_method==DirichletMethod::SETLARGE){
+        PetscCall(DMCreateGlobalVector(m_meshSysPtr->m_dm,&m_max_entry_vec));
+    }
     m_ifHasInit=true;
     return 0;
 }
@@ -106,11 +112,13 @@ PetscErrorCode BCsSysStructured2d::setArrayPresetVals(PetscScalar facInc){
     }    
     return 0;
 }
-PetscErrorCode BCsSysStructured2d::setInitialSolution(){
+PetscErrorCode BCsSysStructured2d::setInitialSolution(PetscScalar facInc){
+    setArrayPresetVals(facInc);
     PetscCall(VecZeroEntries(m_uIncInitial));
     PetscCall(VecSetValues(m_uIncInitial,m_mConstrainedDof,m_arrayConstrainedRows,m_arrayPresetVals,INSERT_VALUES));
     PetscCall(VecAssemblyBegin(m_uIncInitial));
     PetscCall(VecAssemblyEnd(m_uIncInitial)); 
+    
     return 0;
 }
 PetscErrorCode BCsSysStructured2d::applyResidualBoundaryCondition(Vec *residualPtr){
@@ -120,8 +128,18 @@ PetscErrorCode BCsSysStructured2d::applyResidualBoundaryCondition(Vec *residualP
     return 0;
 }
 PetscErrorCode BCsSysStructured2d::applyJacobianBoundaryCondition(Mat *AMatrixPtr){
-    const PetscScalar pivot=1.0;
-    PetscCall(MatZeroRowsColumns(*AMatrixPtr,m_mConstrainedDof,m_arrayConstrainedRows,pivot,NULL,NULL));
+    if(m_drclt_method==DirichletMethod::SETUNIT){
+        const PetscScalar pivot=1.0;
+        PetscCall(MatZeroRowsColumns(*AMatrixPtr,m_mConstrainedDof,m_arrayConstrainedRows,pivot,NULL,NULL));
+    }
+    else if(m_drclt_method==DirichletMethod::SETLARGE){
+        for(PetscInt dofI=0;dofI<m_mConstrainedDof;++dofI){
+            PetscCall(MatSetValue(*AMatrixPtr,m_arrayConstrainedRows[dofI],m_arrayConstrainedRows[dofI],m_penalty,INSERT_VALUES));
+        }
+        // delete?
+        PetscCall(MatAssemblyBegin(*AMatrixPtr,MAT_FINAL_ASSEMBLY));
+        PetscCall(MatAssemblyEnd(*AMatrixPtr,MAT_FINAL_ASSEMBLY));
+    }
     return 0;
 }
 // PetscErrorCode BCsSysStructured2d::applyBoundaryCondition(PetscScalar facInc,Vec *residualPtr, Mat *AMatrixPtr){
@@ -160,3 +178,10 @@ PetscErrorCode BCsSysStructured2d::applyJacobianBoundaryCondition(Mat *AMatrixPt
 //     if(facInc!=0.0) delete[] arrayZero;
 //     return 0;
 // }
+PetscErrorCode BCsSysStructured2d::update_penalty(Mat *AMatrixPtr){
+    if(m_drclt_method!=DirichletMethod::SETLARGE)return 0;
+    PetscCall(MatGetRowMaxAbs(*AMatrixPtr,m_max_entry_vec,NULL));
+    PetscCall(VecMax(m_max_entry_vec,NULL,&m_penalty));
+    m_penalty=m_penalty*m_penalty_coef;
+    return 0;
+}

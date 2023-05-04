@@ -2,14 +2,19 @@
 #include "Material2D.h"
 #include "nlohmann/json.hpp"
 class LinearElasticMat2D:public Material2D{
+    private:
+    bool m_ifPropInit;  /**< if the material inited*/
     public:
-    LinearElasticMat2D():Material2D(false),
-                        m_strain(0.0),m_lame(0.0),m_G(0.0),m_planeState(false){}
-    LinearElasticMat2D(bool ifLarge):Material2D(ifLarge),
-                                m_strain(0.0),m_lame(0.0),m_G(0.0),m_planeState(false){}
-    LinearElasticMat2D(nlohmann::json *t_propPtr);
+    LinearElasticMat2D():Material2D(false,0.0),m_ifPropInit(false),
+                        m_strain(),m_lame(0.0),m_G(0.0),m_planeState(false){}
+
+    LinearElasticMat2D(bool ifLarge,double t_det_dx0dr):Material2D(ifLarge,t_det_dx0dr),m_ifPropInit(false),
+                                m_strain(),m_lame(0.0),m_G(0.0),m_planeState(false){}
+
+    LinearElasticMat2D(bool ifLarge,double t_det_dx0dr,nlohmann::json *t_propPtr);
     /**
      * Init material's property by properties nlohmann::json
+     * @param t_det_dx0dr > det(dx0/dr), x0 is elmt's coords in ref config
     */
     virtual void initProperty(nlohmann::json *t_propPtr);
     virtual ~LinearElasticMat2D(){};

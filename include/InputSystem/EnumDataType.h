@@ -80,7 +80,8 @@ enum class NodeVariableType{
     U,
     UINC,
     RF,
-    RESIDUAL
+    RESIDUAL,
+    LOAD,
 };
 enum class VecAccessMode{
     WRITE,

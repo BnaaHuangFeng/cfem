@@ -102,7 +102,7 @@ Vector3d JsonUtils::getVector(const nlohmann::json &t_json,const string &matenam
             MessagePrinter::exitcfem();
         }
         else{
-            Vector3d temp(0.0);
+            Vector3d temp(Vector3d::InitMethod::ZERO);
             for(int i=0;i<static_cast<int>(t_json.at(matename).size());i++){
                 if(t_json.at(matename).at(i).is_number()){
                     temp(i+1)=static_cast<double>(t_json.at(matename).at(i));
@@ -119,7 +119,7 @@ Vector3d JsonUtils::getVector(const nlohmann::json &t_json,const string &matenam
         MessagePrinter::printErrorTxt("can\'t find material property(\'"+matename+"\') in the given json file, please check your input file");
         MessagePrinter::exitcfem();
     }
-    return Vector3d(0.0);
+    return Vector3d(Vector3d::InitMethod::ZERO);
 }
 
 bool JsonUtils::hasValue(const nlohmann::json &t_json,const string &matename){

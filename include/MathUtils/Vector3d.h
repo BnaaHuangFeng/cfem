@@ -31,18 +31,24 @@ using std::fill;
 class Vector3d:public Vector{
 public:
     /**
+     * different initial method for rank-2 tensor
+    */
+    enum InitMethod{
+        ZERO,
+        IDENTITY,
+        RANDOM
+    };
+public:
+    /**
      * constructor
      */
     Vector3d();
-    /**
-     * @param val the scalar value
-    */
-    Vector3d(const double val);
     /**
      * @param a the right hand vector
     */
     Vector3d(const Vector3d &a);
     Vector3d(const double vals[3]):m_vals{vals[0],vals[1],vals[2]}{}
+    Vector3d(const InitMethod initmethod);
     //****************************************************
     //*** for operators
     //****************************************************

@@ -20,6 +20,7 @@
 StructuredMesh2D::StructuredMesh2D():
         m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
         m_array_nodes_uInc1(nullptr),m_array_nodes_uInc2(nullptr),
+        m_array_nodes_u2(nullptr),
         m_array_nodes_residual1(nullptr),m_array_nodes_residual2(nullptr){
     m_dim=2;
     m_mDof_node=2;
@@ -28,6 +29,7 @@ StructuredMesh2D::StructuredMesh2D():
 StructuredMesh2D::StructuredMesh2D(Timer *timerPtr):MeshSystem(timerPtr),
         m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
         m_array_nodes_uInc1(nullptr),m_array_nodes_uInc2(nullptr),
+        m_array_nodes_u2(nullptr),
         m_array_nodes_residual1(nullptr),m_array_nodes_residual2(nullptr){
     m_dim=2;
     m_mDof_node=2;   
@@ -178,8 +180,10 @@ PetscErrorCode StructuredMesh2D::openNodeVariableVec(NodeVariableType vType, Vec
     else{
         if(mode==VecAccessMode::READ)
             PetscCall(DMDAVecGetArrayDOFRead(m_dm,localVec,&arrayPtrRef));
-        else if(mode==VecAccessMode::WRITE)
+        else if(mode==VecAccessMode::WRITE){
             PetscCall(DMDAVecGetArrayDOFWrite(m_dm,localVec,&arrayPtrRef));
+            PetscCall(VecZeroEntries(localVec));  
+        }
     }
     return 0;
 }
@@ -209,53 +213,57 @@ PetscErrorCode StructuredMesh2D::closeNodeVariableVec(NodeVariableType vType, Ve
 
 PetscErrorCode StructuredMesh2D::getNodeCoord(PetscInt nodeRId,int state,Vector *coordsPtr){
     checkElmtRId(nodeRId);
-    PetscInt *xI=nullptr,*yI=nullptr;
-    getNodeDmdaIndByRId(nodeRId,xI,yI);
-    getNodeVariableByDmdaInd(NodeVariableType::COORD,*xI,*yI,state,coordsPtr);
+    PetscInt xI=0,yI=0;
+    getNodeDmdaIndByRId(nodeRId,&xI,&yI);
+    getNodeVariableByDmdaInd(NodeVariableType::COORD,xI,yI,state,coordsPtr);
     return 0;
 }
 
 PetscErrorCode StructuredMesh2D::getElmtNodeCoord(PetscInt elmtRId,int state,Vector *coordsPtr,PetscInt *nodeNum){
     checkElmtRId(elmtRId);
-    PetscInt *xIPtr=nullptr, *yIPtr=nullptr;
-    getElmtDmdaIndByRId(elmtRId,xIPtr,yIPtr);
-    getElmtNodeVariableByDmdaInd(NodeVariableType::COORD,*xIPtr,*yIPtr,state,coordsPtr,nodeNum);
+    PetscInt xI=0,yI=0;
+    getElmtDmdaIndByRId(elmtRId,&xI,&yI);
+    getElmtNodeVariableByDmdaInd(NodeVariableType::COORD,xI,yI,state,coordsPtr,nodeNum);
     return 0;
 }
 
 PetscErrorCode StructuredMesh2D::getElmtNodeUInc(PetscInt elmtRId,int state,Vector *uIncPtr,PetscInt *nodeNum){
     checkElmtRId(elmtRId);
-    PetscInt *xIPtr=nullptr, *yIPtr=nullptr;
-    getElmtDmdaIndByRId(elmtRId,xIPtr,yIPtr);
-    getElmtNodeVariableByDmdaInd(NodeVariableType::UINC,*xIPtr,*yIPtr,state,uIncPtr,nodeNum);
+    PetscInt xI=0,yI=0;
+    getElmtDmdaIndByRId(elmtRId,&xI,&yI);
+    getElmtNodeVariableByDmdaInd(NodeVariableType::UINC,xI,yI,state,uIncPtr,nodeNum);
     return 0;
 }
 
 PetscErrorCode StructuredMesh2D::getElmtNodeResidual(PetscInt elmtRId,int state,Vector *residualPtr,PetscInt *nodeNum){
     checkElmtRId(elmtRId);
-    PetscInt *xIPtr=nullptr, *yIPtr=nullptr;
-    getElmtDmdaIndByRId(elmtRId,xIPtr,yIPtr);
-    getElmtNodeVariableByDmdaInd(NodeVariableType::RESIDUAL,*xIPtr,*yIPtr,state,residualPtr,nodeNum);
+    PetscInt xI=0,yI=0;
+    getElmtDmdaIndByRId(elmtRId,&xI,&yI);
+    getElmtNodeVariableByDmdaInd(NodeVariableType::RESIDUAL,xI,yI,state,residualPtr,nodeNum);
     return 0;    
 }
 PetscErrorCode StructuredMesh2D::updateConfig(SNES *sensPtr){
     PetscCall(SNESGetSolution(*sensPtr,&m_nodes_uInc2));
     PetscCall(VecAYPX(m_nodes_coord2,1.0,m_nodes_uInc2));
+    PetscCall(VecAYPX(m_nodes_u2,1.0,m_nodes_uInc2));
+    PetscCall(VecZeroEntries(m_nodes_uInc2));
+    PetscCall(VecZeroEntries(m_node_residual2));
+    PetscCall(MatZeroEntries(m_AMatrix2));
     return 0;
 }
 PetscErrorCode StructuredMesh2D::addElmtAMatrix(PetscInt rid,MatrixXd *matrixPtr,Mat *APtr){
     checkElmtRId(rid);
-    PetscInt *xIPtr=nullptr, *yIPtr=nullptr;
-    getElmtDmdaIndByRId(rid,xIPtr,yIPtr);
-    addElmtAMatrixByDmdaInd(*xIPtr,*yIPtr,matrixPtr,APtr);
+    PetscInt xI=0,yI=0;
+    getElmtDmdaIndByRId(rid,&xI,&yI);
+    addElmtAMatrixByDmdaInd(xI,yI,matrixPtr,APtr);
     return 0;
 }
 
 PetscErrorCode StructuredMesh2D::addElmtResidual(PetscInt rid,Vector *residualPtr, Vec *fPtr){
     checkElmtRId(rid);
-    PetscInt *xIPtr=nullptr, *yIPtr=nullptr;
-    getElmtDmdaIndByRId(rid,xIPtr,yIPtr);
-    addElmtResidualByDmdaInd(*xIPtr,*yIPtr,residualPtr,fPtr);
+    PetscInt xI=0,yI=0;
+    getElmtDmdaIndByRId(rid,&xI,&yI);
+    addElmtResidualByDmdaInd(xI,yI,residualPtr,fPtr);
     return 0;
 }
 
@@ -308,12 +316,12 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
     /**************************************************************************/
     PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_coord0));
     PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_coord2));
-    PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_uInc2));
+    PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_u2));
     PetscCall(DMCreateGlobalVector(m_dm,&m_node_residual2));
     PetscCall(DMCreateGlobalVector(m_dm,&m_node_load));
     PetscCall(VecZeroEntries(m_nodes_coord0));
     PetscCall(VecZeroEntries(m_nodes_coord2));
-    PetscCall(VecZeroEntries(m_nodes_uInc2));
+    PetscCall(VecZeroEntries(m_nodes_u2));
     PetscCall(VecZeroEntries(m_node_residual2));
     PetscCall(VecZeroEntries(m_node_load));
     /**************************************************************************/
@@ -325,25 +333,27 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
     /**************************************************************************/
     /** cal node and element num***********************************************/
     /**************************************************************************/
+    PetscCall(DMDAGetLocalInfo(m_dm,&m_daInfo));
     m_mNodes=nx*ny;
     m_mNodes_p=nx*localNy[m_rank];
     m_mElmts=(nx-1)*(ny-1);
     PetscInt nx_elmt,ny_elmt;   /**< element num in x,y direction of this m_rank*/
     nx_elmt=nx-1;
-    if(m_rank==m_rankNum-1)ny_elmt=ny-1;
-    else ny_elmt=ny;
+    if(m_rank==m_rankNum-1)ny_elmt=localNy[m_rank]-1;
+    else ny_elmt=localNy[m_rank];
     m_mElmts_p=nx_elmt*ny_elmt;
     /**************************************************************************/
     /** set node and elemnt's global id, and element's connectivity************/
     /**************************************************************************/
-    PetscCall(DMDAGetLocalInfo(m_dm,&m_daInfo));
     m_node_gId.resize(m_mNodes_p);
+    m_dof_gId.resize(m_mNodes_p*m_mDof_node);
     m_elmt_gId.resize(m_mElmts_p);
     m_elmt_cnn.resize(m_mElmts_p);
     const int mNodePElmt=4; /**< node num per element*/
-    PetscInt nodeRId=0,elmtRId=0;                   /**< current ndoe/element's m_rank id*/
-    PetscInt nodeGId=m_daInfo.mx*m_daInfo.ys;       /**< current node's global id*/
-    PetscInt elmtGId=(m_daInfo.mx-1)*m_daInfo.ys;   /**< current node's global id*/
+    PetscInt dofRId=0,nodeRId=0,elmtRId=0;                  /**< current ndoe/element's m_rank id*/
+    PetscInt nodeGId=m_daInfo.mx*m_daInfo.ys;               /**< current node's global id*/
+    PetscInt dofGId=m_daInfo.mx*m_daInfo.ys*m_mDof_node;    /**< current dof's global id*/
+    PetscInt elmtGId=(m_daInfo.mx-1)*m_daInfo.ys;           /**< current node's global id*/
     PetscCall(PetscPrintf(PETSC_COMM_WORLD,"\033[1;33m"));// set color to yellow
     PetscCall(PetscSynchronizedPrintf(              /**< print the node and element's global id range of every m_rank*/
             PETSC_COMM_WORLD,
@@ -366,11 +376,19 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
     /**************************************************************************/
     vector<PetscInt> leftSet;
     vector<PetscInt> rightSet;
+    vector<PetscInt> bottomSet;
+    vector<PetscInt> topSet;
     for(int yI=m_daInfo.ys;yI<m_daInfo.ys+m_daInfo.ym;yI++){    // loop over every row
         for(int xI=m_daInfo.xs;xI<m_daInfo.xs+m_daInfo.xm;xI++){// loop over every col
-            m_node_gId[nodeRId]=nodeGId;                    // set node's global id
-            if(yI==0) leftSet.push_back(nodeRId);           // append node to set left
-            if(yI==m_daInfo.my-1) rightSet.push_back(nodeRId);//append node to set right
+            for(int dI=0;dI<m_mDof_node;++dI){// loop over dof in a node
+                m_dof_gId[dofRId]=dofGId;
+                ++dofRId;   ++dofGId;
+            }
+            m_node_gId[nodeRId]=nodeGId;                        // set node's global id
+            if(yI==0) bottomSet.push_back(nodeRId);             // append node to set bottom
+            if(yI==m_daInfo.my-1) topSet.push_back(nodeRId);    // append node to set top
+            if(xI==0) leftSet.push_back(nodeRId);               // append node to set left
+            if(xI==m_daInfo.mx-1) rightSet.push_back(nodeRId);  // append node to set right
             if(yI<m_daInfo.my-1&&xI<m_daInfo.mx-1){
                 m_elmt_gId[elmtRId]=elmtGId;    // set element's global id
                 /** Set element's connectivity*/
@@ -431,6 +449,8 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
     m_setManager.createSet("all",SetType::NODE,&nodeAll);
     m_setManager.createSet("left",SetType::NODE,&leftSet);
     m_setManager.createSet("right",SetType::NODE,&rightSet);
+    m_setManager.createSet("top",SetType::NODE,&topSet);
+    m_setManager.createSet("bottom",SetType::NODE,&bottomSet);    
     PetscCall(DMDAVecRestoreArrayDOF(m_dm,m_nodes_coord0,&aCoord0));
     PetscCall(VecAssemblyBegin(m_nodes_coord0));
     PetscCall(VecAssemblyEnd(m_nodes_coord0));
@@ -445,29 +465,31 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
 }
 
 PetscErrorCode StructuredMesh2D::getElmtNodeVariableByDmdaInd(NodeVariableType vType ,PetscInt xI,PetscInt yI,int state,Vector *variablePtr,PetscInt *nodeNum){
-    *nodeNum=4;
+    if(nodeNum) *nodeNum=4;
     PetscScalar ***& arrayPtrRef=getNodeVariablePtrRef(vType,state);
+    Vector2d *Vector2dPtr =(Vector2d *)variablePtr;
     if(!arrayPtrRef){
         MessagePrinter::printErrorTxt("variable array need to point to Vec before use it.");
         MessagePrinter::exitcfem();
     }
     for(int dofI=0;dofI<m_mDof_node;dofI++){
-        variablePtr[0](dofI)=arrayPtrRef[yI][xI][dofI];
-        variablePtr[1](dofI)=arrayPtrRef[yI][xI+1][dofI];
-        variablePtr[2](dofI)=arrayPtrRef[yI+1][xI+1][dofI];
-        variablePtr[3](dofI)=arrayPtrRef[yI+1][xI][dofI];
+        Vector2dPtr[0](dofI)=arrayPtrRef[yI][xI][dofI];
+        Vector2dPtr[1](dofI)=arrayPtrRef[yI][xI+1][dofI];
+        Vector2dPtr[2](dofI)=arrayPtrRef[yI+1][xI+1][dofI];
+        Vector2dPtr[3](dofI)=arrayPtrRef[yI+1][xI][dofI];
     }
     return 0;
 }
 
 PetscErrorCode StructuredMesh2D::getNodeVariableByDmdaInd(NodeVariableType vType, PetscInt xI,PetscInt yI,int state,Vector *variablePtr){
     PetscScalar ***& arrayPtrRef=getNodeVariablePtrRef(vType,state);
+    Vector2d *Vector2dPtr =(Vector2d *)variablePtr;
     if(!arrayPtrRef){
         MessagePrinter::printErrorTxt("variable array need to point to Vec before use it.");
         MessagePrinter::exitcfem();
     }
     for(int dofI=0;dofI<m_mDof_node;dofI++){
-        (*variablePtr)(dofI)=arrayPtrRef[yI][xI][dofI];
+        (*Vector2dPtr)(dofI)=arrayPtrRef[yI][xI][dofI];
     }
     return 0;   
 }
@@ -481,15 +503,15 @@ PetscErrorCode StructuredMesh2D::addElmtAMatrixByDmdaInd(PetscInt xI,PetscInt yI
     {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
     PetscInt rowDofI, colDofI;                      /**< tmp index for loop over Ke's elmt dof in row/col*/
     PetscInt nodeDofI, nodeDofI2;                   /**< tmp index for loop over dof of a node*/
-    if(yI+m_dim-1>m_daInfo.gym-1||xI+m_dim-1>m_daInfo.gxm-1||
-        yI<m_daInfo.gys||xI<m_daInfo.gxs){
-        PetscCall(PetscPrintf(PETSC_COMM_WORLD,"DMDA (row,col)=(%d,%d) is out of range, max index = (%d,%d)",
-                            xI+m_dim-1,yI+m_dim-1,m_daInfo.gxm-1,m_daInfo.gym-1));
+    if(yI+1>m_daInfo.gys+m_daInfo.gym-1||xI+1>m_daInfo.gxs+m_daInfo.gxm-1){
+        snprintf(MessagePrinter::charBuff,MessagePrinter::buffLen,
+                "DMDA (row,col)=(%d,%d) is out of range, max index = (%d,%d)",
+                            xI+1,yI+1,m_daInfo.gxs+m_daInfo.gxm-1,m_daInfo.gys+m_daInfo.gym-1);
+        MessagePrinter::printRankError(MessagePrinter::charBuff);      
         MessagePrinter::exitcfem();            
     }
     int rowNodeI = 0; /**< node id of Ke's row in a elmt*/
     int colNodeI = 0; /**< node id of Ke's col in a elmt*/
-    
     rowDofI=0;
     for(rowNodeI=0;rowNodeI<mNodePerElmt;++rowNodeI){
         PetscInt rowI, rowJ;    /**< tmp index for loop over Ke's node's row*/
@@ -499,7 +521,7 @@ PetscErrorCode StructuredMesh2D::addElmtAMatrixByDmdaInd(PetscInt xI,PetscInt yI
             row[rowDofI].j=rowJ;        col[rowDofI].j=rowJ;    
             row[rowDofI].c=nodeDofI;    col[rowDofI].c=nodeDofI;
             colDofI=0;
-            for(colNodeI=0;colNodeI<m_mDof_node;++colNodeI){
+            for(colNodeI=0;colNodeI<mNodePerElmt;++colNodeI){
                 for(nodeDofI2=0;nodeDofI2<m_mDof_node;++nodeDofI2){
                     entry[mDofPerElmt*rowDofI+colDofI]=(*matrixPtr)(rowDofI,colDofI);
                     ++colDofI;
@@ -514,21 +536,24 @@ PetscErrorCode StructuredMesh2D::addElmtAMatrixByDmdaInd(PetscInt xI,PetscInt yI
 
 PetscErrorCode StructuredMesh2D::addElmtResidualByDmdaInd(PetscInt xI,PetscInt yI,Vector *residualPtr,Vec *fPtr){
     PetscScalar ***& arrayPtrRef=getNodeVariablePtrRef(NodeVariableType::RESIDUAL,1);
+    Vector2d *residualPtr2d =(Vector2d *)residualPtr;
     if(fPtr){}
     if(!arrayPtrRef){
         MessagePrinter::printErrorTxt("variable array need to point to Vec before use it.");
         MessagePrinter::exitcfem();
     }
-    if(yI+1>m_daInfo.gym-1||xI+1>m_daInfo.gxm-1){
-        PetscCall(PetscPrintf(PETSC_COMM_WORLD,"DMDA (row,col)=(%d,%d) is out of range, max index = (%d,%d)",
-                            xI+1,yI+1,m_daInfo.gxm-1,m_daInfo.gym-1));
+    if(yI+1>m_daInfo.gys+m_daInfo.gym-1||xI+1>m_daInfo.gxs+m_daInfo.gxm-1){
+        snprintf(MessagePrinter::charBuff,MessagePrinter::buffLen,
+                "DMDA (row,col)=(%d,%d) is out of range, max index = (%d,%d)",
+                            xI+1,yI+1,m_daInfo.gxs+m_daInfo.gxm-1,m_daInfo.gys+m_daInfo.gym-1);
+        MessagePrinter::printRankError(MessagePrinter::charBuff);      
         MessagePrinter::exitcfem();            
     }
     for(int dofI=0;dofI<m_mDof_node;dofI++){
-        arrayPtrRef[yI][xI][dofI]+=residualPtr[0](dofI);
-        arrayPtrRef[yI][xI+1][dofI]+=residualPtr[1](dofI);
-        arrayPtrRef[yI+1][xI+1][dofI]+=residualPtr[2](dofI);
-        arrayPtrRef[yI+1][xI][dofI]+=residualPtr[3](dofI);
+        arrayPtrRef[yI][xI][dofI]+=residualPtr2d[0](dofI);
+        arrayPtrRef[yI][xI+1][dofI]+=residualPtr2d[1](dofI);
+        arrayPtrRef[yI+1][xI+1][dofI]+=residualPtr2d[2](dofI);
+        arrayPtrRef[yI+1][xI][dofI]+=residualPtr2d[3](dofI);
     }
     return 0;        
 }
@@ -556,8 +581,8 @@ void StructuredMesh2D::getRectCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector *aC
     /**m_geoParam < geometry parameter to describe the regular mesh domain
      * (for rectangular domain, is x length,y length in order; 
      * for sin or half sin domain, is span, amplitude, width in order)*/
-    (*aCoord)(1)=xI*m_geoParam[0]/(m_daInfo.mx-1);
-    (*aCoord)(0)=yI*m_geoParam[1]/(m_daInfo.my-1);
+    (*aCoord)(0)=xI*m_geoParam[0]/(m_daInfo.mx-1);
+    (*aCoord)(1)=yI*m_geoParam[1]/(m_daInfo.my-1);
 }
 
 void StructuredMesh2D::getSinCoord0ByDmdaInd(PetscInt xI,PetscInt yI,Vector *aCoord){
@@ -622,6 +647,18 @@ Vec & StructuredMesh2D::getNodeLocalVariableVecRef(NodeVariableType vType, int s
             break;
         }
         break;
+    case NodeVariableType::U:
+        switch (state)
+        {
+        case 2:
+            return m_nodes_u2_local;
+            break;
+        default:
+            MessagePrinter::printErrorTxt("required u vec state must be 2.");
+            MessagePrinter::exitcfem();        
+            break;
+        }
+        break;
     case NodeVariableType::UINC:
         switch (state)
         {
@@ -649,6 +686,15 @@ Vec & StructuredMesh2D::getNodeLocalVariableVecRef(NodeVariableType vType, int s
             MessagePrinter::exitcfem();           
         }
         break;
+    case NodeVariableType::LOAD:
+        if (state==1){
+            return m_node_load_local;
+        }
+        else{
+            MessagePrinter::printErrorTxt("required load vec state must be 1.");
+            MessagePrinter::exitcfem();                
+        }
+        break;
     default:
         MessagePrinter::printErrorTxt("required node variable vec are not unsupported in current mesh system");
         MessagePrinter::exitcfem();       
@@ -674,6 +720,15 @@ PetscScalar *** & StructuredMesh2D::getNodeVariablePtrRef(NodeVariableType vType
             MessagePrinter::printErrorTxt("required Coords array address state must be 0 or 2.");
             MessagePrinter::exitcfem();
             break;
+        }
+        break;
+    case NodeVariableType::U:
+        if(state==2){
+            return m_array_nodes_u2;
+        }
+        else{
+            MessagePrinter::printErrorTxt("required u array address state must be 2.");
+            MessagePrinter::exitcfem();            
         }
         break;
     case NodeVariableType::UINC:
@@ -706,6 +761,15 @@ PetscScalar *** & StructuredMesh2D::getNodeVariablePtrRef(NodeVariableType vType
             break;
         }
         break;
+    case NodeVariableType::LOAD:
+        if (state==1){
+            return m_array_nodes_load;
+        }
+        else{
+            MessagePrinter::printErrorTxt("required load array address state must be 1.");
+            MessagePrinter::exitcfem();                
+        }
+        break;
     default:
         MessagePrinter::printErrorTxt("required node variable array address are not unsupported in current mesh system");
         MessagePrinter::exitcfem();       
@@ -720,4 +784,30 @@ int StructuredMesh2D::nodeGId2RId(int gId){
 int StructuredMesh2D::elmtGId2RId(int gId){
     PetscInt startGId=(m_daInfo.mx-1)*m_daInfo.ys;       /**< node's start global id in this rank*/
     return gId-startGId;    
+}
+PetscErrorCode StructuredMesh2D::printVaribale(NodeVariableType vType, Vec *variableVecPtr, int state, int comp){
+    openNodeVariableVec(vType, variableVecPtr, state,VecAccessMode::READ);
+    PetscScalar ***array=getNodeVariablePtrRef(vType,state);
+    for(PetscMPIInt rankI=0;rankI<m_rankNum;++rankI){
+        if(m_rank==rankI){
+            if(m_rank==0){
+                MessagePrinter::printStarsRank();
+                printf("      ");
+                for(PetscInt xI=m_daInfo.xs;xI<m_daInfo.xs+m_daInfo.xm;++xI){
+                    printf("%12d ",xI);
+                }
+                printf("\n");
+            }
+            for(PetscInt yI=m_daInfo.ys;yI<m_daInfo.ys+m_daInfo.ym;++yI){
+                printf("%4d: ",yI);
+                for(PetscInt xI=m_daInfo.xs;xI<m_daInfo.xs+m_daInfo.xm;++xI){
+                    printf("%12.5e ",array[yI][xI][comp]);
+                }
+                printf("\n");
+            }
+        }
+        PetscCall(PetscBarrier(NULL));
+    }
+    closeNodeVariableVec(vType, variableVecPtr, state,VecAccessMode::READ);
+    return 0;
 }

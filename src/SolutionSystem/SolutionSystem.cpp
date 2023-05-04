@@ -1,7 +1,7 @@
 #include "SolutionSystem/SolutionSystem.h"
 SolutionSystem::SolutionSystem():
                 m_stepDesPtr(nullptr),m_meshSysPtr(nullptr),
-                m_increI(0),m_iterI(0),m_mIter(0),
+                m_mDiverged(0),m_increI(0),m_iterI(-1),m_mIter(0),
                 m_rnorm(0.0),m_duNorm(0.0),m_rnorm0(0.0),m_uNorm(0.0),m_ifShowIterInfo(true)
 {
     m_solutionCtx.s_bcsSysPtr=nullptr;
@@ -14,7 +14,7 @@ SolutionSystem::SolutionSystem():
 }
 SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr):
                 m_meshSysPtr(nullptr),
-                m_increI(0),m_iterI(0),m_mIter(0),
+                m_mDiverged(0),m_increI(0),m_iterI(-1),m_mIter(0),
                 m_rnorm(0.0),m_duNorm(0.0),m_rnorm0(0.0),m_uNorm(0.0),m_ifShowIterInfo(true)
 {
     m_solutionCtx.s_bcsSysPtr=nullptr;
@@ -27,7 +27,7 @@ SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr):
     m_ifSolutionCtxInit=false;
 }
 SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr, MeshSystem *t_meshSysPtr):
-                m_increI(0),m_iterI(0),m_mIter(0),
+                m_mDiverged(0),m_increI(0),m_iterI(-1),m_mIter(0),
                 m_rnorm(0.0),m_duNorm(0.0),m_rnorm0(0.0),m_uNorm(0.0),m_ifShowIterInfo(true)
 {
     m_solutionCtx.s_bcsSysPtr=nullptr;
@@ -49,6 +49,7 @@ PetscErrorCode SolutionSystem::init(StepDescriptiom *t_stepDesPtr,MeshSystem *t_
     initStep(t_stepDesPtr);
     initSolutionCtx(t_elmtSysPtr, t_bcsSysPtr, t_loadCtrlPtr);
     initMonitorCtx();
+    m_ifShowIterInfo=false;
     if(m_ifShowIterInfo){
         PetscCall(SNESMonitorSet(m_snes,monitorFunction,&m_monitorCtx,nullptr));
     }
@@ -99,11 +100,12 @@ PetscErrorCode SolutionSystem::initStep(){
     /*****************************/
     if(strcmp(m_PCType,PCLU)==0)
         PetscCall(PCFactorSetMatSolverType(m_pc,MATSOLVERSUPERLU_DIST));
-    PetscCall(PCFactorSetReuseOrdering(m_pc,PETSC_TRUE)); // ???
+    // PetscCall(PCFactorSetReuseOrdering(m_pc,PETSC_TRUE)); // ???
     // basic setting for SNES*****/
     //****************************/
     PetscCall(SNESSetTolerances(m_snes,m_absTol,m_relTol,m_uIncTol,m_maxIter,-1));
     PetscCall(SNESSetDivergenceTolerance(m_snes,-1));
+    m_div_tol=-1;
     // for different types of SNES solver**/
     /**************************************/
     if(strcmp(m_SNESType,SNESNEWTONLS)==0){
@@ -173,11 +175,7 @@ PetscErrorCode SolutionSystem::showIterInfo(bool t_ifShowIterInfo){
     return 0;
 }
 PetscErrorCode SolutionSystem::run(bool t_ifLastConverged, bool *t_ifConverged, bool *t_ifcompleted){
-    const int buffLen=100;
-    char charBuff[buffLen];
     string increInfo;
-    m_iterI=0;
-    m_mIter=0;
     m_uNorm=0.0;
     m_duNorm=0.0;
     m_rnorm0=0.0;
@@ -187,76 +185,71 @@ PetscErrorCode SolutionSystem::run(bool t_ifLastConverged, bool *t_ifConverged, 
         *t_ifcompleted=true;
         return 0;
     }
-    m_solutionCtx.s_bcsSysPtr->setInitialSolution();
+    m_solutionCtx.s_bcsSysPtr->setInitialSolution(m_solutionCtx.s_loadCtrlPtr->m_factorInc1);
     PetscCall(SNESSolve(m_snes,NULL,m_solutionCtx.s_bcsSysPtr->m_uIncInitial));
     SNESConvergedReason converReason;
     PetscCall(SNESGetConvergedReason(m_snes,&converReason));
-    switch (converReason)
-    {
-    case SNES_CONVERGED_FNORM_ABS:
-        snprintf(charBuff,buffLen,"  Converged for |R| < abs tolerance, final iters=%3d", m_mIter);
-        increInfo=charBuff;
-        MessagePrinter::printNormalTxt(increInfo);
-        snprintf(charBuff,buffLen,"  incre %3d: |R|=%12.5e, abs-tol=%12.5e",m_increI,m_rnorm,m_absTol);
-        increInfo=charBuff;
-        MessagePrinter::printNormalTxt(increInfo);
+    printConvergedReason(converReason);
+    if(converReason>0){// for converged case
         *t_ifConverged=true;
         *t_ifcompleted=false;
         ++m_increI;
-        return 0;
-        break;
-    case SNES_CONVERGED_FNORM_RELATIVE:
-        snprintf(charBuff,buffLen,"  Converged for |R|/|R0| < rel tolerance, final iters=%3d", m_mIter);
-        increInfo=charBuff;
-        MessagePrinter::printNormalTxt(increInfo);
-        snprintf(charBuff,buffLen,"  incre %3d: |R|=%12.5e, |R0|=%12.5e, rel-tol=%12.5e",m_increI,m_rnorm,m_rnorm0,m_absTol);
-        increInfo=charBuff;
-        MessagePrinter::printNormalTxt(increInfo);
-        *t_ifConverged=true;
-        *t_ifcompleted=false;
-        ++m_increI;
-        return 0;
-        break;
-    case SNES_CONVERGED_SNORM_RELATIVE:
-        snprintf(charBuff,buffLen,"  Converged for |du|/|u| < stol, final iters=%3d", m_mIter);
-        increInfo=charBuff;
-        MessagePrinter::printNormalTxt(increInfo);
-        snprintf(charBuff,buffLen,"  incre %3d: |du|=%12.5e, |u|=%12.5e, stol=%12.5e",m_increI,m_duNorm,m_uNorm,m_uIncTol);
-        increInfo=charBuff;
-        MessagePrinter::printNormalTxt(increInfo);
-        *t_ifConverged=true;
-        *t_ifcompleted=false;
-        ++m_increI;
-        return 0;
-        break;        
-    default:
-        snprintf(charBuff,buffLen,"  Divergent, SNES nolinear solver diverged, incre=%3d, iters=%3d", m_increI, m_mIter);
-        increInfo=charBuff;
-        MessagePrinter::printNormalTxt(increInfo);
+        m_mDiverged=0;        
+    }
+    else if(converReason<0){// for diverged reason
         *t_ifConverged=false;
         *t_ifcompleted=false;
-        return 0;        
-        break;
+        ++m_mDiverged;
+        if(m_mDiverged>=m_maxAttempt){
+            MessagePrinter::printErrorTxt("too manay attempt to get converged!");
+            MessagePrinter::exitcfem();
+        }        
+    }
+    else{
+        MessagePrinter::printErrorTxt("unexpected SNESConvergedReason value = 0!");
+        MessagePrinter::exitcfem();
     }
     return 0;
 }
 PetscErrorCode formFunction(SNES t_snes, Vec t_uInc, Vec t_function, void *ctx){
     if(ctx||t_snes){}
     SolutionCtx *ctxPtr=(SolutionCtx *)ctx;
+    // for debug
+    // MessagePrinter::printTxt("incremental u before assemble residual:");
+    // PetscCall(VecView(t_uInc,PETSC_VIEWER_STDOUT_WORLD));
     ctxPtr->s_elmtSysPtr->assemblRVec(&t_uInc,&t_function);
+    // for debug
+    // MessagePrinter::printTxt("function after assemble bcs:");
+    // PetscCall(VecView(t_function,PETSC_VIEWER_STDOUT_WORLD));
     ctxPtr->s_loadCtrlPtr->applyLoad(ctxPtr->s_loadCtrlPtr->m_factor1,&t_function);
     ctxPtr->s_bcsSysPtr->applyResidualBoundaryCondition(&t_function);
+    // for debug
+    // MessagePrinter::printTxt("function after apply bcs:");
+    // PetscCall(VecView(t_function,PETSC_VIEWER_STDOUT_WORLD));
     return 0;
 }
 PetscErrorCode formJacobian(SNES t_snes, Vec t_uInc, Mat t_AMat, Mat t_PMat, void *ctx){
     if(ctx||t_snes){}
     SolutionCtx *ctxPtr=(SolutionCtx *)ctx;
+    // for debug
+    // MessagePrinter::printTxt("incremental u before assemble Jacobian:");
+    // PetscCall(VecView(t_uInc,PETSC_VIEWER_STDOUT_WORLD));
     ctxPtr->s_elmtSysPtr->assembleAMatrix(&t_uInc,&t_PMat);
+    ctxPtr->s_bcsSysPtr->update_penalty(&t_PMat);
+    // for debug:
+    // MessagePrinter::printTxt("J(u) after assembleAMatrix:");
+    // PetscCall(PetscViewerPushFormat(PETSC_VIEWER_STDOUT_WORLD,PETSC_VIEWER_ASCII_DENSE));
+    // PetscCall(MatView(t_AMat,PETSC_VIEWER_STDOUT_WORLD));
     ctxPtr->s_bcsSysPtr->applyJacobianBoundaryCondition(&t_PMat);
     if(t_AMat!=t_PMat){
         PetscCall(MatAssemblyBegin(t_AMat,MAT_FINAL_ASSEMBLY));
         PetscCall(MatAssemblyEnd(t_AMat,MAT_FINAL_ASSEMBLY));
     }
+    // MessagePrinter::printTxt("J(u) after applyJacobianBoundaryCondition:");
+    // MatView(t_PMat,PETSC_VIEWER_STDOUT_WORLD);
+    // MatView(t_PMat,PETSC_VIEWER_STDOUT_WORLD);
+    // PetscCall(PetscViewerPushFormat(PETSC_VIEWER_STDOUT_WORLD,PETSC_VIEWER_ASCII_MATLAB));
+    // PetscCall(MatView(t_AMat,PETSC_VIEWER_STDOUT_WORLD));
     return 0;
 }
 PetscErrorCode monitorFunction(SNES snes, PetscInt its, PetscScalar norm, void *mctx){
@@ -279,5 +272,128 @@ PetscErrorCode monitorFunction(SNES snes, PetscInt its, PetscScalar norm, void *
     snprintf(buff,70," SNES solver: iters=%4d, |R|=%12.5e, |dU|=%12.5e",its,norm,*mctxPtr->s_duNormPtr);
     str=buff;
     MessagePrinter::printNormalTxt(str);
+    return 0;
+}
+PetscErrorCode SolutionSystem::printConvergedReason(SNESConvergedReason converReason){
+    const int buffLen=200;
+    char charBuff[buffLen];
+    string increInfo;
+    snprintf(charBuff,buffLen,"Increment %4d: attempt=%3d, incre-t=%12.5e, total-t=%12.5e",m_increI,m_mDiverged,
+            converReason>0?m_solutionCtx.s_loadCtrlPtr->m_factorInc1:0.0,
+            converReason>0?m_solutionCtx.s_loadCtrlPtr->m_factor1:m_solutionCtx.s_loadCtrlPtr->m_factor2);
+    increInfo=charBuff;
+    MessagePrinter::printNormalTxt(increInfo);    
+    switch (converReason)
+    {
+/*************************/
+/* converged reason print*/
+/*************************/
+    case SNES_CONVERGED_FNORM_ABS:
+        snprintf(charBuff,buffLen,"Converged for |F| < abs tolerance, final iters=%3d",m_mIter);
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        snprintf(charBuff,buffLen,"  |F|=%12.5e, abs-tol=%12.5e",m_rnorm,m_absTol);
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break;
+    case SNES_CONVERGED_FNORM_RELATIVE:
+        snprintf(charBuff,buffLen,"Converged for |F|/|F0| < rel tolerance, final iters=%3d", m_mIter);
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        snprintf(charBuff,buffLen,"  |F|=%12.5e, |F0|=%12.5e, rel-tol=%12.5e",m_rnorm,m_rnorm0,m_absTol);
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break;
+    case SNES_CONVERGED_SNORM_RELATIVE:
+        snprintf(charBuff,buffLen,"Converged for |du|/|u| < stol, final iters=%3d", m_mIter);
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        snprintf(charBuff,buffLen,"  |du|=%12.5e, |u|=%12.5e, stol=%12.5e",m_duNorm,m_uNorm,m_uIncTol);
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break; 
+    case SNES_CONVERGED_ITS:
+        snprintf(charBuff,buffLen,"Maximum iterations reached");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break;      
+    case SNES_BREAKOUT_INNER_ITER:
+        snprintf(charBuff,buffLen,"Flag to break out of inner loop after checking custom convergence (it is used in multi-phase flow when state changes)");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break;  
+/*************************/
+/* diverged reason print*/
+/*************************/    
+    case SNES_DIVERGED_FUNCTION_DOMAIN:
+        snprintf(charBuff,buffLen,"the new u location passed the function is not in the domain of F");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break;              
+    case SNES_DIVERGED_FUNCTION_COUNT:
+        snprintf(charBuff,buffLen,"The user provided function has been called more times than the maximum");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break;    
+    case SNES_DIVERGED_LINEAR_SOLVE:
+        snprintf(charBuff,buffLen,"the linear solve failed");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break;
+    case SNES_DIVERGED_FNORM_NAN:
+        snprintf(charBuff,buffLen,"the 2-norm of the current function evaluation is not-a-number (NaN), this is usually caused by a division of 0 by 0.");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break;              
+    case SNES_DIVERGED_MAX_IT:
+        snprintf(charBuff,buffLen,"the solver reached the maximum number of iterations (%d) without satisfying any convergence criteria.", m_maxIter);
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);        
+        break;
+    case SNES_DIVERGED_LINE_SEARCH:
+        snprintf(charBuff,buffLen,"the line search failed.");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break;   
+    case SNES_DIVERGED_INNER:
+        snprintf(charBuff,buffLen,"Inner solve failed.");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break;         
+    case SNES_DIVERGED_LOCAL_MIN:
+        snprintf(charBuff,buffLen,"|| J^T b || is small, implies converged to local minimum of F().");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break;     
+    case SNES_DIVERGED_DTOL:
+        snprintf(charBuff,buffLen,"|F| > div-tol * |F0|.");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        snprintf(charBuff,buffLen,"  |F|=%12.5e, |F0|=%12.5e, div-tol=%12.5e",m_rnorm,m_rnorm0,m_div_tol);
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);
+        break;   
+    case SNES_DIVERGED_JACOBIAN_DOMAIN:
+        snprintf(charBuff,buffLen,"Jacobian calculation does not make sense.");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);    
+        break;
+    case SNES_DIVERGED_TR_DELTA:
+        snprintf(charBuff,buffLen,"SNESConvergedReason is SNES_DIVERGED_TR_DELTA.");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);    
+        break;        
+    case SNES_CONVERGED_ITERATING:
+        snprintf(charBuff,buffLen,"Iteration is continuing.");
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);        
+        break;
+    default:
+        snprintf(charBuff,buffLen,"Unknown SNESConvergedReason value = %d.", converReason);
+        increInfo=charBuff;
+        MessagePrinter::printNormalTxt(increInfo);   
+        break;
+    }
+    MessagePrinter::printDashLine();
     return 0;
 }

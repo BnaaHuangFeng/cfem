@@ -124,10 +124,12 @@ public:
     */
     virtual PetscErrorCode getElmtNodeResidual(PetscInt elmtRId,int state,Vector *residualPtr,PetscInt *nodeNum=nullptr)=0;
 /**********************************************************************************************/
+    virtual PetscErrorCode printVaribale(NodeVariableType vType, Vec *variableVecPtr, int state, int comp)=0;
 public:
 //**********************************************************************************************
 //** Mesh system's commom implement ************************************************************
 //**********************************************************************************************
+    inline int dofRId2GId(int rId){return m_dof_gId[rId];}
     inline int nodeRId2GId(int rId){return m_node_gId[rId];}
     /**
      * get element's global id by id in rank
@@ -176,6 +178,7 @@ public:
     PetscInt m_mNodes_p;                    /**< nodes num in current rank*/
     PetscInt m_mElmts;                      /**< the sum of elements in all processors*/
     PetscInt m_mElmts_p;                    /**< elements num in the current rank*/
+    vector<PetscInt> m_dof_gId;             /**> dof's ID in rank -> dof's global id*/
     vector<PetscInt> m_node_gId;            /**< node's ID in rank -> node's global id*/
     vector<PetscInt> m_elmt_gId;            /**< element's ID in rank -> element's global ID*/
     vector<vector<PetscInt>> m_elmt_cnn;    /**< element's ID in rank -> element's global connectivity*/
@@ -184,6 +187,7 @@ public:
     DM  m_dm;                               /**< Petsc DM*/
     Vec m_nodes_coord0;                     /**< global nodes' coords in ref config*/
     Vec m_nodes_coord2;                     /**< global nodes' coords of last converged config*/
+    Vec m_nodes_u2;                         /**< global nodes' coords of last converged config*/
     /**< m_nodes_uInc1 is managered by SNES*/
     Vec m_nodes_uInc2;                      /**< global nodes' incremental displacement in current config*/
     /**< m_AMatrix1 is managered by SNES*/

@@ -37,11 +37,7 @@ class ViogtRank2Tensor2D:public Vector3d{
     /**
      * constructor
     */
-    ViogtRank2Tensor2D():Vector3d(){}
-    /**
-     * @param val the scalar value
-    */
-    ViogtRank2Tensor2D(const double val):Vector3d(val){};
+    ViogtRank2Tensor2D(){ViogtRank2Tensor2D(ViogtRank2Tensor2D::InitMethod::ZERO);};
     /**
      * @param a the right hand vector
     */

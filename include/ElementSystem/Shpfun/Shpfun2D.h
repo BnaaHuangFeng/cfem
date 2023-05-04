@@ -8,7 +8,7 @@ public:
     /**
      * Construction function
     */
-    Shpfun2D():m_r(0.0){};
+    Shpfun2D():m_r(Vector2d::InitMethod::ZERO){};
     /**
      * @param t_r the natural coords of the point
     */

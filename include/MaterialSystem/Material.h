@@ -14,6 +14,7 @@ public:
     virtual ~Material(){}
     /**
      * Init material's property by properties nlohmann::json
+     * @param t_det_dx0dr > det(dx0/dr), x0 is elmt's coords in ref config
     */
     virtual void initProperty(nlohmann::json *t_propPtr)=0;
     /**

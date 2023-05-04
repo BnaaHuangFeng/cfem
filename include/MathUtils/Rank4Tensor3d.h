@@ -49,7 +49,6 @@ public:
      * constructor
      */
     Rank4Tensor3d();
-    Rank4Tensor3d(const double val);
     Rank4Tensor3d(const Rank4Tensor3d &a);
     Rank4Tensor3d(const InitMethod &method);
     ~Rank4Tensor3d();
@@ -146,7 +145,7 @@ public:
      * @param a right hand side scalar
      */
     inline Rank4Tensor3d operator+(const double &a) const{
-        Rank4Tensor3d temp(0.0);
+        Rank4Tensor3d temp(Rank4Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N4;i++) temp.m_vals[i]=m_vals[i]+a;
         return temp;
     }
@@ -155,7 +154,7 @@ public:
      * @param a right hand rank-4 tensor
      */
     inline Rank4Tensor3d operator+(const Rank4Tensor3d &a) const{
-        Rank4Tensor3d temp(0.0);
+        Rank4Tensor3d temp(Rank4Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N4;i++) temp.m_vals[i]=m_vals[i]+a.m_vals[i];
         return temp;
     }
@@ -186,7 +185,7 @@ public:
      * @param a right hand side scalar
      */
     inline Rank4Tensor3d operator-(const double &a) const{
-        Rank4Tensor3d temp(0.0);
+        Rank4Tensor3d temp(Rank4Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N4;i++) temp.m_vals[i]=m_vals[i]-a;
         return temp;
     }
@@ -195,7 +194,7 @@ public:
      * @param a right hand rank-4 tensor
      */
     inline Rank4Tensor3d operator-(const Rank4Tensor3d &a) const{
-        Rank4Tensor3d temp(0.0);
+        Rank4Tensor3d temp(Rank4Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N4;i++) temp.m_vals[i]=m_vals[i]-a.m_vals[i];
         return temp;
     }
@@ -226,7 +225,7 @@ public:
      * @param a right hand side scalar
      */
     inline Rank4Tensor3d operator*(const double &a) const{
-        Rank4Tensor3d temp(0.0);
+        Rank4Tensor3d temp(Rank4Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N4;i++) temp.m_vals[i]=m_vals[i]*a;
         return temp;
     }
@@ -269,7 +268,7 @@ public:
             MessagePrinter::printErrorTxt("a="+to_string(a)+" is singular for / operator in rank-4 tensor");
             MessagePrinter::exitcfem();
         }
-        Rank4Tensor3d temp(0.0);
+        Rank4Tensor3d temp(Rank4Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N4;i++) temp.m_vals[i]=m_vals[i]/a;
         return temp;
     }

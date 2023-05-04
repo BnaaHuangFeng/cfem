@@ -3,6 +3,7 @@
 # include "ElementSystem/Shpfun/ShpfunQuad4.h"
 # include "MaterialSystem/Material2D.h"
 # include "ElementSystem/Element/element.h"
+# include "MeshSystem/MeshSystem.h"
 /**************************************************
  *                         4         3
  *                          o-------o
@@ -17,8 +18,8 @@
  *************************************************/
 class CPE4R:public element{
     public:
-    CPE4R():element(false){}
-    CPE4R(bool nLarge):element(nLarge){}
+    CPE4R():element(false),m_det_dx0dr(0.0){}
+    CPE4R(bool nLarge):element(nLarge),m_det_dx0dr(0.0){}
     public:/**< inherent virtual func need to be implemented*/
     /**
      * init element
@@ -26,7 +27,7 @@ class CPE4R:public element{
      * @param nLarge > large strain flag
      * @param elmtParamPtr > ptr to the elmt's params
     */
-    virtual PetscErrorCode initElement(PetscInt t_elmt_rId, bool nLarge,PetscScalar *elmtParamPtr);
+    virtual PetscErrorCode initElement(PetscInt t_elmt_rId, bool nLarge,MeshSystem *t_meshSysPtr,PetscScalar *elmtParamPtr);
     /**
      * get the elmt's inner force
      * @param t_elmtCoord2 > ptr to the elmt's last converged coords (Vector2d *, Vector3d *)
@@ -46,6 +47,19 @@ class CPE4R:public element{
     virtual int getDim(){return m_dim;}
     virtual int getNodeNum(){return m_mNode;}
     virtual int getDofPerNode(){return m_mDof_node;}
+    /**
+     * get det of dx0/dr of i-th qpoint
+     * @param i > qpoint id in a elmt 
+    */
+    virtual double getDetdx0dr(int i){
+        if(i!=0){
+            MessagePrinter::printRankError("Element of CPER4's quadrature point id must be 0");
+            MessagePrinter::exitcfem();
+        }
+        return m_det_dx0dr;
+    };
+    public:
+    double m_det_dx0dr;                         /**< det of dx0dr*/
     public:/**< static member (all elements of this kind share them)*/
     static const int m_dim;                     /**< element dimension*/
     static const int m_mDof_node;               /**< dof num per node*/

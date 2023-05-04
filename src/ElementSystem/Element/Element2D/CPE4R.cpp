@@ -6,10 +6,23 @@ const int CPE4R::m_mNode=4;                   /**< a element's nodes number*/
 const int CPE4R::m_mQPoint=1;
 const int CPE4R::m_QPW=4.0;
 ShpfunQuad4 CPE4R::m_shpfun=ShpfunQuad4(Vector2d(0.0,0.0)); /**< shape function relative computer*/
-PetscErrorCode CPE4R::initElement(PetscInt t_elmt_rId, bool nLarge, PetscScalar *elmtParamPtr){
+PetscErrorCode CPE4R::initElement(PetscInt t_elmt_rId, bool nLarge,MeshSystem *t_meshSysPtr, PetscScalar *elmtParamPtr){
     m_elmt_rId=t_elmt_rId;
     m_nLarge=nLarge;
     if(elmtParamPtr){}
+    Vector2d elmt_coord0[m_mNode];
+    t_meshSysPtr->getElmtNodeCoord(t_elmt_rId,0,elmt_coord0);
+    Vector2d elmt_dNdr[m_mNode];
+    m_shpfun.getDer2Nat(elmt_dNdr);
+    Rank2Tensor2d dx0dr(Rank2Tensor2d::InitMethod::ZERO);
+    for(int nodeI=0;nodeI<m_mNode;nodeI++){
+        for(int m=0;m<m_mDof_node;m++){
+            for(int n=0;n<m_mDof_node;n++){
+                dx0dr(m,n)+=elmt_dNdr[nodeI](n)*elmt_coord0[nodeI](m);
+            }
+        }
+    }    
+    m_det_dx0dr=dx0dr.det();
     return 0;
 }
 PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, VectorXd *t_elmtInnerForce, bool *t_converged){
@@ -32,7 +45,7 @@ PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, 
      * update material
     */
     if(!m_nLarge){  // for small strain
-        Rank2Tensor2d duIncdx(0.0);
+        Rank2Tensor2d duIncdx;
         for(int nodeI=0;nodeI<m_mNode;nodeI++){
             for(int m=0;m<m_mDof_node;m++){
                 for(int n=0;n<m_mDof_node;n++){
@@ -61,7 +74,8 @@ PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, 
     // evaluate elemental volume
     double J=0;
     m_matPtr->getElementVariable(ElementVariableType::JACOBIAN,&J);
-    double volume=m_QPW*J;
+    double volume=m_QPW*J*m_det_dx0dr;
+    // for debug
     *t_elmtInnerForce=BMatrix.transpose()*(stress*volume);
     return 0;
 }
@@ -78,14 +92,17 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
     m_shpfun.setRefCoords(elmtCoord1);
     Vector2d dNdx[4];
     m_shpfun.getDer2Ref(dNdx);
-
+    // evaluate elemental volume
+    double J=0;
+    m_matPtr->getElementVariable(ElementVariableType::JACOBIAN,&J);
+    double volume=m_QPW*J*m_det_dx0dr;
     if(!m_nLarge){  // for small strain
         const int mBMatrix=3;   /** B-matrix's row num*/
         MatrixXd B(mBMatrix,m_mNode*m_mDof_node,0.0);
         getBMatrix(dNdx,m_mNode,m_mDof_node,&B);
-        ViogtRank4Tensor2D D(0.0);
+        ViogtRank4Tensor2D D(ViogtRank4Tensor2D::InitMethod::ZERO);
         /** cal duInc/dx*/
-        Rank2Tensor2d duIncdx(0.0);
+        Rank2Tensor2d duIncdx;
         for(int nodeI=0;nodeI<m_mNode;nodeI++){
             for(int m=0;m<m_mDof_node;m++){
                 for(int n=0;n<m_mDof_node;n++){
@@ -94,7 +111,10 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
             }
         }
         m_matPtr->getTangentModulus(&duIncdx,&D);
-        *t_stfMatrix=B.transpose()*D*B;
+        *t_stfMatrix=B.transpose()*D*B*volume;
+        // for debug
+        // MessagePrinter::printRankError("elmt AMatrix:");
+        // t_stfMatrix->print();
     }
     else{
         const int mGMatrix=4;   /** G-Matrix's row count*/
@@ -103,7 +123,7 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
         MatrixXd a (mGMatrix,mGMatrix,0.0);
         /** cal Finc*/
         Vector2d dNdX2[m_mNode];
-        Rank2Tensor2d Finc(0.0);
+        Rank2Tensor2d Finc;
         m_shpfun.setRefCoords(elmtCoord2);
         m_shpfun.getDer2Ref(dNdX2);
         for(int nodeI=0;nodeI<m_mNode;nodeI++){
@@ -115,7 +135,7 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
         }
         /** cal a*/
         m_matPtr->getSpatialTangentModulus(&Finc,&a);
-        *t_stfMatrix=G.transpose()*a*G;
+        *t_stfMatrix=G.transpose()*a*G*volume;
     }
     return 0;
 }

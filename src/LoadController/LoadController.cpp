@@ -27,6 +27,7 @@ m_factor2(0.0),m_factorInc2(0.0),m_factor1(0.0),m_factorInc1(0.0){
     m_ifHasNodeLoad=false;
 }
 bool LoadController::update(bool ifConverged, int mIter){
+    if(mIter<0)return false;
     if(ifConverged){
         m_iterCnt2=m_iterCnt1;
         m_iterCnt1=mIter;
@@ -73,7 +74,8 @@ void LoadController::readStepDes(StepDescriptiom *t_stepDesPtr){
     m_cutbackRatio=t_stepDesPtr->s_cutbackFactor;
     m_factorIncMin=t_stepDesPtr->s_dtmin;
     m_factorIncMax=t_stepDesPtr->s_dtmax;
-    m_factorInc2=t_stepDesPtr->s_dt0;
+    m_factorInc1=t_stepDesPtr->s_dt0;
+    m_factorInc2=0.0;
     m_factorFinal=t_stepDesPtr->s_t;
     m_ifReadStepDes=true;
 }

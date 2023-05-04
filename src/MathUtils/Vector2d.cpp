@@ -17,9 +17,6 @@
 Vector2d::Vector2d(){
     m_vals[0]=0.0;m_vals[1]=0.0;
 }
-Vector2d::Vector2d(const double val){
-    m_vals[0]=val;m_vals[1]=val;
-}
 Vector2d::Vector2d(const Vector2d &a){
     m_vals[0]=a.m_vals[0];m_vals[1]=a.m_vals[1];
 }
@@ -27,10 +24,10 @@ Vector2d::Vector2d(const InitMethod initmethod){
     switch (initmethod)
     {
     case Vector2d::InitMethod::ZERO:
-        Vector2d(0.0);
+        m_vals[0]=0.0;  m_vals[1]=0.0;
         break;
     case Vector2d::InitMethod::IDENTITY:
-        Vector2d(1.0);
+        m_vals[0]=1.0;  m_vals[1]=1.0;
         break;
     case Vector2d::InitMethod::RANDOM:
         m_vals[0]=static_cast<double>(1.0*rand()/RAND_MAX);
@@ -48,7 +45,7 @@ Vector3d Vector2d::toVector3d()const{
     return tmp;
 }
 Vector2d operator*(const double val,const Vector2d &a){
-    Vector2d temp(0.0);
+    Vector2d temp(Vector2d::InitMethod::ZERO);
     temp(0)=val*a(0);temp(1)=val*a(1);
     return temp;
 }

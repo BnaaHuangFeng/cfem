@@ -18,8 +18,9 @@
 #include "MathUtils/Rank2Tensor2d.h"
 #include "Eigen/Eigen"
 #include <algorithm>
-Rank2Tensor2d::Rank2Tensor2d():m_vals{}{}
-Rank2Tensor2d::Rank2Tensor2d(const double val):m_vals{val,val,val,val}{}
+Rank2Tensor2d::Rank2Tensor2d():m_vals{}{
+    Rank2Tensor2d(Rank2Tensor2d::InitMethod::ZERO);
+}
 Rank2Tensor2d::Rank2Tensor2d(const Rank2Tensor2d &a){
     for(int i=0;i<N2;i++) m_vals[i]=a.m_vals[i];
 }
@@ -48,7 +49,7 @@ Rank2Tensor2d::Rank2Tensor2d(const InitMethod &initmethod){
 Rank2Tensor2d::~Rank2Tensor2d(){
 }
 Rank2Tensor3d Rank2Tensor2d::toRank2Tensor3d()const{
-    Rank2Tensor3d tmp(0.0);
+    Rank2Tensor3d tmp(Rank2Tensor3d::InitMethod::ZERO);
     for(int i=0;i<N;i++){
         for(int j=0;j<N;j++){
             tmp(i,j)=(*this)(i,j);
@@ -58,12 +59,12 @@ Rank2Tensor3d Rank2Tensor2d::toRank2Tensor3d()const{
 }
 //**********************************************************************
 Rank2Tensor2d operator*(const double lhs,const Rank2Tensor2d &a){
-    Rank2Tensor2d temp(0.0);
+    Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO);
     for(int i=0;i<a.N2;i++) temp.m_vals[i]=lhs*a.m_vals[i];
     return temp;
 }
 Vector2d operator*(const Vector2d &lhs,const Rank2Tensor2d &a){
-    Vector2d temp(0.0);
+    Vector2d temp(Vector2d::InitMethod::ZERO);
     for(int j=0;j<a.N;j++){
         for(int i=0;i<a.N;i++)
             temp(j)+=lhs(i)*a(i,j);
@@ -72,7 +73,7 @@ Vector2d operator*(const Vector2d &lhs,const Rank2Tensor2d &a){
 }
 Rank2Tensor2d Rank2Tensor2d::operator*(const ViogtRank2Tensor2D &a) const{
     // return A*B(still rank-2 tensor)
-    Rank2Tensor2d temp(0.0);
+    Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO);
     for(int i=0;i<N;i++){
         for(int j=0;j<N;j++){
             temp(i,j)=(*this)(i,0)*a(0,j)+(*this)(i,1)*a(1,j);
@@ -128,19 +129,19 @@ void Rank2Tensor2d::spectralDecomposition(double eigvalPtr[2],ViogtRank2Tensor2D
 }
 
 Vector2d Rank2Tensor2d::getIthRow(const int i)const{
-    Vector2d temp(0.0);
+    Vector2d temp(Vector2d::InitMethod::ZERO);
     temp(0)=(*this)(i,0);
     temp(1)=(*this)(i,1);
     return temp;
 }
 Vector2d Rank2Tensor2d::getIthCol(const int i)const{
-    Vector2d temp(0.0);
+    Vector2d temp(Vector2d::InitMethod::ZERO);
     temp(0)=(*this)(0,i);
     temp(1)=(*this)(1,i);
     return temp;
 }
 Vector2d Rank2Tensor2d::operator*(const Vector2d &a) const{
-    Vector2d temp(0.0);
+    Vector2d temp(Vector2d::InitMethod::ZERO);
     for(int i=0;i<N;i++){
         temp(i)=(*this)(i,0)*a(0)+(*this)(i,1)*a(1);
     }

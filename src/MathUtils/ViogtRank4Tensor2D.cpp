@@ -2,9 +2,11 @@
 # include "MathUtils/ViogtRank2Tensor2D.h"
 # include "MathUtils/Rank4Tensor3d.h"
 # include "MathUtils/Rank2Tensor2d.h"
-ViogtRank4Tensor2D::ViogtRank4Tensor2D():MatrixXd(3,3){};
-ViogtRank4Tensor2D::ViogtRank4Tensor2D(const double &val):MatrixXd(3,3,val){};
-ViogtRank4Tensor2D::ViogtRank4Tensor2D(const double *vals):MatrixXd(3,3,vals){};
+ViogtRank4Tensor2D::ViogtRank4Tensor2D():MatrixXd(3,3){
+    ViogtRank4Tensor2D(ViogtRank4Tensor2D::InitMethod::ZERO);
+};
+ViogtRank4Tensor2D::ViogtRank4Tensor2D(const double *vals):
+    MatrixXd(3,3,vals){}
 ViogtRank4Tensor2D::ViogtRank4Tensor2D(const MatrixXd &matrix):MatrixXd(matrix){};
 ViogtRank4Tensor2D::ViogtRank4Tensor2D(InitMethod initmethod):MatrixXd(3,3,0.0){
     switch (initmethod)
@@ -62,7 +64,7 @@ ViogtRank4Tensor2D::ViogtRank4Tensor2D(Rank4Tensor3d rank4Tensor):MatrixXd(3,3,0
     }
 }
 Rank4Tensor3d ViogtRank4Tensor2D::toRank4Tensor(){
-    Rank4Tensor3d tmp(0.0);
+    Rank4Tensor3d tmp(Rank4Tensor3d::InitMethod::ZERO);
     for(int i=0;i<dim;i++){
         for(int j=0;j<dim;j++){
             for(int k=0;k<dim;k++){
@@ -74,8 +76,26 @@ Rank4Tensor3d ViogtRank4Tensor2D::toRank4Tensor(){
     }
     return tmp;
 }
+ViogtRank4Tensor2D ViogtRank4Tensor2D::operator*(const double R)const{
+    ViogtRank4Tensor2D tmp(ViogtRank4Tensor2D::InitMethod::ZERO);
+    for(int i=0;i<NViogt;++i){
+        for(int j=0;j<NViogt;++j){
+            tmp(i,j)=(*this)(i,j)*R;
+        }
+    }
+    return tmp;
+}
+ViogtRank4Tensor2D operator*(const double L, const ViogtRank4Tensor2D &R){
+    ViogtRank4Tensor2D tmp(ViogtRank4Tensor2D::InitMethod::ZERO);
+    for(int i=0;i<R.NViogt;++i){
+        for(int j=0;j<R.NViogt;++j){
+            tmp(i,j)=R(i,j)*L;
+        }
+    }
+    return tmp;
+}
 ViogtRank2Tensor2D ViogtRank4Tensor2D::operator*(const ViogtRank2Tensor2D &b)const{
-    ViogtRank2Tensor2D tmp(0.0);
+    ViogtRank2Tensor2D tmp(ViogtRank2Tensor2D::InitMethod::ZERO);
     int dim=this->getM();
     for(int indij=0;indij<dim;indij++){
         for(int indkl=0;indkl<dim;indkl++){
@@ -86,7 +106,7 @@ ViogtRank2Tensor2D ViogtRank4Tensor2D::operator*(const ViogtRank2Tensor2D &b)con
 };
 
 ViogtRank2Tensor2D operator*(const ViogtRank2Tensor2D &b,const ViogtRank4Tensor2D &a){
-    ViogtRank2Tensor2D tmp(0.0);
+    ViogtRank2Tensor2D tmp(ViogtRank2Tensor2D::InitMethod::ZERO);
     int dim=a.getM();
     for(int indkl=0;indkl<dim;indkl++){
         for(int indij=0;indij<dim;indij++){
@@ -96,7 +116,7 @@ ViogtRank2Tensor2D operator*(const ViogtRank2Tensor2D &b,const ViogtRank4Tensor2
     return tmp;
 }
 ViogtRank2Tensor2D ViogtRank4Tensor2D::operator*(const Rank2Tensor2d &b)const{
-    ViogtRank2Tensor2D tmp(0.0);
+    ViogtRank2Tensor2D tmp(ViogtRank2Tensor2D::InitMethod::ZERO);
     for(int indij=0;indij<3;indij++){     // indij: viogt index sf 1
         for(int k=0;k<2;k++){
             for(int l=0;l<2;l++){
@@ -108,7 +128,7 @@ ViogtRank2Tensor2D ViogtRank4Tensor2D::operator*(const Rank2Tensor2d &b)const{
     return tmp;
 };
 ViogtRank2Tensor2D operator*(const Rank2Tensor2d &L,const ViogtRank4Tensor2D & R){
-    ViogtRank2Tensor2D tmp(0.0);
+    ViogtRank2Tensor2D tmp(ViogtRank2Tensor2D::InitMethod::ZERO);
     for(int indkl=0;indkl<3;indkl++){
         for(int i=0;i<2;i++){
             for(int j=0;j<2;j++){
@@ -120,7 +140,7 @@ ViogtRank2Tensor2D operator*(const Rank2Tensor2d &L,const ViogtRank4Tensor2D & R
     return tmp;
 }
 ViogtRank4Tensor2D ViogtRank4Tensor2D::operator*(const ViogtRank4Tensor2D &R){
-    ViogtRank4Tensor2D tmp(0.0);
+    ViogtRank4Tensor2D tmp(ViogtRank4Tensor2D::InitMethod::ZERO);
     int Nviogt=this->getM();
     for(int indij=0;indij<Nviogt;indij++){
         for(int indkl=0;indkl<Nviogt;indkl++){
@@ -149,7 +169,7 @@ MatrixXd ViogtRank4Tensor2D::toFullMatrix()const{
     const int ind2viogtInd[4]={0,2,2,1};
     for(int indI=0;indI<nInd;indI++){
         for(int indJ=0;indJ<nInd;indJ++){
-            MatrixXd(indI,indJ)=(*this)(ind2viogtInd[indI],ind2viogtInd[indJ]);
+            tmp(indI,indJ)=(*this)(ind2viogtInd[indI],ind2viogtInd[indJ]);
         }
     }
     return tmp;

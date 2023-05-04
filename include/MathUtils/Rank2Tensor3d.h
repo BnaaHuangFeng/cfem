@@ -45,7 +45,6 @@ public:
      * constructor
      */
     Rank2Tensor3d();
-    Rank2Tensor3d(const double val);
     Rank2Tensor3d(const Rank2Tensor3d &a);
     Rank2Tensor3d(const InitMethod &initmethod);
     ~Rank2Tensor3d();
@@ -57,7 +56,7 @@ public:
      * @param i i-th row number, start from 1 to 3
      */
     inline Vector3d getIthRow(const int &i)const{
-        Vector3d temp(0.0);
+        Vector3d temp(Vector3d::InitMethod::ZERO);
         temp(0)=(*this)(i,0);
         temp(1)=(*this)(i,1);
         temp(2)=(*this)(i,2);
@@ -68,7 +67,7 @@ public:
      * @param i i-th col number, start from 1 to 3
      */
     inline Vector3d getIthCol(const int &i)const{
-        Vector3d temp(0.0);
+        Vector3d temp(Vector3d::InitMethod::ZERO);
         temp(0)=(*this)(0,i);
         temp(1)=(*this)(1,i);
         temp(2)=(*this)(2,i);
@@ -154,7 +153,7 @@ public:
      * @param a right hand side scalar
      */
     inline Rank2Tensor3d operator+(const double &a) const{
-        Rank2Tensor3d temp(0.0);
+        Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N2;i++) temp.m_vals[i]=m_vals[i]+a;
         return temp;
     }
@@ -163,7 +162,7 @@ public:
      * @param a right hand side rank-2 tensor
      */
     inline Rank2Tensor3d operator+(const Rank2Tensor3d &a) const{
-        Rank2Tensor3d temp(0.0);
+        Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N2;i++) temp.m_vals[i]=m_vals[i]+a.m_vals[i];
         return temp;
     }
@@ -204,7 +203,7 @@ public:
      * @param a right hand side scalar
      */
     inline Rank2Tensor3d operator-(const double &a) const{
-        Rank2Tensor3d temp(0.0);
+        Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N2;i++) temp.m_vals[i]=m_vals[i]-a;
         return temp;
     }
@@ -213,7 +212,7 @@ public:
      * @param a right hand side rank-2 tensor
      */
     inline Rank2Tensor3d operator-(const Rank2Tensor3d &a) const{
-        Rank2Tensor3d temp(0.0);
+        Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N2;i++) temp.m_vals[i]=m_vals[i]-a.m_vals[i];
         return temp;
     }
@@ -244,7 +243,7 @@ public:
      * @param a right hand side scalar
      */
     inline Rank2Tensor3d operator*(const double &a) const{
-        Rank2Tensor3d temp(0.0);
+        Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N2;++i) temp.m_vals[i]=m_vals[i]*a;
         return temp;
     }
@@ -253,7 +252,7 @@ public:
      * @param a right hand side vector3d
      */
     inline Vector3d operator*(const Vector3d &a) const{
-        Vector3d temp(0.0);
+        Vector3d temp(Vector3d::InitMethod::ZERO);
         for(int i=0;i<N;i++){
             temp(i)=(*this)(i,0)*a(0)+(*this)(i,1)*a(1)+(*this)(i,2)*a(2);
         }
@@ -265,7 +264,7 @@ public:
      */
     inline Rank2Tensor3d operator*(const Rank2Tensor3d &a) const{
         // return A*B(still rank-2 tensor)
-        Rank2Tensor3d temp(0.0);
+        Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N;i++){
             for(int j=0;j<N;j++){
                 temp(i,j)=(*this)(i,0)*a(0,j)+(*this)(i,1)*a(1,j)+(*this)(i,2)*a(2,j);
@@ -311,7 +310,7 @@ public:
      * @param a right hand side rank-2 tensor
      */
     inline Rank2Tensor3d& operator*=(const Rank2Tensor3d &a){
-        Rank2Tensor3d temp(0.0);
+        Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
         temp=(*this)*a;
         (*this)=temp;
         return *this;
@@ -328,7 +327,7 @@ public:
             MessagePrinter::printErrorTxt("a="+to_string(a)+" is singular for / operator in rank-2 tensor");
             MessagePrinter::exitcfem();
         }
-        Rank2Tensor3d temp(0.0);
+        Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N2;i++) temp.m_vals[i]=m_vals[i]/a;
         return temp;
     }
@@ -509,7 +508,7 @@ public:
             MessagePrinter::printErrorTxt("inverse operation failed for a singular rank-2 tensor !");
             MessagePrinter::exitcfem();
         }
-        Rank2Tensor3d inv(0.0);
+        Rank2Tensor3d inv(Rank2Tensor3d::InitMethod::ZERO);
         // taken from wiki:
         //   https://en.wikipedia.org/wiki/Invertible_matrix
         double A= (*this)(1,1)*(*this)(2,2)-(*this)(1,2)*(*this)(2,1);
@@ -532,7 +531,7 @@ public:
      * return the transpose tensor of current one, namely, \f$\mathbf{A}^{T}\f$.
      */
     inline Rank2Tensor3d transpose() const{
-        Rank2Tensor3d temp(0.0);
+        Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
         for(int i=0;i<N;i++){
             for(int j=0;j<N;j++){
                 temp(i,j)=(*this)(j,i);
@@ -544,7 +543,7 @@ public:
      * transpose current tensor, and overwrite the original one
      */
     inline void transposed(){
-        Rank2Tensor3d temp(0.0);
+        Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO);
         temp=(*this).transpose();
         (*this)=temp;
     }
@@ -552,7 +551,7 @@ public:
      * return the deviatoric part of current rank-2 tensor
      */
     inline Rank2Tensor3d dev()const{
-        Rank2Tensor3d temp(0.0),I(0.0);
+        Rank2Tensor3d temp(Rank2Tensor3d::InitMethod::ZERO),I(Rank2Tensor3d::InitMethod::ZERO);
         I.setToIdentity();
         temp=(*this)-I*(this->trace()/3.0);
         return temp;

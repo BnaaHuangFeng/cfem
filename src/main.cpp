@@ -41,6 +41,17 @@ int main(int args,char *argv[]){
     MessagePrinter::printNormalTxt("All system and controller inition completed!",MessageColor::BLUE);  
     MessagePrinter::printDashLine(MessageColor::BLUE); 
     /******************************************************/
+    bool ifConverged=true, ifCompleted=false;
+    while(!ifCompleted){
+        solSysPtr->run(ifConverged,&ifConverged,&ifCompleted);
+        if(ifConverged){
+            meshSysPtr->updateConfig(&solSysPtr->m_snes);
+        }
+    }
+    StructuredMesh2D *meshSysPtr2=(StructuredMesh2D *)meshSysPtr;
+    meshSysPtr2->printVaribale(NodeVariableType::U,&meshSysPtr2->m_nodes_u2,2,0);
+    meshSysPtr2->printVaribale(NodeVariableType::U,&meshSysPtr2->m_nodes_u2,2,1);
+    /******************************************************/
     /** delete the class created by new                 ***/
     /******************************************************/
     if(meshSysPtr) delete meshSysPtr;
@@ -48,6 +59,8 @@ int main(int args,char *argv[]){
     if(BCsSysPtr) delete BCsSysPtr;
     if(loadCtrlPtr) delete loadCtrlPtr;
     if(solSysPtr) delete solSysPtr;
+    
+    
     PetscCall(PetscFinalize());
     delete FLAG;
     return 0;

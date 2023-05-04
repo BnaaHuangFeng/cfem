@@ -7,7 +7,7 @@
 #include "MathUtils/MatrixXd.h"
 #include "MathUtils/TensorConst2D.h"
 #include <cmath>
-ViogtRank2Tensor2D::ViogtRank2Tensor2D(InitMethod initmethod):Vector3d(0.0){
+ViogtRank2Tensor2D::ViogtRank2Tensor2D(InitMethod initmethod):Vector3d(Vector3d::InitMethod::ZERO){
     switch (initmethod)
     {
     case InitMethod::ZERO:
@@ -77,7 +77,7 @@ Vector2d operator*(const Vector2d &a,const ViogtRank2Tensor2D &b){
     return b*a;
 }
 Rank2Tensor2d ViogtRank2Tensor2D::operator*(const Rank2Tensor2d &R){
-    Rank2Tensor2d tmp(0.0);
+    Rank2Tensor2d tmp(Rank2Tensor2d::InitMethod::ZERO);
     for(int i=0;i<this->dim;i++){
         for(int j=0;j<this->dim;j++){
             for(int k=0;k<this->dim;k++){
@@ -98,7 +98,7 @@ ViogtRank2Tensor2D ViogtRank2Tensor2D::operator/(const double R){
  * operation %: tensor product:a_ijkl=L_ij*R_Kl
 */
 ViogtRank4Tensor2D ViogtRank2Tensor2D::operator%(const ViogtRank2Tensor2D &R){
-    ViogtRank4Tensor2D tmp(0.0);
+    ViogtRank4Tensor2D tmp(ViogtRank4Tensor2D::InitMethod::ZERO);
     for(int viogtI=0;viogtI<NViogt;viogtI++){
         for(int viogtJ=0;viogtJ<NViogt;viogtJ++){
             tmp(viogtI,viogtJ)=(*this)(viogtI)*R(viogtJ);
@@ -107,7 +107,7 @@ ViogtRank4Tensor2D ViogtRank2Tensor2D::operator%(const ViogtRank2Tensor2D &R){
     return tmp;
 }
 Rank2Tensor2d ViogtRank2Tensor2D::toRank2Tensor2d()const{
-    Rank2Tensor2d tmp(0.0);
+    Rank2Tensor2d tmp(Rank2Tensor2d::InitMethod::ZERO);
     for(int i=0;i<dim;i++){
         for(int j=0;j<dim;j++){
             tmp(i,j)=(*this)(i,j);
@@ -116,7 +116,7 @@ Rank2Tensor2d ViogtRank2Tensor2D::toRank2Tensor2d()const{
     return tmp;
 }
 Rank2Tensor3d ViogtRank2Tensor2D::toRank2Tensor3d()const{
-    Rank2Tensor3d tmp(0.0);
+    Rank2Tensor3d tmp(Rank2Tensor3d::InitMethod::ZERO);
     for(int i=0;i<dim;i++){
         for(int j=0;j<dim;j++){
             tmp(i,j)=(*this)(i,j);
@@ -172,7 +172,7 @@ ViogtRank4Tensor2D ViogtRank2Tensor2D::iostropicFuncDeriv(double (*func)(double)
     double aEigVal[2]={0.0,0.0};
     double aEigValFunc[2]={0.0,0.0};
     double aEigValFuncDeri[2]={0.0,0.0};
-    ViogtRank2Tensor2D aEigProj[2]={0.0,0.0};
+    ViogtRank2Tensor2D aEigProj[2];
     bool ifRepeated=false;
     this->spectralDecomposition(aEigVal,aEigProj,ifRepeated);
     /** Cal eigval and eigvalderiv of y*/
@@ -180,7 +180,7 @@ ViogtRank4Tensor2D ViogtRank2Tensor2D::iostropicFuncDeriv(double (*func)(double)
         aEigValFunc[dimI]=(*func)(aEigVal[dimI]);
         aEigValFuncDeri[dimI]=(*funcDeriv)(aEigVal[dimI]);
     }
-    ViogtRank4Tensor2D dydx=0.0;
+    ViogtRank4Tensor2D dydx(ViogtRank4Tensor2D::InitMethod::ZERO);
     if(ifRepeated){// for this tensor's eigenvalue are repeated condition
         dydx=TensorConst2D::IISym*aEigValFuncDeri[0];   // aEigValFuncDeri[0]=aEigValFuncDeri[1] in this conditon
     }

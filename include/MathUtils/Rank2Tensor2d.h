@@ -43,7 +43,6 @@ public:
      * constructor
      */
     Rank2Tensor2d();
-    Rank2Tensor2d(const double val);
     Rank2Tensor2d(const Rank2Tensor2d &a);
     Rank2Tensor2d(const ViogtRank2Tensor2D &a);
     Rank2Tensor2d(const InitMethod &initmethod);
@@ -142,7 +141,7 @@ public:
      * @param a right hand side scalar
      */
     inline Rank2Tensor2d operator+(const double &a) const{
-        Rank2Tensor2d temp(0.0);
+        Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO);
         for(int i=0;i<N2;i++) temp.m_vals[i]=m_vals[i]+a;
         return temp;
     }
@@ -151,7 +150,7 @@ public:
      * @param a right hand side rank-2 tensor
      */
     inline Rank2Tensor2d operator+(const Rank2Tensor2d &a) const{
-        Rank2Tensor2d temp(0.0);
+        Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO);
         for(int i=0;i<N2;i++) temp.m_vals[i]=m_vals[i]+a[i];
         return temp;
     }
@@ -191,7 +190,7 @@ public:
      * @param a right hand side scalar
      */
     inline Rank2Tensor2d operator-(const double a) const{
-        Rank2Tensor2d temp(0.0);
+        Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO);
         for(int i=0;i<N2;i++) temp.m_vals[i]=m_vals[i]-a;
         return temp;
     }
@@ -200,7 +199,7 @@ public:
      * @param a right hand side rank-2 tensor
      */
     inline Rank2Tensor2d operator-(const Rank2Tensor2d &a) const{
-        Rank2Tensor2d temp(0.0);
+        Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO);
         for(int i=0;i<N2;i++) temp.m_vals[i]=m_vals[i]-a[i];
         return temp;
     }
@@ -231,7 +230,7 @@ public:
      * @param a right hand side scalar
      */
     inline Rank2Tensor2d operator*(const double a) const{
-        Rank2Tensor2d temp(0.0);
+        Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO);
         for(int i=0;i<N2;++i) temp.m_vals[i]=m_vals[i]*a;
         return temp;
     }
@@ -246,7 +245,7 @@ public:
      */
     inline Rank2Tensor2d operator*(const Rank2Tensor2d &a) const{
         // return A*B(still rank-2 tensor)
-        Rank2Tensor2d temp(0.0);
+        Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO);
         for(int i=0;i<N;i++){
             for(int j=0;j<N;j++){
                 temp(i,j)=(*this)(i,0)*a(0,j)+(*this)(i,1)*a(1,j);
@@ -296,7 +295,7 @@ public:
      * @param a right hand side rank-2 tensor
      */
     inline Rank2Tensor2d& operator*=(const Rank2Tensor2d &a){
-        Rank2Tensor2d temp(0.0);
+        Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO);
         temp=(*this)*a;
         (*this)=temp;
         return *this;
@@ -313,7 +312,7 @@ public:
             MessagePrinter::printErrorTxt("a="+to_string(a)+" is singular for / operator in rank-2 tensor");
             MessagePrinter::exitcfem();
         }
-        Rank2Tensor2d temp(0.0);
+        Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO);
         for(int i=0;i<N2;i++) temp.m_vals[i]=m_vals[i]/a;
         return temp;
     }
@@ -458,7 +457,7 @@ public:
             MessagePrinter::printErrorTxt("inverse operation failed for a singular rank-2 tensor !");
             MessagePrinter::exitcfem();
         }
-        Rank2Tensor2d inv(0.0);
+        Rank2Tensor2d inv(Rank2Tensor2d::InitMethod::ZERO);
         inv(0,0)=(*this)(1,1)/J;
         inv(0,1)=-(*this)(1,0)/J;
         inv(1,0)=-(*this)(0,1)/J;
@@ -469,7 +468,7 @@ public:
      * return the transpose tensor of current one, namely, \f$\mathbf{A}^{T}\f$.
      */
     inline Rank2Tensor2d transpose() const{
-        Rank2Tensor2d temp(0.0);
+        Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO);
         for(int i=0;i<N;i++){
             for(int j=0;j<N;j++){
                 temp(i,j)=(*this)(j,i);
@@ -481,7 +480,7 @@ public:
      * transpose current tensor, and overwrite the original one
      */
     inline void transposed(){
-        Rank2Tensor2d temp(0.0);
+        Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO);
         temp=(*this).transpose();
         (*this)=temp;
     }
@@ -489,7 +488,7 @@ public:
      * return the deviatoric part of current rank-2 tensor
      */
     inline Rank2Tensor2d dev()const{
-        Rank2Tensor2d temp(0.0),I(0.0);
+        Rank2Tensor2d temp(Rank2Tensor2d::InitMethod::ZERO),I(Rank2Tensor2d::InitMethod::ZERO);
         I.setToIdentity();
         temp=(*this)-I*(this->trace()/this->N);
         return temp;

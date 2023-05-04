@@ -76,10 +76,13 @@ void ShpfunQuad4::getDer2Nat(Vector2d t_dNdr[]){
 }
 void ShpfunQuad4::getDer2Ref(Vector2d t_dNdx0[]){
     getDer2Nat(m_dNdr);
-    Rank2Tensor2d m_dx0dr(0.0);
+    Rank2Tensor2d m_dx0dr;
     for(int i=0;i<m_funs;i++){
-        m_dx0dr.getIthRow(0)+=m_dNdr[i]*m_x0[i](0);
-        m_dx0dr.getIthRow(1)+=m_dNdr[i]*m_x0[i](1);
+        for(int rowI=0;rowI<m_dim;++rowI){
+            for(int colI=0;colI<m_dim;++colI){
+                m_dx0dr(rowI,colI)+=m_dNdr[i](colI)*m_x0[i](rowI);                   
+            }
+        }
     }
     Rank2Tensor2d drdx0=m_dx0dr.inverse();
     for(int i=0;i<m_funs;i++){
