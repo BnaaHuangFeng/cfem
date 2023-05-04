@@ -40,5 +40,12 @@ public:
      * @param elmtVarType > required elemnt variable's type
      * @param elmtVarPtr < ptr to get the elemnt variable (need to preallocate)
     */
-    virtual void getElementVariable(ElementVariableType elmtVarType,void *elmtVarPtr)=0;
+    virtual void getMatVariable(ElementVariableType elmtVarType,void *elmtVarPtr)=0;
+    /**
+     * Get material variable of elmtVarType in PetscScalar array form
+     * tensor of rank 2's vector order: 11 22 33 12 13 23
+     * @param elmtVarType > required elemnt variable's type
+     * @param elmtVarPtr < ptr to store the elemnt variable (need to preallocate)
+    */
+    virtual void getMatVariableArray(ElementVariableType elmtVarType,PetscScalar *elmtVarPtr)=0;
 };

@@ -43,10 +43,25 @@ class CPE4R:public element{
      * @param t_stfMatrix < ptr to receive the elmt's stiffness matrix (need preallocation)
     */
     virtual PetscErrorCode getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, MatrixXd *t_stfMatrix);
+    /**
+     * get weighted volume quadrature of specific vector (wightness is shape function value in quadrature point)
+     * @param t_valQPPtr > (qpoint id in a elmt, vector component id) -> vector value
+     * @param t_valNodePtr < (node id in a elmt, vector component is) -> vector weighted quadrature value
+     * @param t_mCpnt > components num of the vector
+    */
+    virtual PetscErrorCode getElmtWeightedVolumeInt(PetscScalar **t_valQPPtr,PetscScalar **t_valNodePtr, int t_mCpnt);
+    /**
+     * Get material variable of elmtVarType in PetscScalar array form
+     * tensor of rank 2's vector order: 11 22 33 12 13 23
+     * @param elmtVarType > required elemnt variable's type
+     * @param elmtVarPtr < ptr to store the elemnt variable (1st ind is qpoint id in a elmt, 2nd ind is component) (need to preallocate)
+    */
+    virtual void getElmtVariableArray(ElementVariableType elmtVarType,PetscScalar **elmtVarPtr);
     virtual int getDofNum(){return m_mDof_node*m_mNode;}
     virtual int getDim(){return m_dim;}
     virtual int getNodeNum(){return m_mNode;}
     virtual int getDofPerNode(){return m_mDof_node;}
+    virtual int getQpointNum(){return 1;};
     /**
      * get det of dx0/dr of i-th qpoint
      * @param i > qpoint id in a elmt 

@@ -88,7 +88,7 @@ void LinearElasticMat2D::getSpatialTangentModulus(void *t_incStrainPtr,MatrixXd 
     MatrixXd BMatrix =TensorConst2D::I.ikjl(B)+B.iljk(TensorConst2D::I);
     *t_a=((D*L).toFullMatrix()*BMatrix)/(2*m_J)-m_S.iljk(TensorConst2D::I);
 }
-void LinearElasticMat2D::getElementVariable(ElementVariableType elmtVarType,void *elmtVarPtr){
+void LinearElasticMat2D::getMatVariable(ElementVariableType elmtVarType,void *elmtVarPtr){
     switch (elmtVarType)
     {
     case ElementVariableType::CAUCHYSTRESS:
@@ -119,4 +119,43 @@ void LinearElasticMat2D::getElementVariable(ElementVariableType elmtVarType,void
         MessagePrinter::exitcfem();
         break;
     }
+}
+void LinearElasticMat2D::getMatVariableArray(ElementVariableType elmtVarType,PetscScalar *elmtVarPtr){
+    switch (elmtVarType)
+    {
+    case ElementVariableType::CAUCHYSTRESS:{
+        double S33=m_lame*m_strain.trace();
+        elmtVarPtr[0]=m_S(0);      elmtVarPtr[1]=m_S(1);    elmtVarPtr[2]=S33;
+        elmtVarPtr[3]=m_S(2);      elmtVarPtr[4]=0.0;       elmtVarPtr[5]=0.0;
+        break;
+    }
+    case ElementVariableType::JACOBIAN:
+        *elmtVarPtr=m_J;
+        break;
+    case ElementVariableType::KIRCHOFFSTRESS:{
+        double S33=m_lame*m_strain.trace();
+        elmtVarPtr[0]=m_S(0)/m_J;      elmtVarPtr[1]=m_S(1)/m_J;    elmtVarPtr[2]=S33/m_J;
+        elmtVarPtr[3]=m_S(2)/m_J;      elmtVarPtr[4]=0.0;           elmtVarPtr[5]=0.0;
+        break;
+    }
+    case ElementVariableType::LOGSTRAIN:
+        elmtVarPtr[0]=m_strain(0);     elmtVarPtr[1]=m_strain(1);   elmtVarPtr[2]=0.0;
+        elmtVarPtr[3]=m_strain(3)*2.0; elmtVarPtr[4]=0.0;           elmtVarPtr[5]=0.0;
+        break;
+    case ElementVariableType::PRESSURE:{
+        double S33=m_lame*m_strain.trace();
+        *elmtVarPtr=(m_S.trace()+S33)/(-3.0);
+        break;
+    }
+    case ElementVariableType::VONMISES:{
+        double S33=m_lame*m_strain.trace();
+        double Sm=(m_S.trace()+S33)/3.0;
+        *elmtVarPtr=sqrt(1.5*((m_S(0)-Sm)*(m_S(0)-Sm)+(m_S(1)-Sm)*(m_S(1)-Sm)+(S33-Sm)*(S33-Sm)+2*(m_S(2)-Sm)*(m_S(2)-Sm)));
+        break;
+    }
+    default:
+        MessagePrinter::printErrorTxt("Required material variale is not suuported by linearElastic material lib now");
+        MessagePrinter::exitcfem();
+        break;
+    }    
 }

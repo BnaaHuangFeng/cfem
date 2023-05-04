@@ -47,10 +47,25 @@ public:
      * @param t_stfMatrix < ptr to receive the elmt's stiffness matrix (need preallocation)
     */
     virtual PetscErrorCode getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, MatrixXd *t_stfMatrix)=0;
+    /**
+     * get weighted volume quadrature of specific vector (wightness is shape function value in quadrature point)
+     * @param t_valQPPtr > (qpoint id in a elmt, vector component id) -> vector value
+     * @param t_valNodePtr < (node id in a elmt, vector component is) -> vector weighted quadrature value
+     * @param t_mCpnt > components num of the vector
+    */
+    virtual PetscErrorCode getElmtWeightedVolumeInt(PetscScalar **t_valQPPtr,PetscScalar **t_valNodePtr, int t_mCpnt)=0;
+    /**
+     * Get material variable of elmtVarType in PetscScalar array form
+     * tensor of rank 2's vector order: 11 22 33 12 13 23
+     * @param elmtVarType > required elemnt variable's type
+     * @param elmtVarPtr < ptr to store the elemnt variable (1st ind is qpoint id in a elmt, 2nd ind is component) (need to preallocate)
+    */
+    virtual void getElmtVariableArray(ElementVariableType elmtVarType,PetscScalar **elmtVarPtr)=0;
     virtual int getDofNum()=0;
     virtual int getDim()=0;
     virtual int getNodeNum()=0;
     virtual int getDofPerNode()=0;
+    virtual int getQpointNum()=0;
     /**
      * get det of dx0/dr of i-th qpoint
      * @param i > qpoint id in a elmt 
@@ -60,5 +75,4 @@ public:
     PetscInt    m_elmt_rId;     /**< elmt's id in rank*/
     bool        m_nLarge;       /**< large strain flag*/
     Material    *m_matPtr;      /**< material ptr*/
-    
 };

@@ -69,11 +69,11 @@ PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, 
         m_matPtr->updateMaterialBydudx(&FInc,t_converged); 
     }
     // require cauchy stress
-    m_matPtr->getElementVariable(ElementVariableType::CAUCHYSTRESS,&stress);
+    m_matPtr->getMatVariable(ElementVariableType::CAUCHYSTRESS,&stress);
     if(!t_converged) return 1;
     // evaluate elemental volume
     double J=0;
-    m_matPtr->getElementVariable(ElementVariableType::JACOBIAN,&J);
+    m_matPtr->getMatVariable(ElementVariableType::JACOBIAN,&J);
     double volume=m_QPW*J*m_det_dx0dr;
     // for debug
     *t_elmtInnerForce=BMatrix.transpose()*(stress*volume);
@@ -94,7 +94,7 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
     m_shpfun.getDer2Ref(dNdx);
     // evaluate elemental volume
     double J=0;
-    m_matPtr->getElementVariable(ElementVariableType::JACOBIAN,&J);
+    m_matPtr->getMatVariable(ElementVariableType::JACOBIAN,&J);
     double volume=m_QPW*J*m_det_dx0dr;
     if(!m_nLarge){  // for small strain
         const int mBMatrix=3;   /** B-matrix's row num*/
@@ -138,4 +138,20 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
         *t_stfMatrix=G.transpose()*a*G*volume;
     }
     return 0;
+}
+PetscErrorCode CPE4R::getElmtWeightedVolumeInt(PetscScalar **t_valQPPtr,PetscScalar **t_valNodePtr, int t_mCpnt){
+    double J=0;
+    m_matPtr->getMatVariable(ElementVariableType::JACOBIAN,&J);
+    double volume=m_QPW*J*m_det_dx0dr;
+    double NPtr[m_mNode];     
+    this->m_shpfun.getShpfunVal(NPtr);
+    for(int nodeI=0;nodeI<m_mNode;++nodeI){// loop over every node in a elmt
+        for(int cpntI=0;cpntI<t_mCpnt;++cpntI){// loop over every component
+            t_valNodePtr[nodeI][cpntI]=t_valQPPtr[0][cpntI]*NPtr[nodeI]*volume;
+        }
+    }
+    return 0;
+}
+void CPE4R::getElmtVariableArray(ElementVariableType elmtVarType,PetscScalar **elmtVarPtr){
+    m_matPtr->getMatVariableArray(elmtVarType,*elmtVarPtr);
 }

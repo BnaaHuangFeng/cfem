@@ -42,7 +42,14 @@ class LinearElasticMat2D:public Material2D{
      * @param elmtVarType > required elemnt variable's type
      * @param elmtVarPtr < ptr to store the elemnt variable (need to preallocate)
     */
-    virtual void getElementVariable(ElementVariableType elmtVarType,void *elmtVarPtr);
+    virtual void getMatVariable(ElementVariableType elmtVarType,void *elmtVarPtr);
+    /**
+     * Get material variable of elmtVarType in PetscScalar array form
+     * tensor of rank 2's vector order: 11 22 33 12 13 23
+     * @param elmtVarType > required elemnt variable's type
+     * @param elmtVarPtr < ptr to store the elemnt variable (need to preallocate)
+    */
+    virtual void getMatVariableArray(ElementVariableType elmtVarType,PetscScalar *elmtVarPtr);
     public:
     ViogtRank2Tensor2D m_strain;        /**< ln(V)=ln(B)/2 (Eulerain logarithmic strain)*/
     ViogtRank2Tensor2D m_strain0;       /**< last converged ln(V)=ln(B)/2 (Eulerain logarithmic strain)*/

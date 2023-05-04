@@ -68,6 +68,7 @@ enum class HistoryVariableType{
     RF1,RF2,RF3
 };
 enum class ElementVariableType{
+    NONE,           /**< for init*/
     VONMISES,
     CAUCHYSTRESS,
     LOGSTRAIN,

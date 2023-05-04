@@ -171,15 +171,16 @@ PetscErrorCode StructuredMesh2D::outputMeshFile(){
 PetscErrorCode StructuredMesh2D::openNodeVariableVec(NodeVariableType vType, Vec *variableVecPtr, int state, VecAccessMode mode){
     PetscScalar ***& arrayPtrRef=getNodeVariablePtrRef(vType,state);
     Vec &localVec=getNodeLocalVariableVecRef(vType,state);
-    PetscCall(DMGetLocalVector(m_dm,&localVec));
-    PetscCall(DMGlobalToLocal(m_dm,*variableVecPtr,INSERT_VALUES,localVec));
     if(arrayPtrRef){
         MessagePrinter::printErrorTxt("Node variable array need to be restored before setting up");
         MessagePrinter::exitcfem();             
     }
     else{
-        if(mode==VecAccessMode::READ)
+        PetscCall(DMGetLocalVector(m_dm,&localVec));
+        if(mode==VecAccessMode::READ){
             PetscCall(DMDAVecGetArrayDOFRead(m_dm,localVec,&arrayPtrRef));
+            PetscCall(DMGlobalToLocal(m_dm,*variableVecPtr,INSERT_VALUES,localVec));
+        }
         else if(mode==VecAccessMode::WRITE){
             PetscCall(DMDAVecGetArrayDOFWrite(m_dm,localVec,&arrayPtrRef));
             PetscCall(VecZeroEntries(localVec));  
@@ -266,7 +267,6 @@ PetscErrorCode StructuredMesh2D::addElmtResidual(PetscInt rid,Vector *residualPt
     addElmtResidualByDmdaInd(xI,yI,residualPtr,fPtr);
     return 0;
 }
-
 PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDescription *t_meshDesPtr){
     m_timerPtr->startTimer();
     MessagePrinter::printNormalTxt("Start to init the sturcted 2D mesh system");
