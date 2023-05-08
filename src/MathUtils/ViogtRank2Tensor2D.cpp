@@ -25,27 +25,20 @@ ViogtRank2Tensor2D::ViogtRank2Tensor2D(InitMethod initmethod):Vector3d(Vector3d:
         break;
     }
 }
-ViogtRank2Tensor2D::ViogtRank2Tensor2D(Rank2Tensor2d &a){
-    if(a(0,1)!=a(1,0)){
-        MessagePrinter::printErrorTxt("Cannot convert a unsymmetric rank 2 tensor to viogt tensor");
+void ViogtRank2Tensor2D::setFromRank2Tensor2D(const Rank2Tensor2d &R){
+    static const double small=1E-5;
+    double R01=R(0,1), R10=R(1,0);
+    double differ=abs(R01-R10);
+    double maxval=std::max(abs(R10),abs(R01));
+    if(maxval!=0.0)
+        differ/=maxval;
+    if(differ>small){
+        MessagePrinter::printRankError("can not set ViogtRank2Tensor2D by a unsymmetric Rank2Tensor2d");
         MessagePrinter::exitcfem();
     }
-    else{
-        (*this)(0)=a(0,0);
-        (*this)(1)=a(1,1);
-        (*this)(2)=a(0,1);
-    }
-}
-ViogtRank2Tensor2D::ViogtRank2Tensor2D(Rank2Tensor2d a){
-    if(a(0,1)!=a(1,0)){
-        MessagePrinter::printErrorTxt("Cannot convert a unsymmetric rank 2 tensor to viogt tensor");
-        MessagePrinter::exitcfem();
-    }
-    else{
-        (*this)(0)=a(0,0);
-        (*this)(1)=a(1,1);
-        (*this)(2)=a(0,1);
-    }    
+    m_vals[0]=R(0,0);
+    m_vals[1]=R(1,1);
+    m_vals[2]=R(0,1);
 }
 double& ViogtRank2Tensor2D::operator()(const int i,const int j){
     if(i<0||i>=2||j<0||j>=2){

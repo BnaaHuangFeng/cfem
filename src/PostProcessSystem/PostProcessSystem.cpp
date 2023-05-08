@@ -2,6 +2,7 @@
 #include "MaterialSystem/ElmtVarInfo.h"
 #include "PostProcessSystem/OutputVarInfo.h"
 #include "MeshSystem/NodeVarInfo.h"
+#include "cstdio"
 PostProcessSystem::PostProcessSystem(OutputDescription *t_outputDesPtr):
     m_ifMeshSysSet(false),m_ifElmtSysSet(false),
     m_ifProjVec(false),m_ifHisNodeVec(false),m_ifHisElmtVec(false),
@@ -109,6 +110,11 @@ PetscErrorCode PostProcessSystem::readOutputDes(OutputDescription *t_outputDesPt
             int cpntIndex=HisVarInfo::cpntInd.find(hisVarType)->second;
             VarOutputForm outputForm=HisVarInfo::varOutputForm.find(hisVarType)->second;
             string outFileName=hisOutputFileName(setName,hisVarType,outFormat);
+            // delete old file if exists
+            // if(m_rank==0)
+                remove(outFileName.c_str());
+            string outFileNameRank="rank-"+to_string(m_rank)+'-'+outFileName;
+            remove(outFileNameRank.c_str());
             switch (varPosition)
             {
             case VarPosition::NODE:

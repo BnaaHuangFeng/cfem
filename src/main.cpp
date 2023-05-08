@@ -66,8 +66,7 @@ int main(int args,char *argv[]){
     if(BCsSysPtr) delete BCsSysPtr;
     if(loadCtrlPtr) delete loadCtrlPtr;
     if(solSysPtr) delete solSysPtr;
-    postSysPtr->clear();
-    // if(postSysPtr) delete postSysPtr;
+    if(postSysPtr) delete postSysPtr;
     PetscCall(PetscFinalize());
     delete FLAG;
     return 0;

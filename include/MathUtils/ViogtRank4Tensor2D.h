@@ -31,7 +31,6 @@ class ViogtRank4Tensor2D:public MatrixXd{
     ViogtRank4Tensor2D(const MatrixXd &matrix);
     ViogtRank4Tensor2D(const double *vals);
     ViogtRank4Tensor2D(InitMethod initmethod);
-    ViogtRank4Tensor2D(Rank4Tensor3d rank4Tensor);
     /**
      * return the corresponding Rank4Tensor3d
     */

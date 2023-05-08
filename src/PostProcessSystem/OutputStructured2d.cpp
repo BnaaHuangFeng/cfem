@@ -367,7 +367,7 @@ PetscErrorCode PostStructured2d::outputHisVariable(int t_increI, PetscScalar t_t
                     for(int frameI=0;frameI<buffFrameNum;frameI++){
                             out<<timeBuf[frameI];
                         for(int cpntI=0;cpntI<mCpntPerData;++cpntI){
-                            if(cpntI)out<<", ";
+                            out<<", ";
                             out<<processedData[mCpntPerData*frameI+cpntI];
                         }
                         out<<endl;

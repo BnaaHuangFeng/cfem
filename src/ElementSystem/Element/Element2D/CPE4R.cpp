@@ -56,7 +56,7 @@ PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, 
         m_matPtr->updateMaterialBydudx(&duIncdx,t_converged);
     }
     else{   // for large strain
-        Rank2Tensor2d FInc=TensorConst2D::I;
+        Rank2Tensor2d FInc(Rank2Tensor2d::InitMethod::ZERO);
         this->m_shpfun.setRefCoords(elmtCoord2);
         this->m_shpfun.getDer2Ref(dNdx2);
         for(int nodeI=0;nodeI<m_mNode;nodeI++){

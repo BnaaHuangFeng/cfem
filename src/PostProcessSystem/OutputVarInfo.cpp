@@ -89,7 +89,7 @@ const map<HistoryVariableType,VarOutputForm> HisVarInfo::varOutputForm={
     {HistoryVariableType::U1,       VarOutputForm::ANY},
     {HistoryVariableType::U2,       VarOutputForm::ANY},
     {HistoryVariableType::U3,       VarOutputForm::ANY},
-    {HistoryVariableType::RF,       VarOutputForm::ANY},
+    {HistoryVariableType::RF,       VarOutputForm::SUM},
     {HistoryVariableType::RF1,      VarOutputForm::SUM},
     {HistoryVariableType::RF2,      VarOutputForm::SUM},
     {HistoryVariableType::RF3,      VarOutputForm::SUM}

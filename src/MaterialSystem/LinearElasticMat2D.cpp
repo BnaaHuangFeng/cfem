@@ -42,7 +42,7 @@ void LinearElasticMat2D::updateMaterialBydudx(void *t_incStrainPtr,bool *t_conve
         // cal last converged B
         ViogtRank2Tensor2D B=m_strain0.isotropicFunc(&exp2x);
         // update B
-        B=*incStrainPtr*B*incStrainPtr->transpose();
+        B.setFromRank2Tensor2D(*incStrainPtr*B*incStrainPtr->transpose());
         // cal current strain e=0.5*lnB
         m_strain=B.isotropicFunc(&log)*0.5;
         m_F=(*incStrainPtr)*m_F0;
@@ -50,7 +50,9 @@ void LinearElasticMat2D::updateMaterialBydudx(void *t_incStrainPtr,bool *t_conve
     }
     else{
         // cal strain_inc
-        ViogtRank2Tensor2D strain_inc=(*incStrainPtr+incStrainPtr->transpose())*0.5;
+
+        ViogtRank2Tensor2D strain_inc;
+        strain_inc.setFromRank2Tensor2D((*incStrainPtr+incStrainPtr->transpose())*0.5);
         m_strain=m_strain0+strain_inc;
     }
     m_S=(m_strain*(2*m_G)+TensorConst2D::I*(m_lame*m_strain.trace()))/m_J;
@@ -89,7 +91,7 @@ void LinearElasticMat2D::getSpatialTangentModulus(void *t_incStrainPtr,MatrixXd 
     // cal last converged B
     ViogtRank2Tensor2D B=m_strain0.isotropicFunc(&exp2x);
     // update B
-    B=*incStrainPtr*B*incStrainPtr->transpose();
+    B.setFromRank2Tensor2D(*incStrainPtr*B*incStrainPtr->transpose());
     ViogtRank4Tensor2D L=B.iostropicFuncDeriv(&log,&oneDivideX);
     MatrixXd BMatrix =TensorConst2D::I.ikjl(B)+B.iljk(TensorConst2D::I);
     *t_a=((D*L).toFullMatrix()*BMatrix)/(2*m_J)-m_S.iljk(TensorConst2D::I);

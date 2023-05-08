@@ -550,7 +550,10 @@ bool InputSystem::readOutputBlock(nlohmann::json &t_json){
         variableNum=static_cast<int>(his_json.at("variable").size());
         for(int i=0;i<variableNum;i++){
             string variableName=his_json.at("variable").at(i);
-            if(variableName=="U1"){
+            if(variableName=="U"){
+                HD.s_varTypes.push_back(HistoryVariableType::U);
+            }
+            else if(variableName=="U1"){
                 HD.s_varTypes.push_back(HistoryVariableType::U1);
             }
             else if(variableName=="U2"){
@@ -559,6 +562,9 @@ bool InputSystem::readOutputBlock(nlohmann::json &t_json){
             else if(variableName=="U3"){
                 HD.s_varTypes.push_back(HistoryVariableType::U3);
             }
+            else if(variableName=="RF"){
+                HD.s_varTypes.push_back(HistoryVariableType::RF);
+            }            
             else if(variableName=="RF1"){
                 HD.s_varTypes.push_back(HistoryVariableType::RF1);
             }
@@ -587,6 +593,11 @@ bool InputSystem::readBcBlock(nlohmann::json &t_json){
         nlohmann::json dof_json=bc_json.at("dofs");
         int dofNum=static_cast<int>(dof_json.size());
         for(int i=0;i<dofNum;i++){
+            int dofNameId=static_cast<int>(dof_json.at(i));
+            if(dofNameId<1){
+                MessagePrinter::printErrorTxt("bcs->dofs: constrained dof must be 1, 2, ...");
+                MessagePrinter::exitcfem();
+            }
             singleBCDes.s_presetDofIds.push_back(static_cast<int>(dof_json.at(i)));
         }
         singleBCDes.s_bcVals=bc_json.at("bcvalue");

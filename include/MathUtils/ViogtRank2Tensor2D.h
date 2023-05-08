@@ -43,9 +43,8 @@ class ViogtRank2Tensor2D:public Vector3d{
     */
     ViogtRank2Tensor2D(const double vals[3]):Vector3d(vals){}
     ViogtRank2Tensor2D(Vector3d valvec):Vector3d(valvec){}
-    ViogtRank2Tensor2D(Rank2Tensor2d &a);
-    ViogtRank2Tensor2D(Rank2Tensor2d a);
     ViogtRank2Tensor2D(InitMethod initmethod);
+    void setFromRank2Tensor2D(const Rank2Tensor2d &R);
     ~ViogtRank2Tensor2D(){}
     /**
      * () operator

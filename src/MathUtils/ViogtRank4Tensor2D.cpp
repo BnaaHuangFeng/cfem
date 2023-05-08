@@ -45,24 +45,6 @@ double & ViogtRank4Tensor2D::operator()(const int i,const int j,const int k,cons
 double ViogtRank4Tensor2D::operator()(const int i,const int j,const int k,const int l)const{
     return MatrixXd::operator()(ij2ind[i][j],ij2ind[k][l]);
 };
-ViogtRank4Tensor2D::ViogtRank4Tensor2D(Rank4Tensor3d rank4Tensor):MatrixXd(3,3,0.0){
-    for(int indij=0;indij<NViogt;indij++){
-        for(int indkl=0;indkl<NViogt;indkl++){
-            int i,j,k,l;
-            i=ind2ij[indij][0];
-            j=ind2ij[indij][1];
-            k=ind2ij[indkl][0];
-            l=ind2ij[indkl][1];
-            if(rank4Tensor(i,j,k,l)!=rank4Tensor(j,i,k,l)||rank4Tensor(i,j,k,l)!=rank4Tensor(i,j,l,k)){
-                MessagePrinter::printErrorTxt("the input Rank4Tensor3d doesn't have the property of viogt minor symtric.");
-                MessagePrinter::exitcfem();
-            }
-            else{
-                (*this)(indij,indkl)=rank4Tensor(i,j,k,l);
-            }
-        }
-    }
-}
 Rank4Tensor3d ViogtRank4Tensor2D::toRank4Tensor(){
     Rank4Tensor3d tmp(Rank4Tensor3d::InitMethod::ZERO);
     for(int i=0;i<dim;i++){
