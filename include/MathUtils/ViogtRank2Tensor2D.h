@@ -137,6 +137,10 @@ class ViogtRank2Tensor2D:public Vector3d{
     */
     ViogtRank4Tensor2D iostropicFuncDeriv(double (*func)(double),double (*funcDeriv)(double));
     /**
+     * return rank 4 tensor's matrix form M_IJ=L_ij*R_kl, ordering 11 21 12 22
+    */
+    MatrixXd ijkl(const ViogtRank2Tensor2D &R)const;    
+    /**
      * return rank 4 tensor's matrix form M_IJ=L_il*R_jk, ordering 11 21 12 22
     */
     MatrixXd iljk(const ViogtRank2Tensor2D &R)const;

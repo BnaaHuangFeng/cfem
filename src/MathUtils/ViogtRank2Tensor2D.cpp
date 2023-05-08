@@ -185,6 +185,19 @@ ViogtRank4Tensor2D ViogtRank2Tensor2D::iostropicFuncDeriv(double (*func)(double)
     }
     return dydx;
 }
+MatrixXd ViogtRank2Tensor2D::ijkl(const ViogtRank2Tensor2D &R)const{
+    const int nMatrix=4;
+    int i,j,k,l;
+    MatrixXd tmp(nMatrix,nMatrix,0.0);
+    for(int matI=0;matI<nMatrix;matI++){
+        for(int matJ=0;matJ<nMatrix;matJ++){
+            i=matInd2ij[matI][0]; j=matInd2ij[matI][1];   // matI -> i,j
+            k=matInd2ij[matJ][0]; l=matInd2ij[matJ][1];   // matJ -> k,l
+            tmp(matI,matJ)=(*this)(i,j)*R(k,l);
+        }
+    }
+    return tmp;    
+}  
 MatrixXd ViogtRank2Tensor2D::iljk(const ViogtRank2Tensor2D &R)const{
     const int nMatrix=4;
     int i,j,k,l;

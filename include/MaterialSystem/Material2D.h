@@ -15,9 +15,13 @@ public:
     * construction
     */
     Material2D(bool nLarge,double t_det_dx0dr):m_nLarge(nLarge),
-                            m_F(TensorConst2D::I),m_F0(TensorConst2D::I),m_S(),m_J(1.0),m_det_dx0dr(t_det_dx0dr){}
+                            m_F(Rank2Tensor2d::InitMethod::IDENTITY),
+                            m_F0(Rank2Tensor2d::InitMethod::IDENTITY),
+                            m_S(),m_J(1.0),m_det_dx0dr(t_det_dx0dr){}
     Material2D():m_nLarge(false),
-                m_F(TensorConst2D::I),m_F0(TensorConst2D::I),m_S(),m_J(1.0),m_det_dx0dr(0.0){}
+                m_F(Rank2Tensor2d::InitMethod::IDENTITY),
+                m_F0(Rank2Tensor2d::InitMethod::IDENTITY),
+                m_S(),m_J(1.0),m_det_dx0dr(0.0){}
     /**
     * destruction
     */

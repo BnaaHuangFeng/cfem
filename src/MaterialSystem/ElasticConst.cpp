@@ -7,6 +7,9 @@ void ElasticConst::getLame_GByE_Nu(double E,double nu,double *lame,double *G){
 double ElasticConst::getLameByE_Nu(double E,double nu){
     return E*nu/((1.0+nu)*(1.0-2.0*nu));
 }
+double ElasticConst::getKByE_Nu(double E,double nu){
+    return E/(3.0*(1-2.0*nu));
+}
 double ElasticConst::getGByE_Nu(double E,double nu){
     return 0.5*E/(1.0+nu);
 }

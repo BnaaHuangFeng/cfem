@@ -20,5 +20,5 @@ ViogtRank2Tensor2D TensorConst2D::I=ViogtRank2Tensor2D(_I_d);       /**< 2 rank 
 ViogtRank4Tensor2D TensorConst2D::IXI=ViogtRank4Tensor2D(_IXI_d);     /**< spherical 4 rank unit tensor del_ij*del_kl*/
 ViogtRank4Tensor2D TensorConst2D::IISym=ViogtRank4Tensor2D(_IISym_d);   /**< symmetric 4 rank unit tensor 1/2*(II+IIT)*/
 // ViogtRank4Tensor2D IISkew;  /**< skew-symmetric 4 rank tensor 1/2*(II-IIT)*/
-ViogtRank4Tensor2D TensorConst2D::IIVol=IXI*(1.0/2.0);   /**< volumetric 4 rank unit tensor 1/3*IXI*/
+ViogtRank4Tensor2D TensorConst2D::IIVol=IXI*(1.0/3.0);   /**< volumetric 4 rank unit tensor 1/3*IXI*/
 ViogtRank4Tensor2D TensorConst2D::IIDev=IISym-IIVol;   /**< deviatoric 4 rank unit tensor IISym-IIVol*/
