@@ -50,4 +50,5 @@ public:
      * @param return < if the final factor reached.
     */
     bool update(bool ifConverged, int mIter);
+    inline double factorFinal(){return m_factorFinal;}
 };

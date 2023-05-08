@@ -266,6 +266,12 @@ PetscErrorCode ElementSystem::assemblRVec(Vec *t_uInc1Ptr, Vec *t_RVecPtr){
     // PetscCall(VecView(*t_RVecPtr,PETSC_VIEWER_STDOUT_WORLD));
     return 0;
 }
+PetscErrorCode ElementSystem::updateConvergence(){
+    for(PetscInt eI=0;eI<m_meshSysPtr->m_mElmts_p;eI++){// loop over every element in this rank
+        m_elmtPtrs[eI]->updateConvergence();
+    }
+    return 0;
+}
 void ElementSystem::readElmtDes(ElementDescription *elmtDesPtr){
     if(m_ifElmtDesRead)return;
     m_elmtTypeNames=elmtDesPtr->s_names;

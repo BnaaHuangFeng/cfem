@@ -17,3 +17,12 @@ const map<ElementVariableType,vector<string>>  ElmtVarInfo::elmtVarCpntName={
     {ElementVariableType::KIRCHOFFSTRESS,{"T11","T22","T33","T12","T13","T23"}},
     {ElementVariableType::JACOBIAN,{"J"}} 
 };
+const map<ElementVariableType,string>  ElmtVarInfo::elmtVarName={
+    {ElementVariableType::NONE,             ""      },
+    {ElementVariableType::VONMISES,         "mises" },
+    {ElementVariableType::CAUCHYSTRESS,     "S"},
+    {ElementVariableType::LOGSTRAIN,        "LE"},
+    {ElementVariableType::PRESSURE,         "P"},
+    {ElementVariableType::KIRCHOFFSTRESS,   "T"},
+    {ElementVariableType::JACOBIAN,         "J"} 
+};

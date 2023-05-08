@@ -60,6 +60,7 @@ public:
      * @param elmtVarType > required elemnt variable's type
      * @param elmtVarPtr < ptr to store the elemnt variable (1st ind is qpoint id in a elmt, 2nd ind is component) (need to preallocate)
     */
+    virtual void updateConvergence()=0;
     virtual void getElmtVariableArray(ElementVariableType elmtVarType,PetscScalar **elmtVarPtr)=0;
     virtual int getDofNum()=0;
     virtual int getDim()=0;

@@ -55,8 +55,9 @@ struct StepDescriptiom
     double s_duTol; /**< delta U tolerance*/
 };
 struct FieldOutputDescription{
-    FiledOutputFormat s_format;
+    FieldOutputFormat s_format;
     int s_interval;
+    const double s_dfmScaling=2.0;
     vector<FieldVariableType> s_varTypes;
 };
 struct HistoryOutputDescription
@@ -68,6 +69,7 @@ struct HistoryOutputDescription
 };
 struct OutputDescription
 {
+    string s_outPrefix;          /**< output file's name's prefix*/
     FieldOutputDescription s_FD; /**< field Output Description*/
     vector<HistoryOutputDescription> s_HD; /**< History Output Description*/
 };

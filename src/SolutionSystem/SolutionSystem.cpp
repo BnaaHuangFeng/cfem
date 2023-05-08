@@ -1,9 +1,10 @@
 #include "SolutionSystem/SolutionSystem.h"
 SolutionSystem::SolutionSystem():
                 m_stepDesPtr(nullptr),m_meshSysPtr(nullptr),
-                m_mDiverged(0),m_increI(0),m_iterI(-1),m_mIter(0),
+                m_mDiverged(0),m_iterI(-1),m_mIter(0),
                 m_rnorm(0.0),m_duNorm(0.0),m_rnorm0(0.0),m_uNorm(0.0),m_ifShowIterInfo(true)
 {
+    m_increI=0;
     m_solutionCtx.s_bcsSysPtr=nullptr;
     m_solutionCtx.s_elmtSysPtr=nullptr;
     m_solutionCtx.s_loadCtrlPtr=nullptr;
@@ -14,9 +15,10 @@ SolutionSystem::SolutionSystem():
 }
 SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr):
                 m_meshSysPtr(nullptr),
-                m_mDiverged(0),m_increI(0),m_iterI(-1),m_mIter(0),
+                m_mDiverged(0),m_iterI(-1),m_mIter(0),
                 m_rnorm(0.0),m_duNorm(0.0),m_rnorm0(0.0),m_uNorm(0.0),m_ifShowIterInfo(true)
 {
+    m_increI=0;
     m_solutionCtx.s_bcsSysPtr=nullptr;
     m_solutionCtx.s_elmtSysPtr=nullptr;
     m_solutionCtx.s_loadCtrlPtr=nullptr;
@@ -27,9 +29,10 @@ SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr):
     m_ifSolutionCtxInit=false;
 }
 SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr, MeshSystem *t_meshSysPtr):
-                m_mDiverged(0),m_increI(0),m_iterI(-1),m_mIter(0),
+                m_mDiverged(0),m_iterI(-1),m_mIter(0),
                 m_rnorm(0.0),m_duNorm(0.0),m_rnorm0(0.0),m_uNorm(0.0),m_ifShowIterInfo(true)
 {
+    m_increI=0;
     m_solutionCtx.s_bcsSysPtr=nullptr;
     m_solutionCtx.s_elmtSysPtr=nullptr;
     m_solutionCtx.s_loadCtrlPtr=nullptr;
@@ -193,7 +196,6 @@ PetscErrorCode SolutionSystem::run(bool t_ifLastConverged, bool *t_ifConverged, 
     if(converReason>0){// for converged case
         *t_ifConverged=true;
         *t_ifcompleted=false;
-        ++m_increI;
         m_mDiverged=0;        
     }
     else if(converReason<0){// for diverged reason
@@ -211,6 +213,7 @@ PetscErrorCode SolutionSystem::run(bool t_ifLastConverged, bool *t_ifConverged, 
     }
     return 0;
 }
+
 PetscErrorCode formFunction(SNES t_snes, Vec t_uInc, Vec t_function, void *ctx){
     if(ctx||t_snes){}
     SolutionCtx *ctxPtr=(SolutionCtx *)ctx;

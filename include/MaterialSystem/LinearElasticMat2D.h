@@ -24,6 +24,7 @@ class LinearElasticMat2D:public Material2D{
      * @param converged < if update iteration converged.
     */
     virtual void updateMaterialBydudx(void *t_incStrainPtr,bool *t_converged);
+    virtual void updateConvergence();
     /**
      * get tangent modulus by Finc
      * @param incStrainPtr > ptr to deriv of inc strain (du/dx for small strain, Finc for large strain)

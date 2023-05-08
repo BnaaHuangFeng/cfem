@@ -170,6 +170,13 @@ public:
      * @param rId > element id in rank
     */
     void checkElmtRId(int rId);
+    /**
+     * return the global Vec ptr corresponding to the NodeVariableType
+    */
+    Vec *globalVecPtr(NodeVariableType vType,int state);
+    /**
+     * 
+    */
 /**********************************************************************************************/
 public:
     bool m_ifSaveMesh;                      /**< if output the mesh to outer file*/

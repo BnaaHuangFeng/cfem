@@ -79,7 +79,7 @@ public:
      * @param t_RVecPtr > ptr to global residual Vec to assemble
     */
     PetscErrorCode assemblRVec(Vec *t_uInc1Ptr, Vec *t_RVecPtr);
-
+    PetscErrorCode updateConvergence();
 public:
 /***************************************************************************************************
  *  elmt type & assigment description                                                            ***

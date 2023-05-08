@@ -152,6 +152,9 @@ PetscErrorCode CPE4R::getElmtWeightedVolumeInt(PetscScalar **t_valQPPtr,PetscSca
     }
     return 0;
 }
+void CPE4R::updateConvergence(){
+    m_matPtr->updateConvergence();
+}
 void CPE4R::getElmtVariableArray(ElementVariableType elmtVarType,PetscScalar **elmtVarPtr){
     m_matPtr->getMatVariableArray(elmtVarType,*elmtVarPtr);
 }

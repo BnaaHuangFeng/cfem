@@ -44,11 +44,13 @@ enum class AlgorithmType{
     STANDARD,
     ARCLENGTH_CYLENDER
 };
-enum class FiledOutputFormat{
-    VTU
+enum class FieldOutputFormat{
+    VTU,
+    VTK
 };
 enum class HistoryOutputFormat{
-    CSV
+    CSV,
+    MATLAB
 };
 enum class SetType{
     NODE,
@@ -64,8 +66,8 @@ enum class FieldVariableType{
 };
 
 enum class HistoryVariableType{
-    U1,U2,U3,
-    RF1,RF2,RF3
+    U,U1,U2,U3,
+    RF,RF1,RF2,RF3
 };
 enum class ElementVariableType{
     NONE,           /**< for init*/
@@ -77,6 +79,7 @@ enum class ElementVariableType{
     JACOBIAN
 };
 enum class NodeVariableType{
+    NONE,
     COORD,
     U,
     UINC,

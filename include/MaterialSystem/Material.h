@@ -23,6 +23,7 @@ public:
      * @param converged < if update iteration converged.
     */
     virtual void updateMaterialBydudx(void *t_incStrainPtr,bool *t_converged)=0;
+    virtual void updateConvergence()=0;
     /**
      * get tangent modulus by Finc
      * @param incStrainPtr > ptr to deriv of inc strain (du/dX for small strain, Finc for large strain)

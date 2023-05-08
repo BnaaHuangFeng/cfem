@@ -1,6 +1,7 @@
 #include "Init/SystemInit.h"
 #include "MeshSystem/StructuredMesh2D.h"
 #include "BCsSystem/BCsSysStructured2d.h"
+#include "PostProcessSystem/PostStructured2d.h"
 PetscErrorCode MeshSystemInit(Timer *timerPtr, MeshDescription *meshDesPtr,MeshSystem **meshSysPtrAdr){
     MeshMode meshMode=meshDesPtr->s_mode;
     Dimension meshDim=meshDesPtr->s_dim;
@@ -78,5 +79,31 @@ PetscErrorCode SolutionSysInit(SolutionSystem **solutionSysPtrAdr, StepDescripti
     (*solutionSysPtrAdr)->init(stepDesPtr,meshSysPtr,elmtSysPtr,BCsSysPtr,loadCtrlPtr);
     (*solutionSysPtrAdr)->checkInit();
     MessagePrinter::printNormalTxt("Solution system inition is done");
+    return 0;
+}
+PetscErrorCode PostSysInit(PostProcessSystem **postSysPtrAdr,OutputDescription *t_outputDesPtr,MeshSystem *t_meshSysPtr, ElementSystem *t_elmtSysPtr, LoadController *t_loadCtrlPtr){
+    int dim=t_meshSysPtr->m_dim;
+    MeshMode meshMode=t_meshSysPtr->m_meshMode;
+    if(dim==2){
+        switch (meshMode)
+        {
+        case MeshMode::STRUCTURED:
+            *postSysPtrAdr=new PostStructured2d(t_outputDesPtr,t_meshSysPtr,t_elmtSysPtr,t_loadCtrlPtr);
+            (*postSysPtrAdr)->init();
+            (*postSysPtrAdr)->checkInit();
+            break;
+        case MeshMode::UNSTRUCTURED:
+            MessagePrinter::printErrorTxt("unstructured Postprocess system is not developed now");
+            MessagePrinter::exitcfem();
+            break;              
+        default:
+            break;
+        }
+    }
+    else{
+        MessagePrinter::printErrorTxt(to_string(dim)+" dimensional Postprocess system is not developed now");
+        MessagePrinter::exitcfem();        
+    }    
+    MessagePrinter::printNormalTxt("Postprocess system inition is done");
     return 0;
 }

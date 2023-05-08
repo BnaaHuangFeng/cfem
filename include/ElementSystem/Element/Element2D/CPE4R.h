@@ -56,6 +56,7 @@ class CPE4R:public element{
      * @param elmtVarType > required elemnt variable's type
      * @param elmtVarPtr < ptr to store the elemnt variable (1st ind is qpoint id in a elmt, 2nd ind is component) (need to preallocate)
     */
+    virtual void updateConvergence();
     virtual void getElmtVariableArray(ElementVariableType elmtVarType,PetscScalar **elmtVarPtr);
     virtual int getDofNum(){return m_mDof_node*m_mNode;}
     virtual int getDim(){return m_dim;}

@@ -56,6 +56,12 @@ void LinearElasticMat2D::updateMaterialBydudx(void *t_incStrainPtr,bool *t_conve
     m_S=(m_strain*(2*m_G)+TensorConst2D::I*(m_lame*m_strain.trace()))/m_J;
     *t_converged=true;
 }
+
+void LinearElasticMat2D::updateConvergence(){
+    m_F0=m_F;
+    m_strain0=m_strain;
+}
+
 void LinearElasticMat2D::getTangentModulus(void *t_incStrainPtr,void *t_D){
     // D_ijkl=lame*del_ij*del_kl+G*(del_ik*del_jl+del_il*del_jk)
     Rank2Tensor2d * incStrainPtr=(Rank2Tensor2d *)t_incStrainPtr;
@@ -140,7 +146,7 @@ void LinearElasticMat2D::getMatVariableArray(ElementVariableType elmtVarType,Pet
     }
     case ElementVariableType::LOGSTRAIN:
         elmtVarPtr[0]=m_strain(0);     elmtVarPtr[1]=m_strain(1);   elmtVarPtr[2]=0.0;
-        elmtVarPtr[3]=m_strain(3)*2.0; elmtVarPtr[4]=0.0;           elmtVarPtr[5]=0.0;
+        elmtVarPtr[3]=m_strain(2)*2.0; elmtVarPtr[4]=0.0;           elmtVarPtr[5]=0.0;
         break;
     case ElementVariableType::PRESSURE:{
         double S33=m_lame*m_strain.trace();

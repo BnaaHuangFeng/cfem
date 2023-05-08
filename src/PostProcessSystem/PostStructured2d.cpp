@@ -1,14 +1,21 @@
 #include "PostProcessSystem/PostStructured2d.h"
 #include "MaterialSystem/ElmtVarInfo.h"
-PostStructured2d::PostStructured2d():PostProcessSystem(){};
+#include "MeshSystem/StructuredMesh2D.h"
+PostStructured2d::PostStructured2d(OutputDescription *t_outputDesPtr):PostProcessSystem(t_outputDesPtr){};
 
-PostStructured2d::PostStructured2d(MeshSystem *t_meshSysPtr, ElementSystem *t_elmtSysPtr):
-    PostProcessSystem(t_meshSysPtr,t_elmtSysPtr){
+PostStructured2d::PostStructured2d(OutputDescription *t_outputDesPtr,MeshSystem *t_meshSysPtr, ElementSystem *t_elmtSysPtr, LoadController *t_loadCtrlPtr):
+    PostProcessSystem(t_outputDesPtr,t_meshSysPtr,t_elmtSysPtr,t_loadCtrlPtr){
 }
 PostStructured2d::~PostStructured2d(){
     DMDestroy(&m_dmScalar);
     DMDestroy(&m_dmRank2Tensor2d);
     DMDestroy(&m_dmRank2Tensor3d);
+}
+PetscErrorCode PostStructured2d::clear(){
+    PetscCall(DMDestroy(&m_dmScalar));
+    PetscCall(DMDestroy(&m_dmRank2Tensor2d));
+    PetscCall(DMDestroy(&m_dmRank2Tensor3d));
+    return 0;
 }
 PetscErrorCode PostStructured2d::init(MeshSystem *t_meshSysPtr, ElementSystem *t_elmtSysPtr){
     if(!m_ifMeshSysSet){
@@ -32,9 +39,82 @@ PetscErrorCode PostStructured2d::init(){
         MessagePrinter::exitcfem();
     }    
     initDm();
-    PetscCall(DMCreateGlobalVector(m_dmScalar,&m_proj_weight));
-    PetscCall(VecZeroEntries(m_proj_val));
     m_ifDmInit=true;
+    /** Create global vector*/
+    PetscCall(DMCreateGlobalVector(m_dmScalar,&m_proj_weight));
+    PetscCall(VecZeroEntries(m_proj_weight));
+    PetscCall(DMCreateGlobalVector(m_meshSysPtr->m_dm,&m_his_node_vec));
+    PetscCall(VecZeroEntries(m_his_node_vec));
+    initBuffer();
+    return 0;
+}
+PetscErrorCode PostStructured2d::initBuffer(){
+    int mHisNodeVar=m_infoForHisOut.varInNodeVec.size();
+    for(int varI=0;varI<mHisNodeVar;++varI){// loop over every historic nodal variavle
+        PetscInt mCpnt=0;           /**variable component num*/
+        PetscInt varNum=0;          /**variable num of a frame*/
+        switch (m_infoForHisOut.varCpntIndInNodeVec[varI])
+        {
+        case -1:
+            mCpnt=m_infoForHisOut.varCpntInNodeVec[varI];
+            break;
+        default:
+            mCpnt=1;
+            break;
+        }
+        switch (m_infoForHisOut.outputFormInNodeVec[varI])
+        {
+        case VarOutputForm::ALL:
+            varNum=m_meshSysPtr->m_setManager.getSet(m_infoForHisOut.setNameInNodeVec[varI],SetType::NODE).size();
+            break;
+        case VarOutputForm::ANY:
+        case VarOutputForm::SUM:
+            varNum=1;
+            break;
+        default:
+            break;
+        }
+        PetscScalar *buffer=new PetscScalar[m_hisBuffLen*varNum*mCpnt];
+        PetscScalar *timeBuffer=new PetscScalar[m_hisBuffLen];
+        m_infoForHisOut.bufferInNodeVec.push_back(buffer);
+        m_infoForHisOut.timeBuffInNodeVec.push_back(timeBuffer);
+        m_infoForHisOut.bufferFrameNumInNodeVec.push_back(0);
+        m_infoForHisOut.dataNumPerFrameInNodeVec.push_back(varNum);
+        m_infoForHisOut.mCpntPerDataInNodeVec.push_back(mCpnt);
+    }
+    int mHisElmtVar=m_infoForHisOut.varInElmtVec.size();
+    for(int varI=0;varI<mHisElmtVar;++varI){// loop over every historic elemental variavle
+        PetscInt mCpnt=0;           /**variable component num*/
+        PetscInt varNum=0;          /**variable num of a frame*/
+        switch (m_infoForHisOut.varCpntIndInElmtVec[varI])
+        {
+        case -1:
+            mCpnt=m_infoForHisOut.varCpntInElmtVec[varI];
+            break;
+        default:
+            mCpnt=1;
+            break;
+        }
+        switch (m_infoForHisOut.outputFormInElmtVec[varI])
+        {
+        case VarOutputForm::ALL:
+            varNum=m_meshSysPtr->m_setManager.getSet(m_infoForHisOut.setNameInElmtVec[varI],SetType::ELEMENT).size();
+            break;
+        case VarOutputForm::ANY:
+        case VarOutputForm::SUM:
+            varNum=1;
+            break;
+        default:
+            break;
+        }
+        PetscScalar *buffer=new PetscScalar[m_hisBuffLen*varNum*mCpnt];
+        PetscScalar *timeBuffer=new PetscScalar[m_hisBuffLen];
+        m_infoForHisOut.bufferInElmtVec.push_back(buffer);
+        m_infoForHisOut.timeBuffInElmtVec.push_back(timeBuffer);
+        m_infoForHisOut.bufferFrameNumInElmtVec.push_back(0);
+        m_infoForHisOut.dataNumPerFrameInElmtVec.push_back(varNum);
+        m_infoForHisOut.mCpntPerDataInElmtVec.push_back(mCpnt);
+    }
     return 0;
 }
 PetscErrorCode PostStructured2d::checkInit(){
@@ -52,8 +132,13 @@ PetscErrorCode PostStructured2d::checkInit(){
     }
     return 0;
 }
+PetscErrorCode PostStructured2d::output(int t_increI, PetscScalar t_t){
+    outputFieldVariable(t_increI,t_t);
+    outputHisVariable(t_increI,t_t);
+    return 0;
+}
 PetscErrorCode PostStructured2d::projElmtVariable(ElementVariableType varType){
-    if(m_ifProjValVec){
+    if(m_ifProjVec){
         MessagePrinter::printErrorTxt("PostStructured2d: need to destroy Vec before a new projection.");
         MessagePrinter::exitcfem();             
     }
@@ -77,9 +162,9 @@ PetscErrorCode PostStructured2d::projElmtVariable(ElementVariableType varType){
         elmtOnePtr[qpI][0]=1.0;
     }
     getDmPtrByCpntNum(&dmPtr,mCpnt);
-    PetscCall(DMCreateGlobalVector(*dmPtr,&m_proj_val_local));
-    m_ifProjValVec=true;
-    openNodeVariableVec(&m_proj_val,&m_proj_val_local,&m_array_proj_val,mCpnt,VecAccessMode::WRITE);
+    PetscCall(DMCreateGlobalVector(*dmPtr,&m_proj_vec));
+    m_ifProjVec=true;
+    openNodeVariableVec(&m_proj_vec,&m_proj_val_local,&m_array_proj_val,mCpnt,VecAccessMode::WRITE);
     openNodeVariableVec(&m_proj_weight,&m_proj_weight_local,&m_array_proj_weight,1,VecAccessMode::WRITE);
     for(vector<element *>::iterator elmtIt=m_elmtSysPtr->m_elmtPtrs.begin();
     elmtIt!=m_elmtSysPtr->m_elmtPtrs.end();++elmtIt){// loop over every elmt in this rank
@@ -106,14 +191,47 @@ PetscErrorCode PostStructured2d::projElmtVariable(ElementVariableType varType){
         }
         addElmtVec(elmtRId,m_array_proj_val,nodeVarPtr,mCpnt);
     }
-    closeNodeVariableVec(&m_proj_val,&m_proj_val_local,&m_array_proj_val,mCpnt,VecAccessMode::WRITE);
+    closeNodeVariableVec(&m_proj_vec,&m_proj_val_local,&m_array_proj_val,mCpnt,VecAccessMode::WRITE);
     closeNodeVariableVec(&m_proj_weight,&m_proj_weight_local,&m_array_proj_weight,1,VecAccessMode::READ);
     return 0;
 }
-PetscErrorCode PostStructured2d::projVecClean(int mCpnt){
-    PetscCall(VecDestroy(&m_proj_val_local));
-    m_ifProjValVec=false;
+PetscErrorCode PostStructured2d::projVecClean(){
+    if(m_ifProjVec){
+        PetscCall(VecDestroy(&m_proj_vec));
+        m_ifProjVec=false;
+    }
     return 0;
+}
+
+PetscErrorCode PostStructured2d::genNodeVariable(NodeVariableType varType){
+    switch (varType)
+    {
+    case NodeVariableType::U:
+        openNodeVariableVec(&m_meshSysPtr->m_nodes_u2,&m_his_node_vec_local,&m_array_his_node,2,VecAccessMode::READ);
+        break;
+    case NodeVariableType::RF:
+        m_elmtSysPtr->assemblRVec(&m_meshSysPtr->m_nodes_uInc2,&m_his_node_vec);
+        m_loadCtrlPtr->applyLoad(m_loadCtrlPtr->m_factor2,&m_his_node_vec);
+        openNodeVariableVec(&m_his_node_vec,&m_his_node_vec_local,&m_array_his_node,2,VecAccessMode::READ);
+        break;
+    default:
+        break;
+    }
+    return 0;
+}
+PetscErrorCode PostStructured2d::restoreNodeVariable(NodeVariableType varType){
+    switch (varType)
+    {
+    case NodeVariableType::U:
+        closeNodeVariableVec(&m_meshSysPtr->m_nodes_u2,&m_his_node_vec_local,&m_array_his_node,2,VecAccessMode::READ);
+        break;
+    case NodeVariableType::RF:
+        closeNodeVariableVec(&m_his_node_vec,&m_his_node_vec_local,&m_array_his_node,2,VecAccessMode::READ);
+    default:
+        break;
+    }
+    m_array_his_node=nullptr;
+    return 0;    
 }
 PetscErrorCode PostStructured2d::initDm(){
     PetscCall(DMDAGetLocalInfo(m_meshSysPtr->m_dm,&m_dmInfo));
@@ -126,9 +244,14 @@ PetscErrorCode PostStructured2d::initDm(){
     PetscCall(VecSetType(ymVecPar,VECMPI));
     PetscCall(VecSetSizes(ymVecPar,1,m_rankNum)); 
     PetscCall(VecSetValue(ymVecPar,m_rank,m_dmInfo.ym,INSERT_VALUES));
+    // for debug
     PetscCall(VecAssemblyBegin(ymVecPar));
     PetscCall(VecAssemblyEnd(ymVecPar));
+    // PetscCall(VecView(ymVecPar,PETSC_VIEWER_STDOUT_WORLD));
     PetscCall(VecScatterCreateToAll(ymVecPar,&scatter,&ymVecSeq));
+    PetscCall(VecScatterBegin(scatter,ymVecPar,ymVecSeq,INSERT_VALUES,SCATTER_FORWARD));
+    PetscCall(VecScatterEnd(scatter,ymVecPar,ymVecSeq,INSERT_VALUES,SCATTER_FORWARD));
+    // PetscCall(VecView(ymVecSeq,PETSC_VIEWER_STDOUT_WORLD));
     PetscInt *rankIds=new PetscInt[m_rankNum];
     for(int i=0;i<m_rankNum;++i){
         rankIds[i]=i;
@@ -183,6 +306,9 @@ PetscErrorCode PostStructured2d::initDm(){
     PetscCall(DMSetUp(m_dmRank2Tensor3d));
     delete []ymArray;
     delete []rankIds;
+    PetscCall(VecDestroy(&ymVecPar));
+    PetscCall(VecDestroy(&ymVecSeq));
+    PetscCall(VecScatterDestroy(&scatter));
     return 0;
 }
 PetscErrorCode PostStructured2d::openNodeVariableVec(Vec *globalVecPtr, Vec *localVecPtr, PetscScalar ****arrayPtrPtr, PetscInt mCpnt, VecAccessMode mode){
@@ -228,6 +354,8 @@ PetscErrorCode PostStructured2d::closeNodeVariableVec(Vec *globalVecPtr, Vec *lo
     return 0;
 }
 
+
+
 PetscErrorCode PostStructured2d::getDmPtrByCpntNum(DM **dmPtrAdr,int mCpnt){
     switch (mCpnt)
     {
@@ -236,6 +364,9 @@ PetscErrorCode PostStructured2d::getDmPtrByCpntNum(DM **dmPtrAdr,int mCpnt){
         break;
     case 4:
         *dmPtrAdr=&m_dmRank2Tensor2d;
+        break;
+    case 2:
+        *dmPtrAdr=&m_meshSysPtr->m_dm;
         break;
     case 6:
         *dmPtrAdr=&m_dmRank2Tensor3d;
@@ -250,6 +381,10 @@ PetscErrorCode PostStructured2d::getDmPtrByCpntNum(DM **dmPtrAdr,int mCpnt){
 void PostStructured2d::getElmtDmdaIndByRId(PetscInt rId,PetscInt *xIPtr,PetscInt *yIPtr){
     *yIPtr=rId/(m_dmInfo.mx-1)+m_dmInfo.ys;
     *xIPtr=rId%(m_dmInfo.mx-1)+m_dmInfo.xs;    
+}
+void PostStructured2d::getNodeDmdaIndByRId(PetscInt rId,PetscInt *xIPtr,PetscInt *yIPtr){
+    *yIPtr=rId/m_dmInfo.mx+m_dmInfo.ys;
+    *xIPtr=rId%m_dmInfo.mx+m_dmInfo.xs;
 }
 PetscErrorCode PostStructured2d::addElmtVec(PetscInt rId,PetscScalar ***globalArray, PetscScalar **localArray,int mCpnt){
     PetscInt xI=0, yI=0;

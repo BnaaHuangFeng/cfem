@@ -57,7 +57,6 @@ private:
 
     const int m_maxAttempt=10;      /**< max diverged increments tolerance*/
     int m_mDiverged;             /**< consecutive divergence num*/
-    int m_increI;                   /**< current increment id*/
     int m_iterI;                    /**< current iteration id*/
     int m_mIter;                    /**< iteration num of the latest convergence*/
     PetscScalar m_rnorm;            /**< 2 norm function value (may be estimated)*/
@@ -109,4 +108,5 @@ public:
     SolutionCtx m_solutionCtx;      /**< solution context*/
     MoniterCtx m_monitorCtx;        /**< monitor context*/
     SNES m_snes;                    /**< snes solver*/
+    int m_increI;                   /**< current increment id*/
 };

@@ -44,3 +44,37 @@ void MeshSystem::checkElmtRId(int rId){
         MessagePrinter::exitcfem();
     }
 }
+Vec *MeshSystem::globalVecPtr(NodeVariableType vType,int state){
+    switch (vType)
+    {
+    case NodeVariableType::NONE:
+        return nullptr;
+        break;
+    case NodeVariableType::COORD:
+        if(state==0)return &m_nodes_coord0;
+        if(state==2)return &m_nodes_coord2;
+        return nullptr;
+        break;
+    case NodeVariableType::U:
+        if(state==2)return &m_nodes_u2;
+        return nullptr;
+        break;
+    case NodeVariableType::UINC:
+        if(state==2)return &m_nodes_uInc2;
+        return nullptr;
+        break;
+    case NodeVariableType::RF:
+        return nullptr;
+        break;
+    case NodeVariableType::RESIDUAL:
+        return nullptr;
+        break;
+    case NodeVariableType::LOAD:
+        return nullptr;
+        break;        
+    default:
+        return nullptr;
+        break;
+    }
+    return nullptr;
+}

@@ -484,6 +484,15 @@ bool InputSystem::readStepBlock(nlohmann::json &t_json){
     return true;
 }
 bool InputSystem::readOutputBlock(nlohmann::json &t_json){
+    if(!t_json.contains("file-prefix")){
+        MessagePrinter::printErrorTxt("output->file-prefix not found.");
+        MessagePrinter::exitcfem();           
+    }
+    if(!t_json.at("file-prefix").is_string()){
+        MessagePrinter::printErrorTxt("output->file-prefix must be string.");
+        MessagePrinter::exitcfem();               
+    }
+    m_outDes.s_outPrefix=t_json.at("file-prefix");
     nlohmann::json field_json=t_json.at("field");
     nlohmann::json his_json_vec=t_json.at("history");
     string format;
@@ -492,7 +501,7 @@ bool InputSystem::readOutputBlock(nlohmann::json &t_json){
     // read Filed Output Format
     format=field_json.at("format");
     if(format=="vtu"){
-        m_outDes.s_FD.s_format=FiledOutputFormat::VTU;
+        m_outDes.s_FD.s_format=FieldOutputFormat::VTU;
     }
     else{
         MessagePrinter::printErrorTxt(format+" is not a supported field output format.");

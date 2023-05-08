@@ -6,6 +6,7 @@
 #include "BCsSystem/BCsSystem.h"
 #include "LoadController/LoadController.h"
 #include "SolutionSystem/SolutionSystem.h"
+#include "PostProcessSystem/PostProcessSystem.h"
 /**
  * Init Mesh System
  * @param meshDesPtr > ptr to mesh description
@@ -30,3 +31,7 @@ PetscErrorCode LoadCtrolInit(LoadController **loadCtrlPtrAdr, StepDescriptiom *s
 */
 PetscErrorCode SolutionSysInit(SolutionSystem **solutionSysPtrAdr, StepDescriptiom *stepDesPtr, MeshSystem *meshSysPtr,
                             ElementSystem *elmtSysPtr, BCsSystem *BCsSysPtr, LoadController *loadCtrlPtr);
+/**
+ * Init postprocess system
+*/
+PetscErrorCode PostSysInit(PostProcessSystem **postSysPtrAdr,OutputDescription *t_outputDesPtr,MeshSystem *t_meshSysPtr, ElementSystem *t_elmtSysPtr, LoadController *t_loadCtrlPtr);

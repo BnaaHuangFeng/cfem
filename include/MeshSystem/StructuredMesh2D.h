@@ -125,6 +125,12 @@ public:
      * @param residualPtr >ptr to the elmt matrix to add (2 ind is node id in a elmt & dof id in a node)
     */
     virtual PetscErrorCode addElmtResidual(PetscInt rid,Vector *residualPtr, Vec *fPtr);
+    /**
+     * get the ref of the array to access node varible
+     * @param vType > node variable type
+     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
+    */
+    PetscScalar *** & getNodeVariablePtrRef(NodeVariableType vType, int state);
 /**********************************************************************************************/
 //**********************************************************************************************
 //** for general utility                       *************************************************
@@ -181,12 +187,6 @@ private:
      * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
     */
     Vec & getNodeLocalVariableVecRef(NodeVariableType vType, int state);
-    /**
-     * get the ref of the array to access node varible
-     * @param vType > node variable type
-     * @param state > configuration for node's coords to get (0: ref config; 1: current config; 2: last converged)
-    */
-    PetscScalar *** & getNodeVariablePtrRef(NodeVariableType vType, int state);
     /**
      * init a structured mesh
     */
