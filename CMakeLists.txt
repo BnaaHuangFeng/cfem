@@ -218,6 +218,8 @@ set(src ${src} src/MathUtils/MathFuns.cpp)
 #############################################################
 ### For MeshSystem                                        ###
 #############################################################
+set(inc ${inc} include/MeshSystem/NodeVarInfo.h)
+set(src ${src} src/MeshSystem/NodeVarInfo.cpp)
 set(inc ${inc} include/MeshSystem/SetManager.h)
 set(src ${src} src/MeshSystem/SetManager.cpp)
 set(inc ${inc} include/MeshSystem/MeshSystem.h)
@@ -272,11 +274,13 @@ set(src ${src} src/Init/SystemInit.cpp)
 #############################################################
 ### For Post process system                               ###
 #############################################################
+set(inc ${inc} include/PostProcessSystem/OutputVarInfo.h)
+set(src ${src} src/PostProcessSystem/OutputVarInfo.cpp)
 set(inc ${inc} include/PostProcessSystem/PostProcessSystem.h)
 set(src ${src} src/PostProcessSystem/PostProcessSystem.cpp)
 set(inc ${inc} include/PostProcessSystem/PostStructured2d.h)
 set(src ${src} src/PostProcessSystem/PostStructured2d.cpp)
-
+set(src ${src} src/PostProcessSystem/OutputStructured2d.cpp)
 
 add_executable(cfem ${inc} ${src})
 target_link_libraries(cfem PUBLIC ${MPI_LIB})
