@@ -244,14 +244,11 @@ PetscErrorCode PostStructured2d::initDm(){
     PetscCall(VecSetType(ymVecPar,VECMPI));
     PetscCall(VecSetSizes(ymVecPar,1,m_rankNum)); 
     PetscCall(VecSetValue(ymVecPar,m_rank,m_dmInfo.ym,INSERT_VALUES));
-    // for debug
     PetscCall(VecAssemblyBegin(ymVecPar));
     PetscCall(VecAssemblyEnd(ymVecPar));
-    // PetscCall(VecView(ymVecPar,PETSC_VIEWER_STDOUT_WORLD));
     PetscCall(VecScatterCreateToAll(ymVecPar,&scatter,&ymVecSeq));
     PetscCall(VecScatterBegin(scatter,ymVecPar,ymVecSeq,INSERT_VALUES,SCATTER_FORWARD));
     PetscCall(VecScatterEnd(scatter,ymVecPar,ymVecSeq,INSERT_VALUES,SCATTER_FORWARD));
-    // PetscCall(VecView(ymVecSeq,PETSC_VIEWER_STDOUT_WORLD));
     PetscInt *rankIds=new PetscInt[m_rankNum];
     for(int i=0;i<m_rankNum;++i){
         rankIds[i]=i;

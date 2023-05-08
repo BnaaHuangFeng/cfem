@@ -75,7 +75,6 @@ PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, 
     double J=0;
     m_matPtr->getMatVariable(ElementVariableType::JACOBIAN,&J);
     double volume=m_QPW*J*m_det_dx0dr;
-    // for debug
     *t_elmtInnerForce=BMatrix.transpose()*(stress*volume);
     return 0;
 }
@@ -112,9 +111,6 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
         }
         m_matPtr->getTangentModulus(&duIncdx,&D);
         *t_stfMatrix=B.transpose()*D*B*volume;
-        // for debug
-        // MessagePrinter::printRankError("elmt AMatrix:");
-        // t_stfMatrix->print();
     }
     else{
         const int mGMatrix=4;   /** G-Matrix's row count*/

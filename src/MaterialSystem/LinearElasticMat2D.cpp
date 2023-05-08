@@ -50,7 +50,6 @@ void LinearElasticMat2D::updateMaterialBydudx(void *t_incStrainPtr,bool *t_conve
     }
     else{
         // cal strain_inc
-
         ViogtRank2Tensor2D strain_inc;
         strain_inc.setFromRank2Tensor2D((*incStrainPtr+incStrainPtr->transpose())*0.5);
         m_strain=m_strain0+strain_inc;

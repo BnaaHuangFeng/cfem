@@ -459,8 +459,8 @@ public:
         }
         Rank2Tensor2d inv(Rank2Tensor2d::InitMethod::ZERO);
         inv(0,0)=(*this)(1,1)/J;
-        inv(0,1)=-(*this)(1,0)/J;
-        inv(1,0)=-(*this)(0,1)/J;
+        inv(0,1)=-(*this)(0,1)/J;
+        inv(1,0)=-(*this)(1,0)/J;
         inv(1,1)=(*this)(0,0)/J;
         return inv;
     }
