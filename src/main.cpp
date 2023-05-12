@@ -48,8 +48,14 @@ int main(int args,char *argv[]){
     bool ifConverged=true, ifCompleted=false;
     while(!ifCompleted){
         solSysPtr->run(ifConverged,&ifConverged,&ifCompleted);
-        if(ifConverged&&!ifCompleted){
-            meshSysPtr->updateConfig(&solSysPtr->m_snes);
+        AlgorithmType algo=solSysPtr->getAlgorithm();
+        if(ifConverged&&(!ifCompleted||algo==AlgorithmType::ARCLENGTH_CYLENDER)){
+            if(algo==AlgorithmType::STANDARD){
+                meshSysPtr->updateConfig(&solSysPtr->m_snes);
+            }
+            else{
+                meshSysPtr->updateConfig(solSysPtr->m_arcLenSolverPtr,algo);
+            }
             elmtSysPtr->updateConvergence();
             postSysPtr->output(solSysPtr->m_increI,loadCtrlPtr->m_factor1);
             ++(solSysPtr->m_increI);
@@ -61,12 +67,12 @@ int main(int args,char *argv[]){
     /******************************************************/
     /** delete the class created by new                 ***/
     /******************************************************/
-    if(meshSysPtr) delete meshSysPtr;
     if(elmtSysPtr) delete elmtSysPtr;
     if(BCsSysPtr) delete BCsSysPtr;
     if(loadCtrlPtr) delete loadCtrlPtr;
     if(solSysPtr) delete solSysPtr;
     if(postSysPtr) delete postSysPtr;
+    if(meshSysPtr) delete meshSysPtr;
     PetscCall(PetscFinalize());
     delete FLAG;
     return 0;

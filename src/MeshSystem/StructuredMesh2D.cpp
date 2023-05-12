@@ -17,6 +17,7 @@
 #include"petsc.h"
 #include<cmath>
 #include<fstream>
+#include "SolutionSystem/ArcLengthSolver.h"
 StructuredMesh2D::StructuredMesh2D():
         m_array_nodes_coord0(nullptr),m_array_nodes_coord2(nullptr),
         m_array_nodes_uInc1(nullptr),m_array_nodes_uInc2(nullptr),
@@ -247,9 +248,23 @@ PetscErrorCode StructuredMesh2D::updateConfig(SNES *sensPtr){
     PetscCall(SNESGetSolution(*sensPtr,&m_nodes_uInc2));
     PetscCall(VecAYPX(m_nodes_coord2,1.0,m_nodes_uInc2));
     PetscCall(VecAYPX(m_nodes_u2,1.0,m_nodes_uInc2));
-    PetscCall(VecZeroEntries(m_nodes_uInc2));
     PetscCall(VecZeroEntries(m_node_residual2));
-    PetscCall(MatZeroEntries(m_AMatrix2));
+    return 0;
+}
+PetscErrorCode StructuredMesh2D::updateConfig(void *solver,AlgorithmType algo){
+    switch(algo){
+        case AlgorithmType::STANDARD:{
+            PetscCall(SNESGetSolution(*(SNES *)solver,&m_nodes_uInc2));
+            break;
+        }
+        case AlgorithmType::ARCLENGTH_CYLENDER:{
+            ArcLengthSolver *arcSolver=(ArcLengthSolver *)solver;
+            arcSolver->getSolution(&m_nodes_uInc2);
+        }
+    }
+    PetscCall(VecAYPX(m_nodes_coord2,1.0,m_nodes_uInc2));
+    PetscCall(VecAYPX(m_nodes_u2,1.0,m_nodes_uInc2));
+    PetscCall(VecZeroEntries(m_node_residual2));
     return 0;
 }
 PetscErrorCode StructuredMesh2D::addElmtAMatrix(PetscInt rid,MatrixXd *matrixPtr,Mat *APtr){
@@ -317,11 +332,13 @@ PetscErrorCode StructuredMesh2D::initStructuredMesh(MeshShape t_meshShape,MeshDe
     PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_coord0));
     PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_coord2));
     PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_u2));
+    PetscCall(DMCreateGlobalVector(m_dm,&m_nodes_uInc2));
     PetscCall(DMCreateGlobalVector(m_dm,&m_node_residual2));
     PetscCall(DMCreateGlobalVector(m_dm,&m_node_load));
     PetscCall(VecZeroEntries(m_nodes_coord0));
     PetscCall(VecZeroEntries(m_nodes_coord2));
     PetscCall(VecZeroEntries(m_nodes_u2));
+    PetscCall(VecZeroEntries(m_nodes_uInc2));
     PetscCall(VecZeroEntries(m_node_residual2));
     PetscCall(VecZeroEntries(m_node_load));
     /**************************************************************************/
@@ -776,6 +793,15 @@ PetscScalar *** & StructuredMesh2D::getNodeVariablePtrRef(NodeVariableType vType
         break;
     }
     return m_array_nodes_coord0;      
+}
+PetscErrorCode StructuredMesh2D::createGlobalVec(Vec *t_vecAdr){
+    PetscCall(DMCreateGlobalVector(m_dm,t_vecAdr));
+    PetscCall(VecZeroEntries(*t_vecAdr));
+    return 0;
+}
+PetscErrorCode StructuredMesh2D::destroyGlobalVec(Vec *t_vecAdr){
+    VecDestroy(t_vecAdr);
+    return 0;
 }
 int StructuredMesh2D::nodeGId2RId(int gId){
     PetscInt startGId=m_daInfo.mx*m_daInfo.ys;       /**< node's start global id in this rank*/

@@ -12,6 +12,7 @@ PetscErrorCode PostStructured2d::outputFieldVariable(int t_increI, PetscScalar t
     string fileName;
     FieldOutputFormat fieldFormat=m_outputDesPtr->s_FD.s_format;
     fileName=fieldOutputFileName(t_increI,fieldFormat);
+    fileName=m_prefix+"/"+fileName;
     std::ofstream out;
     StructuredMesh2D *mesh2dPtr=(StructuredMesh2D *)m_meshSysPtr;
     if(m_rank==0){
@@ -246,7 +247,7 @@ PetscErrorCode PostStructured2d::outputHisVariable(int t_increI, PetscScalar t_t
     int mHisElmtVar=m_infoForHisOut.varInElmtVec.size();
     for(int nodeVarI=0;nodeVarI<mHisNodeVar;++nodeVarI){
         int interval=m_infoForHisOut.intervalInNodeVec[nodeVarI];
-        if(t_increI%interval!=0&&t_t!=m_loadCtrlPtr->factorFinal())continue;
+        if(t_increI%interval!=0&&t_t<m_loadCtrlPtr->factorFinal())continue;
         HistoryVariableType hisVarType=m_infoForHisOut.hisVarInNodeVec[nodeVarI];
         NodeVariableType nodeVarType=m_infoForHisOut.varInNodeVec[nodeVarI];
         int processedDataize=m_infoForHisOut.dataNumPerFrameInNodeVec[nodeVarI];   // data num in this frame
@@ -307,7 +308,7 @@ PetscErrorCode PostStructured2d::outputHisVariable(int t_increI, PetscScalar t_t
         restoreNodeVariable(nodeVarType);
         ++buffFrameNum;
         ++m_infoForHisOut.bufferFrameNumInNodeVec[nodeVarI];
-        if(buffFrameNum<m_hisBuffLen&&t_t!=m_loadCtrlPtr->factorFinal())continue;
+        if(buffFrameNum<m_hisBuffLen&&t_t<m_loadCtrlPtr->factorFinal())continue;
         // process the buffer
         PetscScalar *processedData=nullptr;
         switch(outputForm){
@@ -343,7 +344,7 @@ PetscErrorCode PostStructured2d::outputHisVariable(int t_increI, PetscScalar t_t
                 if(setSize>0){
                     std::ofstream out;
                     string fileName=hisOutputFileName(m_infoForHisOut.setNameInNodeVec[nodeVarI],hisVarType,m_infoForHisOut.outFormatInNodeVec[nodeVarI]);
-                    fileName="rank-"+to_string(m_rank)+"-"+fileName;
+                    fileName=m_prefix+"/rank-"+to_string(m_rank)+"-"+fileName;
                     openOutputFile(fileName,&out,std::ios::app);
                     out<<std::scientific<<std::setprecision(6);
                     for(int frameI=0;frameI<buffFrameNum;frameI++){
@@ -361,7 +362,7 @@ PetscErrorCode PostStructured2d::outputHisVariable(int t_increI, PetscScalar t_t
             case VarOutputForm::SUM:{
                 if(m_rank==0){
                     std::ofstream out;
-                    string fileName=hisOutputFileName(m_infoForHisOut.setNameInNodeVec[nodeVarI],hisVarType,m_infoForHisOut.outFormatInNodeVec[nodeVarI]);
+                    string fileName=m_prefix+"/"+hisOutputFileName(m_infoForHisOut.setNameInNodeVec[nodeVarI],hisVarType,m_infoForHisOut.outFormatInNodeVec[nodeVarI]);
                     openOutputFile(fileName,&out,std::ios::app);
                     out<<std::scientific<<std::setprecision(6);
                     for(int frameI=0;frameI<buffFrameNum;frameI++){

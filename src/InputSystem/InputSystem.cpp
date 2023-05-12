@@ -154,63 +154,53 @@ void InputSystem::readFile(){
 }
 
 bool InputSystem::readMeshBlock(nlohmann::json &t_json){
-    if(t_json.contains("outputfile"))
-        m_meshDes.s_outputMeshFile_Name=t_json.at("outputfile");
-    if(t_json.contains("inputfile"))
-        m_meshDes.s_inputMeshFile_Name=t_json.at("inputfile");
+    getJsonData(t_json,"savemesh",&m_meshDes.s_ifSaveMesh,"mesh");
+    // read mesh mode
+    string mode_str;
+    getJsonData(t_json,"mode",&mode_str,"mesh");
+    if(mode_str=="structured"){
+        m_meshDes.s_mode=MeshMode::STRUCTURED;
+    }
+    else if(mode_str=="unstructured"){
+        m_meshDes.s_mode=MeshMode::UNSTRUCTURED;
+    }
+    else{
+        MessagePrinter::printErrorTxt(mode_str+" is not a supported mesh type");
+        MessagePrinter::exitcfem();
+    }
+    // read problem dimension
+    int dim;
+    getJsonData(t_json,"dim",&dim,"mesh");
+    switch (dim)
+    {
+    case 1:
+        m_meshDes.s_dim=Dimension::ONE;
+        break;
+    case 2:
+        m_meshDes.s_dim=Dimension::TWO;
+        break;
+    case 3:
+        m_meshDes.s_dim=Dimension::THREE;
+        break;
+    default:
+        MessagePrinter::printErrorTxt("imput->mesh->dim = "+to_string(dim));
+        MessagePrinter::exitcfem();
+        break;
+    }
+    if(m_meshDes.s_ifSaveMesh){
+        getJsonData(t_json,"outputfile",&m_meshDes.s_outputMeshFile_Name,"mesh");
+    }
+    if(m_meshDes.s_mode==MeshMode::UNSTRUCTURED){
+        getJsonData(t_json,"inputfile",&m_meshDes.s_inputMeshFile_Name,"mesh");
+    }
     m_meshDes.s_nx=0;
     m_meshDes.s_ny=0;
     m_meshDes.s_nz=0;
-    m_meshDes.s_ifSaveMesh=true;
     m_meshDes.s_shape=MeshShape::COMPLEX;
-    // read mesh mode
-    if(t_json.contains("mode")){
-        if(t_json.at("mode").is_string()){
-            string mode_str=t_json.at("mode");
-            if(mode_str=="structured"){
-                m_meshDes.s_mode=MeshMode::STRUCTURED;
-            }
-            else if(mode_str=="unstructured"){
-                m_meshDes.s_mode=MeshMode::UNSTRUCTURED;
-            }
-            else{
-                MessagePrinter::printErrorTxt(mode_str+" is not a supported mesh type");
-                MessagePrinter::exitcfem();
-            }
-        }
-        else{
-            MessagePrinter::printErrorTxt("input mesh->mode is not a string type!");
-            MessagePrinter::exitcfem();
-        }
-    }
-    // read problem dimension
-    if(t_json.contains("dim")){
-        if(t_json.at("dim").is_number_integer()){
-            int dim=t_json.at("dim");
-            switch (dim)
-            {
-            case 1:
-                m_meshDes.s_dim=Dimension::ONE;
-                break;
-            case 2:
-                m_meshDes.s_dim=Dimension::TWO;
-                break;
-            case 3:
-                m_meshDes.s_dim=Dimension::THREE;
-                break;
-            default:
-                MessagePrinter::printErrorTxt("imput->mesh->dim = "+to_string(dim));
-                MessagePrinter::exitcfem();
-                break;
-            }
-        }
-        else{
-            MessagePrinter::printErrorTxt("input mesh->dim is not a interger!");
-            MessagePrinter::exitcfem();
-        }
-    }
+    if(m_meshDes.s_mode==MeshMode::UNSTRUCTURED)return true;
     // read the complete mesh outer shape
-    string shapeName=t_json.at("shape");
+    string shapeName;
+    getJsonData(t_json,"shape",&shapeName,"mesh");
     if(shapeName=="rectangular"){
         m_meshDes.s_shape=MeshShape::RECTANGULAR;
     }
@@ -230,17 +220,17 @@ bool InputSystem::readMeshBlock(nlohmann::json &t_json){
         MessagePrinter::printErrorTxt(shapeName+" is not a supported mesh shape");
         MessagePrinter::exitcfem();
     }
-    string meshTypeName=t_json.at("meshtype");
+    string meshTypeName;
+    getJsonData(t_json,"meshtype",&meshTypeName,"mesh");
     if(meshTypeName=="quad4"){
         m_meshDes.s_type=MeshType::QUAD4;
     }
     else if(meshTypeName=="quad8"){
         m_meshDes.s_type=MeshType::QUAD8;
     }
-    m_meshDes.s_ifSaveMesh=t_json.at("savemesh");
-    m_meshDes.s_nx=t_json.at("nx");
-    m_meshDes.s_ny=t_json.at("ny");
-    m_meshDes.s_size_json=t_json.at("size");
+    getJsonData(t_json,"nx",&m_meshDes.s_nx,"mesh");
+    getJsonData(t_json,"ny",&m_meshDes.s_ny,"mesh");
+    getJsonData(t_json,"size",&m_meshDes.s_size_json,"mesh");
     return true;
 };
 
@@ -249,13 +239,20 @@ bool InputSystem::readElementBlock(nlohmann::json &t_json){
         string elementName=it.key();
         m_ElDes.s_names.push_back(elementName);
         nlohmann::json elmt_json=t_json.at(elementName);/**< a json block of a kind of element type*/
-        string elementTypeName=elmt_json.at("type");
+        string elementTypeName;
+        getJsonData(elmt_json,"type",&elementTypeName,("element->"+elementName).c_str());
         // read element type
         if(elementTypeName=="CPE4R"){
             m_ElDes.s_elmtTypes.push_back(ElementType::CPE4R);
         }
+        else{
+            MessagePrinter::printErrorTxt(elementTypeName+" is not a supported element type");
+            MessagePrinter::exitcfem();
+        }
         // read element assignmen set
-        m_ElDes.s_setNames.push_back(elmt_json.at("set"));
+        string setName;
+        getJsonData(elmt_json,"set",&setName,("element->"+elementName).c_str());
+        m_ElDes.s_setNames.push_back(setName);
     }
     return true;
 }
@@ -265,7 +262,8 @@ bool InputSystem::readMaterialBlock(nlohmann::json &t_json){
         string materialName=it.key();
         m_MatDes.s_names.push_back(materialName);
         nlohmann::json mat_json=t_json.at(materialName);/**< a json block of a kind of element type*/
-        string matTypeName=mat_json.at("type");
+        string matTypeName;
+        getJsonData(mat_json,"type",&matTypeName,("material->"+materialName).c_str());
         if(matTypeName=="linearelastic"){
             m_MatDes.s_matType.push_back(MaterialType::LINEARELASTIC);
         }
@@ -275,29 +273,31 @@ bool InputSystem::readMaterialBlock(nlohmann::json &t_json){
         else if(matTypeName=="vonmises"){
             m_MatDes.s_matType.push_back(MaterialType::VONMISESPLAS);
         }
-        nlohmann::json prop_json=mat_json.at("parameters");
+        else{
+            MessagePrinter::printErrorTxt(matTypeName+" is not a supported material type");
+            MessagePrinter::exitcfem();            
+        }
+        nlohmann::json prop_json;
+        getJsonData(mat_json,"parameters",&prop_json,("material->"+materialName).c_str());
         m_MatDes.s_properties.push_back(prop_json);
-        m_MatDes.s_setName.push_back(mat_json.at("set"));
+        string setName;
+        getJsonData(mat_json,"set",&setName,("element->"+materialName).c_str());
+        m_MatDes.s_setName.push_back(setName);
     }
     return true;
 }
 
 bool InputSystem::readStepBlock(nlohmann::json &t_json){
     // read large strain flag
-    if(!t_json.contains("nLarge")){
-        MessagePrinter::printErrorTxt("step->nLarge not found.");
-        MessagePrinter::exitcfem();
-    }
-    if(!t_json.at("nLarge").is_boolean()){
-        MessagePrinter::printErrorTxt("mesh->nLarge must be boolean.");
-        MessagePrinter::exitcfem();
-    }
-    m_stepDes.s_nLarge=t_json.at("nLarge");
-    m_meshDes.s_nLarge=t_json.at("nLarge");
-    m_ElDes.s_nLarge=t_json.at("nLarge");
-    m_MatDes.s_nLarge=t_json.at("nLarge");
+    bool nLarge;
+    getJsonData(t_json,"nLarge",&nLarge,"step");
+    m_stepDes.s_nLarge=nLarge;
+    m_meshDes.s_nLarge=nLarge;
+    m_ElDes.s_nLarge=nLarge;
+    m_MatDes.s_nLarge=nLarge;
     // read solution algorithm method
-    string algorithm=t_json.at("method");
+    string algorithm;
+    getJsonData(t_json,"method",&algorithm,"step");
     if(algorithm=="standard"){
         m_stepDes.s_algorithm=AlgorithmType::STANDARD;
     }
@@ -308,28 +308,9 @@ bool InputSystem::readStepBlock(nlohmann::json &t_json){
         MessagePrinter::printErrorTxt(algorithm+" is not a supported solution algorithm method");
         MessagePrinter::exitcfem();
     }
-    string nlsolver=t_json.at("nlsolver");
-    if(nlsolver=="newtonls"){
-        m_stepDes.s_SNESType=SNESNEWTONLS;
-    }
-    else if(nlsolver=="newtontr"){
-        m_stepDes.s_SNESType=SNESNEWTONTR;
-    }
-    else if(nlsolver=="nrichardson"){
-        m_stepDes.s_SNESType=SNESNRICHARDSON;
-    }
-    else if(nlsolver=="ksponly"){
-        m_stepDes.s_SNESType=SNESKSPONLY;
-    }
-    else if(nlsolver=="ngmres"){
-        m_stepDes.s_SNESType=SNESNGMRES;
-    }
-    else{
-        MessagePrinter::printErrorTxt(nlsolver+" is not a supported SNESType.");
-        MessagePrinter::exitcfem();
-    }
     // read KSP solver method
-    string kspType=t_json.at("kspsolver");
+    string kspType;
+    getJsonData(t_json,"kspsolver",&kspType,"step");
     if(kspType=="richardson"){
         m_stepDes.s_KSPType=KSPRICHARDSON;
     }
@@ -353,7 +334,8 @@ bool InputSystem::readStepBlock(nlohmann::json &t_json){
         MessagePrinter::exitcfem();
     }
     // read preconditioner
-    string pcType=t_json.at("preconditioner");
+    string pcType;
+    getJsonData(t_json,"preconditioner",&pcType,"step");
     if(pcType=="none"){
         m_stepDes.s_PCType=PCNONE;   
     }
@@ -394,93 +376,70 @@ bool InputSystem::readStepBlock(nlohmann::json &t_json){
         MessagePrinter::printErrorTxt(pcType+" is not a supported PCType.");
         MessagePrinter::exitcfem();
     }
+    // read SNES solver
+    string nlsolver;
+    getJsonData(t_json,"nlsolver",&nlsolver,"step");
+    if(nlsolver=="newtonls"){
+        m_stepDes.s_SNESType=SNESNEWTONLS;
+    }
+    else if(nlsolver=="newtontr"){
+        m_stepDes.s_SNESType=SNESNEWTONTR;
+    }
+    else if(nlsolver=="nrichardson"){
+        m_stepDes.s_SNESType=SNESNRICHARDSON;
+    }
+    else if(nlsolver=="ksponly"){
+        m_stepDes.s_SNESType=SNESKSPONLY;
+    }
+    else if(nlsolver=="ngmres"){
+        m_stepDes.s_SNESType=SNESNGMRES;
+    }
+    else{
+        MessagePrinter::printErrorTxt(nlsolver+" is not a supported SNESType.");
+        MessagePrinter::exitcfem();
+    }
     // read total t
-    if(t_json.at("t").is_number_float()){
-        m_stepDes.s_t=t_json.at("t");
-        if(m_stepDes.s_t<=0){
-            MessagePrinter::printErrorTxt("t must be positive.");
-            MessagePrinter::exitcfem();             
-        }
-    }
-    else{
-        MessagePrinter::printErrorTxt("t must be a float number.");
-        MessagePrinter::exitcfem();              
-    }
+    getJsonData(t_json,"t",&m_stepDes.s_t,"step");
     // read dtmin
-    if(t_json.at("dtmin").is_number_float()){
-        m_stepDes.s_dtmin=t_json.at("dtmin");
-        if(m_stepDes.s_dtmin<=0||m_stepDes.s_dtmin>m_stepDes.s_t){
-            MessagePrinter::printErrorTxt("t must be in (0.0, t]");
-            MessagePrinter::exitcfem();
-        }
-    }
-    else{
-        MessagePrinter::printErrorTxt("dtmin must be a float number.");
-        MessagePrinter::exitcfem();        
+    getJsonData(t_json,"dtmin",&m_stepDes.s_dtmin,"step");
+    if(m_stepDes.s_dtmin<=0||m_stepDes.s_dtmin>m_stepDes.s_t){
+        MessagePrinter::printErrorTxt("t must be in (0.0, t]");
+        MessagePrinter::exitcfem();
     }
     // read dtmax
-    if(t_json.at("dtmax").is_number_float()){
-        m_stepDes.s_dtmax=t_json.at("dtmax");
-        if(m_stepDes.s_dtmax<m_stepDes.s_dtmin||m_stepDes.s_dtmax>m_stepDes.s_t){
-            MessagePrinter::printErrorTxt("dtmax must be in [dtmin, t]");
-            MessagePrinter::exitcfem();
-        }
-    }
-    else{
-        MessagePrinter::printErrorTxt("dtmax must be a float number.");
-        MessagePrinter::exitcfem();              
+    getJsonData(t_json,"dtmax",&m_stepDes.s_dtmax,"step");
+    if(m_stepDes.s_dtmax<m_stepDes.s_dtmin||m_stepDes.s_dtmax>m_stepDes.s_t){
+        MessagePrinter::printErrorTxt("dtmax must be in [dtmin, t]");
+        MessagePrinter::exitcfem();
     }
     // read dt0
-    if(t_json.at("dt0").is_number_float()){
-        m_stepDes.s_dt0=t_json.at("dt0");
-        if(m_stepDes.s_dt0<m_stepDes.s_dtmin||m_stepDes.s_dt0>m_stepDes.s_dtmax){
-            MessagePrinter::printErrorTxt("dto must be in [dtmin, dtmax].");
-            MessagePrinter::exitcfem();
-        }
-    }
-    else{
-        MessagePrinter::printErrorTxt("dt0 must be a float number.");
-        MessagePrinter::exitcfem();               
+    getJsonData(t_json,"dt0",&m_stepDes.s_dt0,"step");
+    if(m_stepDes.s_dt0<m_stepDes.s_dtmin||m_stepDes.s_dt0>m_stepDes.s_dtmax){
+        MessagePrinter::printErrorTxt("dto must be in [dtmin, dtmax].");
+        MessagePrinter::exitcfem();
     }
     // read growth factor
-    if(t_json.at("growth-factor").is_number_float()){
-        m_stepDes.s_growFactor=t_json.at("growth-factor");
-        if(m_stepDes.s_growFactor<1.0){
-            MessagePrinter::printErrorTxt("growth-factor must be greater than 1.0.");
-            MessagePrinter::exitcfem();            
-        }
-    }
-    else{
-        MessagePrinter::printErrorTxt("growth-factor must be a float number.");
-        MessagePrinter::exitcfem();               
+    getJsonData(t_json,"growth-factor",&m_stepDes.s_growFactor,"step");
+    if(m_stepDes.s_growFactor<1.0){
+        MessagePrinter::printErrorTxt("growth-factor must be greater than 1.0.");
+        MessagePrinter::exitcfem();            
     }
     // read cutback factor
-    if(t_json.at("cutback-factor").is_number_float()){
-        m_stepDes.s_cutbackFactor=t_json.at("cutback-factor");
-        if(m_stepDes.s_cutbackFactor<=0.0||m_stepDes.s_cutbackFactor>=1.0){
-            MessagePrinter::printErrorTxt("cutback-factor must be in (0.0, 1.0).");
-            MessagePrinter::exitcfem();            
-        }
+    getJsonData(t_json,"cutback-factor",&m_stepDes.s_cutbackFactor,"step");
+    if(m_stepDes.s_cutbackFactor<=0.0||m_stepDes.s_cutbackFactor>=1.0){
+        MessagePrinter::printErrorTxt("cutback-factor must be in (0.0, 1.0).");
+        MessagePrinter::exitcfem();            
     }
-    else{
-        MessagePrinter::printErrorTxt("cutback-factor must be a float number.");
-        MessagePrinter::exitcfem();               
-    }    
-    // read max iteration num
-    if(!t_json.contains("maxiters")){
-        MessagePrinter::printErrorTxt("step->maxiters not found.");
-        MessagePrinter::exitcfem();               
-    }
-    if(!t_json.at("maxiters").is_number_integer()){
-        MessagePrinter::printErrorTxt("step->maxiters must be integer.");
-        MessagePrinter::exitcfem();         
-    }
-    m_stepDes.s_maxIterNum=t_json.at("maxiters");
     // read converage tolerance
-    m_stepDes.s_relTol=t_json.at("rel-tolerance");
-    m_stepDes.s_absTol=t_json.at("abs-tolerance");
-    m_stepDes.s_duTol=t_json.at("du-tolerance");
-    m_stepDes.s_maxIterNum=t_json.at("maxiters");
+    getJsonData(t_json,"rel-tolerance",&m_stepDes.s_relTol,"step");
+    getJsonData(t_json,"abs-tolerance",&m_stepDes.s_absTol,"step");
+    getJsonData(t_json,"du-tolerance",&m_stepDes.s_duTol,"step");
+    getJsonData(t_json,"maxiters",&m_stepDes.s_maxIterNum,"step");
+    // read paramater about arc length method
+    if(m_stepDes.s_algorithm!=AlgorithmType::STANDARD){
+        getJsonData(t_json,"destinate-iters",&m_stepDes.s_expIters,"step");
+        getJsonData(t_json,"max-arc-len-param",&m_stepDes.s_arcLenMaxParam,"step");
+    }
     return true;
 }
 bool InputSystem::readOutputBlock(nlohmann::json &t_json){
@@ -606,4 +565,46 @@ bool InputSystem::readBcBlock(nlohmann::json &t_json){
         m_bcDes.push_back(singleBCDes);
     }
     return true;
+}
+void InputSystem::getJsonData(nlohmann::json &t_json, const char *t_label, bool *t_dataptr, const char *t_errorStrPrefix){
+    checkIfLabelExist(t_json,t_label,t_errorStrPrefix);
+    if(!t_json.at(t_label).is_boolean()){
+        MessagePrinter::printErrorTxt(string(t_errorStrPrefix)+" > label "+t_label+" must be boolean.");
+        MessagePrinter::exitcfem();        
+    }
+    *t_dataptr=t_json.at(t_label);
+}
+void InputSystem::getJsonData(nlohmann::json &t_json, const char *t_label, int *t_dataptr, const char *t_errorStrPrefix){
+    checkIfLabelExist(t_json,t_label,t_errorStrPrefix);
+    if(!t_json.at(t_label).is_number_integer()){
+        MessagePrinter::printErrorTxt(string(t_errorStrPrefix)+" > label "+t_label+" must be interger.");
+        MessagePrinter::exitcfem();        
+    }
+    *t_dataptr=t_json.at(t_label);
+}
+void InputSystem::getJsonData(nlohmann::json &t_json, const char *t_label, double *t_dataptr, const char *t_errorStrPrefix){
+    checkIfLabelExist(t_json,t_label,t_errorStrPrefix);
+    if(!t_json.at(t_label).is_number_float()){
+        MessagePrinter::printErrorTxt(string(t_errorStrPrefix)+" > label "+t_label+" must be float number.");
+        MessagePrinter::exitcfem();        
+    }
+    *t_dataptr=t_json.at(t_label);
+}
+void InputSystem::getJsonData(nlohmann::json &t_json, const char *t_label, string *t_dataptr, const char *t_errorStrPrefix){
+    checkIfLabelExist(t_json,t_label,t_errorStrPrefix);
+    if(!t_json.at(t_label).is_string()){
+        MessagePrinter::printErrorTxt(string(t_errorStrPrefix)+" > label "+t_label+" must be string.");
+        MessagePrinter::exitcfem();        
+    }
+    *t_dataptr=t_json.at(t_label);
+}
+void InputSystem::getJsonData(nlohmann::json &t_json, const char *t_label, nlohmann::json *t_dataptr, const char *t_errorStrPrefix){
+    checkIfLabelExist(t_json,t_label,t_errorStrPrefix);
+    *t_dataptr=t_json.at(t_label);  
+}
+void InputSystem::checkIfLabelExist(nlohmann::json &t_json, const char *t_label,const char *t_errorStrPrefix){
+     if(!t_json.contains(t_label)){
+        MessagePrinter::printErrorTxt(string(t_errorStrPrefix)+" > label "+t_label+" not found");
+        MessagePrinter::exitcfem();        
+     }
 }

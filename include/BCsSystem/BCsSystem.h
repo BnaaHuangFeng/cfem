@@ -10,7 +10,6 @@ enum class DirichletMethod{
 class BCsSystem
 {
 protected:
-    static const DirichletMethod m_drclt_method=DirichletMethod::SETUNIT;
     bool m_ifSetMeshSysPtr; 
     bool m_ifHasReadBCDes;                            /**< if has read the boundary condition description*/
     bool m_ifHasInit;                                 /**< if has completed inition*/
@@ -67,11 +66,16 @@ public:
     */
     virtual PetscErrorCode applyResidualBoundaryCondition(Vec *residualPtr)=0;
     /**
+     * note: this function will zero t_b first
+    */
+    virtual PetscErrorCode applyBoundaryConditionArc(Mat *AMatrixPtr, Vec *t_b)=0;
+    /**
      * apply boundary condition to global jacobian Mat
      * @param AMatrixPtr > ptr to global Jacobian Mat
     */
     virtual PetscErrorCode applyJacobianBoundaryCondition(Mat *AMatrixPtr)=0;
     virtual PetscErrorCode update_penalty(Mat *AMatrixPtr)=0;
 public:
-    Vec m_uIncInitial;                                /**< Vec for initial incremental dof*/                         
+    DirichletMethod m_drclt_method=DirichletMethod::SETUNIT;
+    Vec m_uIncInitial;                                /**< Vec for initial incremental dof*/ 
 };

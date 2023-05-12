@@ -29,6 +29,7 @@ public:
      * @param residualPtr > ptr to global residual Vec
     */
     virtual PetscErrorCode applyResidualBoundaryCondition(Vec *residualPtr);
+    virtual PetscErrorCode applyBoundaryConditionArc(Mat *AMatrixPtr, Vec *t_b);
     /**
      * apply boundary condition to global jacobian Mat
      * @param AMatrixPtr > ptr to global Jacobian Mat

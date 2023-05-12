@@ -71,6 +71,7 @@ public:
      * @param snesPtr > ptr to SNES
     */
     virtual PetscErrorCode updateConfig(SNES *sensPtr)=0;
+    virtual PetscErrorCode updateConfig(void *solver, AlgorithmType algo)=0;
     /**
      * Add a element's Jacobian (stiffness) matrix to global one by elmt id in rank (need to do MatAssembly after
      * elmts in this rank have called this func)
@@ -126,7 +127,16 @@ public:
 //**********************************************************************************************
 //** for general utility                       *************************************************
 //**********************************************************************************************
-
+    /**
+     * create a global Vec corresponding to the mesh system
+     * @param t_vecAdr > the address of the Vec which needs to be created
+    */
+    virtual PetscErrorCode createGlobalVec(Vec *t_vecAdr)=0;
+    /**
+     * destory the Vec created by function createGlobalVec
+     * @param t_vecAdr > the address of the Vec which needs to be destroyed
+    */
+   virtual PetscErrorCode destroyGlobalVec(Vec *t_vecAdr)=0;
 //**********************************************************************************************
 //** for debug                                 *************************************************
 //**********************************************************************************************
@@ -170,6 +180,8 @@ public:
      * @param rId > element id in rank
     */
     void checkElmtRId(int rId);
+    inline Vec *convergedSolutionPtr(){return &m_nodes_uInc2;};
+    inline Vec *loadPtr(){return &m_node_load;};
     /**
      * return the global Vec ptr corresponding to the NodeVariableType
     */

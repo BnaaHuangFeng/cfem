@@ -56,7 +56,7 @@ public:
      */
     virtual inline double& operator()(const int i){
         if(i<0||i>1){
-            MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector2");
+            MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector2d");
             MessagePrinter::exitcfem();
         }
         return m_vals[i];
@@ -67,7 +67,7 @@ public:
      */
     virtual inline double operator()(const int i)const{
         if(i<0||i>1){
-            MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector2");
+            MessagePrinter::printErrorTxt(to_string(i)+" is out of range for Vector2d");
             MessagePrinter::exitcfem();
         }
         return m_vals[i];

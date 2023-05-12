@@ -111,6 +111,7 @@ public:
      * @param snesPtr > ptr to SNES
     */
     virtual PetscErrorCode updateConfig(SNES *sensPtr);
+    virtual PetscErrorCode updateConfig(void *solver, AlgorithmType algo);
     /**
      * Add a element's Jacobian (stiffness) matrix to global one (need to do MatAssembly after
      * elmts in this rank have called this func)
@@ -135,6 +136,16 @@ public:
 //**********************************************************************************************
 //** for general utility                       *************************************************
 //**********************************************************************************************
+    /**
+     * create a global Vec corresponding to the mesh system
+     * @param t_vecAdr > the address of the Vec which needs to be created
+    */
+    virtual PetscErrorCode createGlobalVec(Vec *t_vecAdr);
+    /**
+     * destory the Vec created by function createGlobalVec
+     * @param t_vecAdr > the address of the Vec which needs to be destroyed
+    */
+   virtual PetscErrorCode destroyGlobalVec(Vec *t_vecAdr);
     /**
      * for debug print
     */

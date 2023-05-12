@@ -3,17 +3,20 @@
 #include "PostProcessSystem/OutputVarInfo.h"
 #include "MeshSystem/NodeVarInfo.h"
 #include "cstdio"
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 PostProcessSystem::PostProcessSystem(OutputDescription *t_outputDesPtr):
     m_ifMeshSysSet(false),m_ifElmtSysSet(false),
     m_ifProjVec(false),m_ifHisNodeVec(false),m_ifHisElmtVec(false),
     m_meshSysPtr(nullptr),m_elmtSysPtr(nullptr),m_loadCtrlPtr(nullptr),
     m_array_proj_weight(nullptr),m_array_proj_val(nullptr),
     m_array_his_node(nullptr),m_array_his_elmt(nullptr){
-        m_prefix=t_outputDesPtr->s_outPrefix;
-        m_ifOutputDesSet=false;
-        readOutputDes(t_outputDesPtr);
-        MPI_Comm_rank(MPI_COMM_WORLD,&m_rank);
-        MPI_Comm_size(MPI_COMM_WORLD,&m_rankNum);
+    MPI_Comm_rank(MPI_COMM_WORLD,&m_rank);
+    MPI_Comm_size(MPI_COMM_WORLD,&m_rankNum);
+    m_prefix=t_outputDesPtr->s_outPrefix;
+    m_ifOutputDesSet=false;
+    readOutputDes(t_outputDesPtr);
 };
 
 PostProcessSystem::PostProcessSystem(OutputDescription *t_outputDesPtr,MeshSystem *t_meshSysPtr, ElementSystem *t_elmtSysPtr, LoadController *t_loadCtrlPtr):
@@ -22,6 +25,8 @@ PostProcessSystem::PostProcessSystem(OutputDescription *t_outputDesPtr,MeshSyste
     m_meshSysPtr(nullptr),m_elmtSysPtr(nullptr),m_loadCtrlPtr(nullptr),
     m_array_proj_weight(nullptr),m_array_proj_val(nullptr),
     m_array_his_node(nullptr),m_array_his_elmt(nullptr){
+    MPI_Comm_rank(MPI_COMM_WORLD,&m_rank);
+    MPI_Comm_size(MPI_COMM_WORLD,&m_rankNum);
     m_meshSysPtr=t_meshSysPtr;
     m_ifMeshSysSet=true;
     m_elmtSysPtr=t_elmtSysPtr;
@@ -31,8 +36,6 @@ PostProcessSystem::PostProcessSystem(OutputDescription *t_outputDesPtr,MeshSyste
     m_prefix=t_outputDesPtr->s_outPrefix;
     m_ifOutputDesSet=false;
     readOutputDes(t_outputDesPtr);
-    MPI_Comm_rank(MPI_COMM_WORLD,&m_rank);
-    MPI_Comm_size(MPI_COMM_WORLD,&m_rankNum);
 }
 PostProcessSystem::~PostProcessSystem(){
     VecDestroy(&m_proj_weight);
@@ -109,11 +112,11 @@ PetscErrorCode PostProcessSystem::readOutputDes(OutputDescription *t_outputDesPt
             int mCpnt=0;
             int cpntIndex=HisVarInfo::cpntInd.find(hisVarType)->second;
             VarOutputForm outputForm=HisVarInfo::varOutputForm.find(hisVarType)->second;
-            string outFileName=hisOutputFileName(setName,hisVarType,outFormat);
+            string outFileName=m_prefix+"/"+hisOutputFileName(setName,hisVarType,outFormat);
             // delete old file if exists
             // if(m_rank==0)
                 remove(outFileName.c_str());
-            string outFileNameRank="rank-"+to_string(m_rank)+'-'+outFileName;
+            string outFileNameRank=m_prefix+"/rank-"+to_string(m_rank)+'-'+hisOutputFileName(setName,hisVarType,outFormat);
             remove(outFileNameRank.c_str());
             switch (varPosition)
             {
@@ -150,6 +153,15 @@ PetscErrorCode PostProcessSystem::readOutputDes(OutputDescription *t_outputDesPt
             }            
         }
     }
+    if(m_rank==0){
+        if(access(m_prefix.c_str(),0)!=0){
+            if(mkdir(m_prefix.c_str(),S_IRWXU|S_IRWXG|S_IRWXO)){
+                MessagePrinter::printRankError("Directory "+m_prefix+" creating failed!");
+                MessagePrinter::exitcfem();
+            }
+        }        
+    }
+    PetscCall(PetscBarrier(NULL)); // waiting for rank 0 to create folder
     m_ifOutputDesSet=true;
     return 0;
 }
@@ -186,6 +198,6 @@ string PostProcessSystem::hisOutputFileName(string setName,HistoryVariableType v
     default:
         break;
     }
-    fileName=m_prefix+"-"+setName+"-"+varName+append;
+    fileName=setName+"-"+varName+append;
     return fileName;
 }

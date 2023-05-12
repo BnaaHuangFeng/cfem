@@ -121,8 +121,7 @@ PetscErrorCode ElementSystem::assignMatType(){
                     m_elmtPtrs[elmtSet[i]]->m_matPtr=new LinearElasticMat2D(m_nLarge,m_elmtPtrs[elmtSet[i]]->getDetdx0dr(0));
                     break;
                 case MaterialType::NEOHOOKEAN:
-                    MessagePrinter::printErrorTxt("material NEOHOOKEAN is not developed now.");
-                    MessagePrinter::exitcfem();
+                    m_elmtPtrs[elmtSet[i]]->m_matPtr=new NeoHookeanAbq2d(m_nLarge,m_elmtPtrs[elmtSet[i]]->getDetdx0dr(0));
                     break;
                 case MaterialType::VONMISESPLAS:
                     MessagePrinter::printErrorTxt("material VONMISESPLAS is not developed now.");

@@ -7,6 +7,7 @@ NeoHookeanAbq2d::NeoHookeanAbq2d(bool ifLarge,double t_det_dx0dr,nlohmann::json 
                         m_B0(ViogtRank2Tensor2D::InitMethod::IDENTITY),
                         m_K(0.0),m_G(0.0),m_planeState(false){
     checkIfLargeStrain();
+    initProperty(t_propPtr);
 }
 void NeoHookeanAbq2d::initProperty(nlohmann::json *t_propPtr){
     if(m_ifPropInit)return;
@@ -45,14 +46,18 @@ void NeoHookeanAbq2d::updateMaterialBydudx(void *t_incStrainPtr,bool *t_converge
     double m_J_pow=pow(m_J,-2.0/3.0);
     ViogtRank2Tensor2D Biso=m_B*m_J_pow;
     ViogtRank2Tensor2D Biso_dev=Biso-TensorConst2D::I*((Biso.trace()+m_J_pow)/3.0);
-    m_S=(Biso_dev*m_G+TensorConst2D::I*(m_K*m_J*(m_J-1)))/m_J;
-    m_T33=m_G*(m_J_pow-(Biso.trace()+m_J_pow)/3.0)+m_K*m_J*(m_J-1);
+    m_S=(Biso_dev*m_G+TensorConst2D::I*(m_K*m_J*(m_J-1.0)))/m_J;
+    m_T33=m_G*(m_J_pow-(Biso.trace()+m_J_pow)/3.0)+m_K*m_J*(m_J-1.0);
+    *t_converged=true;
 }
 void NeoHookeanAbq2d::updateConvergence(){
     m_F0=m_F;
     m_B0=m_B;
 }
 void NeoHookeanAbq2d::getTangentModulus(void *t_incStrainPtr,void *t_D){
+    int a=*(int *)t_incStrainPtr;
+    int b=*(int *)t_D;
+    if(a||b){}
     return;
 }
 void NeoHookeanAbq2d::getSpatialTangentModulus(void *t_incStrainPtr,MatrixXd *t_a){
@@ -65,10 +70,10 @@ void NeoHookeanAbq2d::getSpatialTangentModulus(void *t_incStrainPtr,MatrixXd *t_
     ViogtRank2Tensor2D Biso=m_B*m_J_pow;
     double Tr_Biso=Biso.trace()+m_J_pow;
     ViogtRank2Tensor2D Biso_dev=Biso-TensorConst2D::I*(Tr_Biso/3.0);
-    m_S=(Biso_dev*m_G+TensorConst2D::I*(m_K*m_J*(m_J-1)))/m_J;
-    m_T33=m_G*(m_J_pow-(Biso.trace()+m_J_pow)/3.0)+m_K*m_J*(m_J-1);
+    m_S=(Biso_dev*m_G+TensorConst2D::I*(m_K*m_J*(m_J-1.0)))/m_J;
+    m_T33=m_G*(m_J_pow-(Biso.trace()+m_J_pow)/3.0)+m_K*m_J*(m_J-1.0);
     double S33=m_T33/m_J;
-    double p = (m_S(1,1)+m_S(2,2)+S33)/3.0;     // p=Sii/3
+    double p = (m_S(0,0)+m_S(1,1)+S33)/3.0;     // p=Sii/3
     ViogtRank2Tensor2D S_dev=m_S-TensorConst2D::I*p;
     const int n=4;
     MatrixXd item1(n,n,0.0), item2(n,n,0.0), item3(n,n,0.0), item4(n,n,0.0), item5(n,n,0.0);

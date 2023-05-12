@@ -39,6 +39,12 @@ private:
      * and set the Boundaty condition description
     */
     bool readBcBlock(nlohmann::json &t_json);   
+    void getJsonData(nlohmann::json &t_json, const char *t_label, bool *t_dataptr, const char *t_errorStrPrefix="");
+    void getJsonData(nlohmann::json &t_json, const char *t_label, int *t_dataptr, const char *t_errorStrPrefix="");
+    void getJsonData(nlohmann::json &t_json, const char *t_label, double *t_dataptr, const char *t_errorStrPrefix="");
+    void getJsonData(nlohmann::json &t_json, const char *t_label, string *t_dataptr, const char *t_errorStrPrefix="");
+    void getJsonData(nlohmann::json &t_json, const char *t_label, nlohmann::json *t_dataptr, const char *t_errorStrPrefix="");
+    void checkIfLabelExist(nlohmann::json &t_json, const char *t_label,const char *t_errorStrPrefix="");
 public:
     InputSystem():m_timer(NULL){};
     InputSystem(Timer *t_timer);

@@ -1,6 +1,7 @@
 #pragma once
 #include "InputSystem/DescriptionInfo.h"
 #include "SolutionSystem/SolutionCtx.h"
+#include "SolutionSystem/ArcLengthSolver.h"
 /**
  * form the global function Vec for SNES solver
  * @param t_uInc > state at which to evaluate residual
@@ -8,6 +9,8 @@
  * @param f < vector to put residual (function value)
 */
 PetscErrorCode formFunction(SNES t_snes, Vec t_uInc, Vec t_function, void *ctx);
+PetscErrorCode formFunctionArcLen(ArcLengthSolver *t_solverPtr, Vec *t_uInc, Vec *t_function, void *ctx);
+PetscErrorCode applyLoadArcLen(Mat *AMatrixPtr, Vec *t_b, void *ctx);
 /**
  * form the global jacobian Mat for SNES solver
  * @param t_uInc > input vector, the jacobian is to be computed at this value
@@ -16,6 +19,7 @@ PetscErrorCode formFunction(SNES t_snes, Vec t_uInc, Vec t_function, void *ctx);
  * @param t_PMat < the matrix to be used in constructing the preconditioner, usually the same as t_AMat
 */
 PetscErrorCode formJacobian(SNES t_snes, Vec t_uInc, Mat t_AMat, Mat t_PMat, void *ctx);
+PetscErrorCode formJacobianArcLen(ArcLengthSolver *t_solverPtr, Vec *t_uInc, Mat *t_AMat, Mat *t_PMat, void *ctx);
 /**
  * functional form passed to SNESMonitorSet() to monitor convergence of nolinear solver
  * @param snes > the SNES context
@@ -24,6 +28,7 @@ PetscErrorCode formJacobian(SNES t_snes, Vec t_uInc, Mat t_AMat, Mat t_PMat, voi
  * @param mctx > [optional] monitor context
 */
 PetscErrorCode monitorFunction(SNES snes, PetscInt its, PetscScalar norm, void *mctx);
+PetscErrorCode monitorFunctionArcLen(ArcLengthSolver *t_solverPtr, PetscInt its, PetscScalar norm, void *mctx);
 struct MoniterCtx{
     int *s_mIterPtr;                    /**< ptr to iteration num of the latest convergence*/
     int *s_iterIPtr;                    /**< ptr to current iteration id*/
@@ -50,7 +55,7 @@ private:
     KSP m_ksp;                      /**< ksp solver*/
     PC m_pc;                        /**< preconditioner*/
     SNESLineSearch m_snesLinesearch;/**< snes line search solver*/
-    bool m_ifSolerInit;             /**< if the Petsc solver be inited*/
+    bool m_ifSolverInit;             /**< if the Petsc solver be inited*/
     bool m_ifStepDesRead;           /**< if has read step description*/
     bool m_ifSetMeshSysPtr;         /**< if has set mesh system ptr*/
     bool m_ifSolutionCtxInit;       /**< if solution context inited*/
@@ -103,10 +108,15 @@ public:
      * @param t_ifCompleted > if the load factor reach the final load factor
     */
     PetscErrorCode run(bool t_ifLastConverged,bool *t_ifConverged, bool *t_ifcompleted);
+    inline PetscScalar getRNorm(){return m_rnorm;};
+    inline PetscScalar getMIter(){return m_mIter;};
+public:
+    inline AlgorithmType getAlgorithm(){return m_algorithm;};
 public:
     bool m_ifShowIterInfo;          /**< if show every iteration's information*/
     SolutionCtx m_solutionCtx;      /**< solution context*/
     MoniterCtx m_monitorCtx;        /**< monitor context*/
     SNES m_snes;                    /**< snes solver*/
+    ArcLengthSolver *m_arcLenSolverPtr;
     int m_increI;                   /**< current increment id*/
 };

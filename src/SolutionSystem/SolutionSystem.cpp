@@ -10,7 +10,7 @@ SolutionSystem::SolutionSystem():
     m_solutionCtx.s_loadCtrlPtr=nullptr;
     m_ifStepDesRead=false;
     m_ifSetMeshSysPtr=false;
-    m_ifSolerInit=false;
+    m_ifSolverInit=false;
     m_ifSolutionCtxInit=false;
 }
 SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr):
@@ -25,7 +25,7 @@ SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr):
     m_ifStepDesRead=false;
     readStepDes(t_stepDesPtr);
     m_ifSetMeshSysPtr=false;
-    m_ifSolerInit=false;
+    m_ifSolverInit=false;
     m_ifSolutionCtxInit=false;
 }
 SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr, MeshSystem *t_meshSysPtr):
@@ -40,22 +40,20 @@ SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr, MeshSystem *t_mesh
     m_ifSetMeshSysPtr=false;
     readStepDes(t_stepDesPtr);
     setMeshSysPtr(t_meshSysPtr);
-    m_ifSolerInit=false;
+    m_ifSolverInit=false;
     m_ifSolutionCtxInit=false;   
 }
 SolutionSystem::~SolutionSystem(){
     SNESDestroy(&m_snes);
+    if(m_arcLenSolverPtr)delete m_arcLenSolverPtr;
 }
 PetscErrorCode SolutionSystem::init(StepDescriptiom *t_stepDesPtr,MeshSystem *t_meshSysPtr,ElementSystem *t_elmtSysPtr,BCsSystem *t_bcsSysPtr, LoadController *t_loadCtrlPtr){
     readStepDes(t_stepDesPtr);
     setMeshSysPtr(t_meshSysPtr);
-    initStep(t_stepDesPtr);
     initSolutionCtx(t_elmtSysPtr, t_bcsSysPtr, t_loadCtrlPtr);
     initMonitorCtx();
-    m_ifShowIterInfo=false;
-    if(m_ifShowIterInfo){
-        PetscCall(SNESMonitorSet(m_snes,monitorFunction,&m_monitorCtx,nullptr));
-    }
+    initStep(t_stepDesPtr);
+    m_ifShowIterInfo=true;
     bindCallBack();
     return 0;
 };
@@ -72,7 +70,7 @@ PetscErrorCode SolutionSystem::checkInit(){
         MessagePrinter::printErrorTxt("SolutionSystem: its solution context has not yet been init.");
         MessagePrinter::exitcfem();        
     }
-    if(!m_ifSolerInit){
+    if(!m_ifSolverInit){
         MessagePrinter::printErrorTxt("SolutionSystem: its Petsc solver has not yet been init.");
         MessagePrinter::exitcfem();          
     }
@@ -85,7 +83,7 @@ PetscErrorCode SolutionSystem::initStep(StepDescriptiom *t_stepDesPtr){
     return 0;
 }
 PetscErrorCode SolutionSystem::initStep(){
-    if(m_ifSolerInit)return 0;
+    if(m_ifSolverInit)return 0;
     if(!m_ifSetMeshSysPtr){
         MessagePrinter::printErrorTxt("SolutionSystem: its relied mesh system has not yet been set.");
         MessagePrinter::exitcfem();
@@ -130,7 +128,14 @@ PetscErrorCode SolutionSystem::initStep(){
         PetscCall(SNESSetType(m_snes,SNESNGMRES));
     }
     PetscCall(SNESSetFromOptions(m_snes));
-    m_ifSolerInit=true;
+    // for arc length method solver inition**/
+    /****************************************/
+    if(m_algorithm==AlgorithmType::ARCLENGTH_CYLENDER){
+        m_arcLenSolverPtr=new ArcLengthSolver(m_stepDesPtr);
+        m_arcLenSolverPtr->init(m_stepDesPtr,m_meshSysPtr,&m_ksp,&m_pc,&m_snesLinesearch);
+        m_arcLenSolverPtr->setLoadVecPtr(m_solutionCtx.s_loadCtrlPtr->getLoadVecPtr());
+    }
+    m_ifSolverInit=true;
     return 0;
 }
 void SolutionSystem::initSolutionCtx(ElementSystem *t_elmtSysPtr,BCsSystem *t_bcsSysPtr, LoadController *t_loadCtrlPtr){
@@ -148,8 +153,19 @@ void SolutionSystem::initMonitorCtx(){
     m_monitorCtx.s_uNormPtr=&m_uNorm;
 }
 PetscErrorCode SolutionSystem::bindCallBack(){
-    PetscCall(SNESSetFunction(m_snes,m_meshSysPtr->m_node_residual2,formFunction,&m_solutionCtx));
-    PetscCall(SNESSetJacobian(m_snes,m_meshSysPtr->m_AMatrix2,m_meshSysPtr->m_AMatrix2,formJacobian,&m_solutionCtx));
+    switch(m_algorithm){
+        case AlgorithmType::STANDARD:
+            PetscCall(SNESSetFunction(m_snes,m_meshSysPtr->m_node_residual2,formFunction,&m_solutionCtx));
+            PetscCall(SNESSetJacobian(m_snes,m_meshSysPtr->m_AMatrix2,m_meshSysPtr->m_AMatrix2,formJacobian,&m_solutionCtx));
+            PetscCall(SNESMonitorSet(m_snes,monitorFunction,&m_monitorCtx,nullptr));
+            break;
+        case AlgorithmType::ARCLENGTH_CYLENDER:
+            m_arcLenSolverPtr->setFunction(&m_meshSysPtr->m_node_residual2,formFunctionArcLen,&m_solutionCtx);
+            m_arcLenSolverPtr->setJacobian(&m_meshSysPtr->m_AMatrix2,&m_meshSysPtr->m_AMatrix2,formJacobianArcLen,&m_solutionCtx);
+            m_arcLenSolverPtr->setLoad(applyLoadArcLen,&m_solutionCtx);
+            m_arcLenSolverPtr->monitorSet(monitorFunctionArcLen,&m_monitorCtx);
+            break;
+    }
     return 0;
 }
 void SolutionSystem::readStepDes(StepDescriptiom *t_stepDesPtr){
@@ -174,6 +190,7 @@ PetscErrorCode SolutionSystem::showIterInfo(bool t_ifShowIterInfo){
         if(!m_ifShowIterInfo)return 0;
         m_ifShowIterInfo=t_ifShowIterInfo;
         PetscCall(SNESMonitorCancel(m_snes));
+
     }
     return 0;
 }
@@ -183,24 +200,58 @@ PetscErrorCode SolutionSystem::run(bool t_ifLastConverged, bool *t_ifConverged, 
     m_duNorm=0.0;
     m_rnorm0=0.0;
     m_rnorm=0.0;
-    if(m_solutionCtx.s_loadCtrlPtr->update(t_ifLastConverged,m_mIter)){
-        *t_ifConverged=true;
-        *t_ifcompleted=true;
-        return 0;
+    switch(m_algorithm){
+        case AlgorithmType::STANDARD:
+            if(m_solutionCtx.s_loadCtrlPtr->update(t_ifLastConverged)){
+                *t_ifConverged=true;
+                *t_ifcompleted=true;
+                return 0;
+            }
+            else{
+                *t_ifcompleted=false;
+            }
+            break;
+        default:
+            break;
     }
-    m_solutionCtx.s_bcsSysPtr->setInitialSolution(m_solutionCtx.s_loadCtrlPtr->m_factorInc1);
-    PetscCall(SNESSolve(m_snes,NULL,m_solutionCtx.s_bcsSysPtr->m_uIncInitial));
+    if(m_algorithm==AlgorithmType::STANDARD){
+        m_solutionCtx.s_bcsSysPtr->setInitialSolution(m_solutionCtx.s_loadCtrlPtr->m_factorInc1);
+        PetscCall(SNESSolve(m_snes,NULL,m_solutionCtx.s_bcsSysPtr->m_uIncInitial));
+    }
+    else if(m_algorithm==AlgorithmType::ARCLENGTH_CYLENDER){
+        m_solutionCtx.s_bcsSysPtr->setInitialSolution(1.0);
+        PetscScalar arcLen=m_solutionCtx.s_loadCtrlPtr->getArcLen();
+        if(m_increI==1){
+            arcLen=m_arcLenSolverPtr->getIntialArcLen(m_solutionCtx.s_loadCtrlPtr->m_factorInc1);
+            m_solutionCtx.s_loadCtrlPtr->m_factorInc1=0.0;
+            m_solutionCtx.s_loadCtrlPtr->setInitialArc(arcLen);
+        }
+        else if(m_increI==2){
+            m_arcLenSolverPtr->setLastSolutionPtr(&m_meshSysPtr->m_nodes_uInc2);
+        }
+        m_arcLenSolverPtr->solve(arcLen);
+    }
     SNESConvergedReason converReason;
-    PetscCall(SNESGetConvergedReason(m_snes,&converReason));
+    if(m_algorithm==AlgorithmType::STANDARD)
+        PetscCall(SNESGetConvergedReason(m_snes,&converReason));
+    else if(m_algorithm==AlgorithmType::ARCLENGTH_CYLENDER){
+        PetscScalar facInc=m_arcLenSolverPtr->getFactorInc();
+        int iterNum=m_arcLenSolverPtr->getIterNum();
+        if(m_solutionCtx.s_loadCtrlPtr->update(t_ifLastConverged,facInc,iterNum)){
+            *t_ifcompleted=true;
+        }           
+        else{
+            *t_ifcompleted=false;
+        }
+        m_arcLenSolverPtr->getConvergedReason(&converReason);     
+    }
     printConvergedReason(converReason);
     if(converReason>0){// for converged case
         *t_ifConverged=true;
-        *t_ifcompleted=false;
         m_mDiverged=0;        
     }
     else if(converReason<0){// for diverged reason
         *t_ifConverged=false;
-        *t_ifcompleted=false;
         ++m_mDiverged;
         if(m_mDiverged>=m_maxAttempt){
             MessagePrinter::printErrorTxt("too manay attempt to get converged!");
@@ -215,7 +266,7 @@ PetscErrorCode SolutionSystem::run(bool t_ifLastConverged, bool *t_ifConverged, 
 }
 
 PetscErrorCode formFunction(SNES t_snes, Vec t_uInc, Vec t_function, void *ctx){
-    if(ctx||t_snes){}
+    if(t_snes){}
     SolutionCtx *ctxPtr=(SolutionCtx *)ctx;
     // for debug
     // MessagePrinter::printTxt("incremental u before assemble residual:");
@@ -231,14 +282,32 @@ PetscErrorCode formFunction(SNES t_snes, Vec t_uInc, Vec t_function, void *ctx){
     // PetscCall(VecView(t_function,PETSC_VIEWER_STDOUT_WORLD));
     return 0;
 }
+PetscErrorCode formFunctionArcLen(ArcLengthSolver *t_solverPtr, Vec *t_uInc, Vec *t_function, void *ctx){
+    SolutionCtx *ctxPtr=(SolutionCtx *)ctx;
+    ctxPtr->s_elmtSysPtr->assemblRVec(t_uInc,t_function);
+    double loadFactor=ctxPtr->s_loadCtrlPtr->m_factor1+t_solverPtr->getFactorInc();
+    ctxPtr->s_loadCtrlPtr->applyLoad(loadFactor,t_function);
+    ctxPtr->s_bcsSysPtr->applyResidualBoundaryCondition(t_function);
+    PetscCall(VecScale(*t_function,-1.0));
+    // PetscCall(VecView(*t_uInc,PETSC_VIEWER_STDOUT_WORLD));
+    return 0;
+}
+PetscErrorCode applyLoadArcLen(Mat *AMatrixPtr, Vec *t_b, void *ctx){
+    SolutionCtx *ctxPtr=(SolutionCtx *)ctx;
+    ctxPtr->s_bcsSysPtr->applyBoundaryConditionArc(AMatrixPtr,t_b);
+    ctxPtr->s_loadCtrlPtr->applyLoad(-1.0,t_b);
+    return 0;
+}
+
 PetscErrorCode formJacobian(SNES t_snes, Vec t_uInc, Mat t_AMat, Mat t_PMat, void *ctx){
-    if(ctx||t_snes){}
+    if(t_snes){}
     SolutionCtx *ctxPtr=(SolutionCtx *)ctx;
     // for debug
     // MessagePrinter::printTxt("incremental u before assemble Jacobian:");
     // PetscCall(VecView(t_uInc,PETSC_VIEWER_STDOUT_WORLD));
     ctxPtr->s_elmtSysPtr->assembleAMatrix(&t_uInc,&t_PMat);
-    ctxPtr->s_bcsSysPtr->update_penalty(&t_PMat);
+    if(ctxPtr->s_bcsSysPtr->m_drclt_method==DirichletMethod::SETLARGE)
+        ctxPtr->s_bcsSysPtr->update_penalty(&t_PMat);
     // for debug:
     // MessagePrinter::printTxt("J(u) after assembleAMatrix:");
     // PetscCall(PetscViewerPushFormat(PETSC_VIEWER_STDOUT_WORLD,PETSC_VIEWER_ASCII_DENSE));
@@ -255,9 +324,21 @@ PetscErrorCode formJacobian(SNES t_snes, Vec t_uInc, Mat t_AMat, Mat t_PMat, voi
     // PetscCall(MatView(t_AMat,PETSC_VIEWER_STDOUT_WORLD));
     return 0;
 }
+PetscErrorCode formJacobianArcLen(ArcLengthSolver *t_solverPtr, Vec *t_uInc, Mat *t_AMat, Mat *t_PMat, void *ctx){
+    if(t_solverPtr){}
+    SolutionCtx *ctxPtr=(SolutionCtx *)ctx;
+    ctxPtr->s_elmtSysPtr->assembleAMatrix(t_uInc,t_PMat);
+    if(ctxPtr->s_bcsSysPtr->m_drclt_method==DirichletMethod::SETLARGE)
+        ctxPtr->s_bcsSysPtr->update_penalty(t_PMat);
+    if(t_AMat!=t_PMat){
+        PetscCall(MatAssemblyBegin(*t_AMat,MAT_FINAL_ASSEMBLY));
+        PetscCall(MatAssemblyEnd(*t_AMat,MAT_FINAL_ASSEMBLY));
+    }
+    return 0;
+}
 PetscErrorCode monitorFunction(SNES snes, PetscInt its, PetscScalar norm, void *mctx){
-    char buff[70];
-    string str;
+    // char buff[70];
+    // string str;
     MoniterCtx *mctxPtr=(MoniterCtx *)mctx;
     *mctxPtr->s_iterIPtr=its;
     *mctxPtr->s_mIterPtr=its;
@@ -272,9 +353,22 @@ PetscErrorCode monitorFunction(SNES snes, PetscInt its, PetscScalar norm, void *
     if(its==0){
         *mctxPtr->s_rnorm0Ptr=norm;
     }
-    snprintf(buff,70," SNES solver: iters=%4d, |R|=%12.5e, |dU|=%12.5e",its,norm,*mctxPtr->s_duNormPtr);
-    str=buff;
-    MessagePrinter::printNormalTxt(str);
+    // snprintf(buff,70," SNES solver: iters=%4d, |R|=%12.5e, |dU|=%12.5e",its,norm,*mctxPtr->s_duNormPtr);
+    // str=buff;
+    // MessagePrinter::printNormalTxt(str);
+    return 0;
+}
+PetscErrorCode monitorFunctionArcLen(ArcLengthSolver *t_solverPtr, PetscInt its, PetscScalar norm, void *mctx){
+    // char buff[70];
+    // string str;
+    if(t_solverPtr){}
+    MoniterCtx *mctxPtr=(MoniterCtx *)mctx;
+    *mctxPtr->s_iterIPtr=its;
+    *mctxPtr->s_mIterPtr=its;
+    *mctxPtr->s_rnormPtr=norm;
+    if(its==0){
+        *mctxPtr->s_rnorm0Ptr=norm;
+    }
     return 0;
 }
 PetscErrorCode SolutionSystem::printConvergedReason(SNESConvergedReason converReason){

@@ -50,9 +50,11 @@ struct StepDescriptiom
     double s_dtmin;             /**< min time increment*/
     double s_growFactor;        /**< factor growth ratio*/
     double s_cutbackFactor;     /**< factor cutback ratio*/
-    double s_absTol; /**< absolute tolerance*/
-    double s_relTol; /**< realative tolerance*/
-    double s_duTol; /**< delta U tolerance*/
+    double s_absTol;            /**< absolute tolerance*/
+    double s_relTol;            /**< realative tolerance*/
+    double s_duTol;             /**< delta U tolerance*/
+    int s_expIters;          /**< expected iterations num (for arc length method)*/
+    double s_arcLenMaxParam;    /**< arc length max paramater*/
 };
 struct FieldOutputDescription{
     FieldOutputFormat s_format;
