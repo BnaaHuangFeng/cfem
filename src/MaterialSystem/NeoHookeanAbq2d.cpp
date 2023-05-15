@@ -110,7 +110,7 @@ void NeoHookeanAbq2d::getMatVariable(ElementVariableType elmtVarType,void *elmtV
     case ElementVariableType::VONMISES:{
         double S33=m_T33*m_J;
         double Sm=(m_S.trace()+S33)/3.0;
-        *(double *)elmtVarPtr=sqrt(1.5*((m_S(0)-Sm)*(m_S(0)-Sm)+(m_S(1)-Sm)*(m_S(1)-Sm)+(S33-Sm)*(S33-Sm)+2*(m_S(2)-Sm)*(m_S(2)-Sm)));
+        *(double *)elmtVarPtr=sqrt(1.5*((m_S(0)-Sm)*(m_S(0)-Sm)+(m_S(1)-Sm)*(m_S(1)-Sm)+(S33-Sm)*(S33-Sm)+2*m_S(2)*m_S(2)));
         break;
     }
     default:
@@ -151,7 +151,7 @@ void NeoHookeanAbq2d::getMatVariableArray(ElementVariableType elmtVarType,PetscS
     case ElementVariableType::VONMISES:{
         double S33=m_T33*m_J;
         double Sm=(m_S.trace()+S33)/3.0;
-        *elmtVarPtr=sqrt(1.5*((m_S(0)-Sm)*(m_S(0)-Sm)+(m_S(1)-Sm)*(m_S(1)-Sm)+(S33-Sm)*(S33-Sm)+2*(m_S(2)-Sm)*(m_S(2)-Sm)));
+        *elmtVarPtr=sqrt(1.5*((m_S(0)-Sm)*(m_S(0)-Sm)+(m_S(1)-Sm)*(m_S(1)-Sm)+(S33-Sm)*(S33-Sm)+2*m_S(2)*m_S(2)));
         break;
     }
     default:

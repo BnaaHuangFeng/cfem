@@ -3,11 +3,13 @@ const map<FieldVariableType,VarPosition> FieldVarInfo::varPosition={
     {FieldVariableType::VONMISES,  VarPosition::ELEMENT},
     {FieldVariableType::STRESS,    VarPosition::ELEMENT},
     {FieldVariableType::LOGSTRAIN, VarPosition::ELEMENT},
+    {FieldVariableType::PRESSURE,  VarPosition::ELEMENT},
     {FieldVariableType::U,         VarPosition::NODE}
 };
 
 const map<FieldVariableType,VarMathType> FieldVarInfo::varMathType={
     {FieldVariableType::VONMISES,  VarMathType::SCALAR},
+    {FieldVariableType::PRESSURE,  VarMathType::SCALAR},
     {FieldVariableType::STRESS,    VarMathType::TENSORRANK2},
     {FieldVariableType::LOGSTRAIN, VarMathType::TENSORRANK2},
     {FieldVariableType::U,         VarMathType::VECTOR}
@@ -17,6 +19,7 @@ const map<FieldVariableType,int> FieldVarInfo::varType={
     {FieldVariableType::VONMISES,  int(ElementVariableType::VONMISES)},
     {FieldVariableType::STRESS,    int(ElementVariableType::CAUCHYSTRESS)},
     {FieldVariableType::LOGSTRAIN, int(ElementVariableType::LOGSTRAIN)},
+    {FieldVariableType::PRESSURE,  int(ElementVariableType::PRESSURE)},
     {FieldVariableType::U,         int(NodeVariableType::U)}
 };
 

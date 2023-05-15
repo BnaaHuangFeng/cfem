@@ -68,10 +68,19 @@ public:
      * @param t_dNdx0 > the derivates of shape function to reference coords, [node id sf 0](dof id sf 1)
     */
     virtual void getDer2Ref(Vector2d t_dNdx0[]);
+    /**
+     * get the hourglass shape vector
+     * @param t_dNdx2 > derivate of shpfun to the last converged coords
+     * @param t_x2 > last converged coords
+     * @param t_gamma < adr to receive the hourglass shape vector (need preallocation)
+    */
+    void getHGShpVec(Vector2d t_dNdx2[4],Vector2d t_x2[],double t_gamma[]);
+
 public:
     static const MeshType m_mesh_type=MeshType::QUAD4;/**< the type of mesh */
     static const int m_funs=4;/**< number of shape functions */
+    static const double m_hgModal[4];
     Vector2d m_x0[m_funs];/**< coordinates of a element's nodes in the reference configuration, [node id sf 0](dof id sf 1)*/
     Vector2d m_dNdr[m_funs];/**< the derivates of shape function to natural coords, [node id sf 0](dof id sf 1)*/
-    Vector2d m_dNdx0[m_funs];/**< the derivates of shape function to reference coords, [node id sf 0](dof id sf 1)*/
+    
 };

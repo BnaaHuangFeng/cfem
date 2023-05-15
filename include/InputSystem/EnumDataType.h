@@ -10,6 +10,7 @@ enum class MeshShape{
     HALFSIN,
     COS,
     HALFCOS,
+    HALFCOSPLUSSTEP,
     COMPLEX
 };
 enum class MeshMode{
@@ -63,6 +64,7 @@ enum class FieldVariableType{
     STRESS,
     LOGSTRAIN,
     U,
+    PRESSURE
 };
 
 enum class HistoryVariableType{

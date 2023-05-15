@@ -213,6 +213,8 @@ PetscErrorCode PostStructured2d::genNodeVariable(NodeVariableType varType){
         m_elmtSysPtr->assemblRVec(&m_meshSysPtr->m_node_residual2,&m_his_node_vec);
         m_loadCtrlPtr->applyLoad(m_loadCtrlPtr->m_factor2,&m_his_node_vec);
         openNodeVariableVec(&m_his_node_vec,&m_his_node_vec_local,&m_array_his_node,2,VecAccessMode::READ);
+        // for debug
+        // PetscCall(VecView(m_his_node_vec,PETSC_VIEWER_STDOUT_WORLD));
         break;
     default:
         break;

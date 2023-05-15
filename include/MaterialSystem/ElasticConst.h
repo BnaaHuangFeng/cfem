@@ -4,4 +4,6 @@ namespace ElasticConst{
     double getLameByE_Nu(double E,double nu);
     double getKByE_Nu(double E,double nu);
     double getGByE_Nu(double E,double nu);
+
+    double getLameByK_G(double K, double G);
 }

@@ -12,6 +12,7 @@
  *
  * REFERENCE: Expression (4.42)
 */
+const double ShpfunQuad4::m_hgModal[4]={1.0, -1.0, 1.0, -1.0};
 ShpfunQuad4::ShpfunQuad4(){
     m_x0[0](0)=-1.0;
     m_x0[0](1)=-1.0;
@@ -87,5 +88,15 @@ void ShpfunQuad4::getDer2Ref(Vector2d t_dNdx0[]){
     Rank2Tensor2d drdx0=dx0dr.inverse();
     for(int i=0;i<m_funs;i++){
         t_dNdx0[i]=m_dNdr[i]*drdx0;
+    }
+}
+void ShpfunQuad4::getHGShpVec(Vector2d t_dNdx2[4],Vector2d t_x2[],double t_gamma[]){
+    for(int nI=0;nI<m_funs;++nI){
+        t_gamma[nI]=m_hgModal[nI];
+        for(int nJ=0;nJ<m_funs;++nJ){
+            for(int di=0;di<m_dim;++di){
+                t_gamma[nI]-=t_dNdx2[nI](di)*t_x2[nJ](di)*m_hgModal[nJ];
+            }
+        }
     }
 }

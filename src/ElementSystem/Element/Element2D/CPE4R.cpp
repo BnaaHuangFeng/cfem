@@ -5,6 +5,7 @@ const int CPE4R::m_mDof_node=2;               /**< dof num per node*/
 const int CPE4R::m_mNode=4;                   /**< a element's nodes number*/
 const int CPE4R::m_mQPoint=1;
 const int CPE4R::m_QPW=4.0;
+const double CPE4R::m_HG_coeff=0.01;
 ShpfunQuad4 CPE4R::m_shpfun=ShpfunQuad4(Vector2d(0.0,0.0)); /**< shape function relative computer*/
 PetscErrorCode CPE4R::initElement(PetscInt t_elmt_rId, bool nLarge,MeshSystem *t_meshSysPtr, PetscScalar *elmtParamPtr){
     m_elmt_rId=t_elmt_rId;
@@ -23,8 +24,10 @@ PetscErrorCode CPE4R::initElement(PetscInt t_elmt_rId, bool nLarge,MeshSystem *t
         }
     }    
     m_det_dx0dr=dx0dr.det();
+    m_Q1[0]=0.; m_Q1[1]=0.; m_Q2[0]=0.; m_Q2[1]=0.;
     return 0;
 }
+
 PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, VectorXd *t_elmtInnerForce, bool *t_converged){
     Vector2d *elmtCoord2=(Vector2d *)t_elmtCoord2;
     Vector2d *elmtDofInc=(Vector2d *)t_elmtDofInc;
@@ -40,6 +43,7 @@ PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, 
     }
     this->m_shpfun.setRefCoords(elmtCoord1);
     this->m_shpfun.getDer2Ref(dNdx);
+    if(!m_ifHGUpdated) updateHourglass(elmtCoord2,dNdx);
     this->getBMatrix(dNdx,m_mNode,m_mDof_node,&BMatrix);
     /**
      * update material
@@ -76,6 +80,39 @@ PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, 
     m_matPtr->getMatVariable(ElementVariableType::JACOBIAN,&J);
     double volume=m_QPW*J*m_det_dx0dr;
     *t_elmtInnerForce=BMatrix.transpose()*(stress*volume);
+    // update current hourglass general force of hourglass
+    for(int di=0;di<m_mDof_node;++di){
+        m_Q1[di]=m_Q2[di];
+        for(int nJ=0;nJ<m_mNode;++nJ){
+            m_Q1[di]+=0.5*m_HG_coeff*m_Kmax2*m_gamma2[nJ]*elmtDofInc[nJ](di);
+        }
+    }
+    // hourglass control force*/
+    VectorXd f_HG(m_mNode*m_mDof_node,0.0);
+    for(int nI=0;nI<m_mNode;++nI){
+        for(int di=0;di<m_mDof_node;++di){
+            int dof=nI*m_mDof_node+di;
+            f_HG(dof)=0.5*m_gamma2[nI]*m_Q2[di];
+            for(int nJ=0;nJ<m_mNode;++nJ){
+                f_HG(dof)+=0.25*m_HG_coeff*m_Kmax2*m_gamma2[nI]*m_gamma2[nJ]*elmtDofInc[nJ](di);
+                (*t_elmtInnerForce)(dof)+=f_HG(dof);
+            }
+        }
+    }
+    // for dubug
+    // VectorXd f_HG_(m_mNode*m_mDof_node,0.0);
+    // for(int nI=0;nI<m_mNode;++nI){
+    //     for(int di=0;di<m_mDof_node;++di){
+    //         int dof1=nI*m_mDof_node+di;
+    //         f_HG_(dof1)=0.5*m_gamma2[nI]*m_Q2[di];
+    //         for(int nJ=0;nJ<m_mNode;++nJ){
+    //             for(int dj=0;dj<m_mDof_node;++dj){
+    //                 int dof2=nJ*m_mDof_node+dj;
+    //                 f_HG_(dof1)+=m_KHG2(dof1,dof2)*elmtDofInc[nJ](dj);
+    //             }
+    //         }
+    //     }
+    // }
     return 0;
 }
 
@@ -91,6 +128,7 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
     m_shpfun.setRefCoords(elmtCoord1);
     Vector2d dNdx[4];
     m_shpfun.getDer2Ref(dNdx);
+    if(!m_ifHGUpdated) updateHourglass(elmtCoord2,dNdx);
     // evaluate elemental volume
     double J=0;
     m_matPtr->getMatVariable(ElementVariableType::JACOBIAN,&J);
@@ -110,7 +148,7 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
             }
         }
         m_matPtr->getTangentModulus(&duIncdx,&D);
-        *t_stfMatrix=B.transpose()*D*B*volume;
+        *t_stfMatrix=B.transpose()*D*B*volume+m_KHG2;
     }
     else{
         const int mGMatrix=4;   /** G-Matrix's row count*/
@@ -131,7 +169,7 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
         }
         /** cal a*/
         m_matPtr->getSpatialTangentModulus(&Finc,&a);
-        *t_stfMatrix=G.transpose()*a*G*volume;
+        *t_stfMatrix=G.transpose()*a*G*volume+m_KHG2;
     }
     return 0;
 }
@@ -150,7 +188,42 @@ PetscErrorCode CPE4R::getElmtWeightedVolumeInt(PetscScalar **t_valQPPtr,PetscSca
 }
 void CPE4R::updateConvergence(){
     m_matPtr->updateConvergence();
+    m_ifHGUpdated=false;
 }
 void CPE4R::getElmtVariableArray(ElementVariableType elmtVarType,PetscScalar **elmtVarPtr){
     m_matPtr->getMatVariableArray(elmtVarType,*elmtVarPtr);
+}
+double CPE4R::getKMax(double lame, double G, Vector2d t_dNdx2[4], double V2){
+    if(lame){}
+    double Kmax=0;
+    for(int nI=0;nI<m_mNode;++nI){
+        for(int di=0;di<m_mDof_node;++di){
+            Kmax+=t_dNdx2[nI](di)*t_dNdx2[nI](di);
+        }
+    }
+    // Kmax*=(lame+2*G)*V2;
+    Kmax*=4*G*V2;
+    return Kmax;
+}
+void CPE4R::updateHourglass(Vector2d *t_elmtCoord2, Vector2d *t_dNdx2){
+    m_shpfun.getHGShpVec(t_dNdx2,t_elmtCoord2,m_gamma2);
+    double lame=m_matPtr->getLame();
+    double G=m_matPtr->getG();
+    double J=0;
+    m_matPtr->getMatVariable(ElementVariableType::JACOBIAN,&J);
+    double volume=m_QPW*J*m_det_dx0dr;
+    m_Kmax2=getKMax(lame,G,t_dNdx2,volume);
+    for(int di=0;di<m_mDof_node;++di){
+        m_Q2[di]=m_Q1[di];
+    }
+    for(int nI=0;nI<m_mNode;++nI){
+        for(int nJ=0;nJ<m_mNode;++nJ){
+            for(int ni=0;ni<m_mDof_node;++ni){
+                int rowI=nI*m_mDof_node+ni;
+                int colJ=nJ*m_mDof_node+ni;
+                m_KHG2(rowI,colJ)=0.25*m_HG_coeff*m_Kmax2*m_gamma2[nI]*m_gamma2[nJ];
+            }
+        }
+    }
+    m_ifHGUpdated=true;
 }

@@ -17,9 +17,20 @@
  * 4 node plane strain reduced quadrature elemnt***
  *************************************************/
 class CPE4R:public element{
+    private:
+    /**
+     * for hourglass control, cal Kmax=(lame+2G) * V2 * dN_I/dx2_i * dN_I/dx2_i
+     * @param t_dNdx2 > derivate of shpfun to the last converged coords
+     * @param V2 > element volume of last converged config
+    */
+    double getKMax(double lame, double G, Vector2d t_dNdx2[4], double V2);
+    /**
+     * update hourglass parameter
+    */
+    void updateHourglass(Vector2d *t_elmtCoord2, Vector2d *t_dNdx2);
     public:
-    CPE4R():element(false),m_det_dx0dr(0.0){}
-    CPE4R(bool nLarge):element(nLarge),m_det_dx0dr(0.0){}
+    CPE4R():element(false),m_det_dx0dr(0.0),m_KHG2(m_mNode*m_mDof_node,m_mNode*m_mDof_node,0.0){}
+    CPE4R(bool nLarge):element(nLarge),m_det_dx0dr(0.0),m_KHG2(m_mNode*m_mDof_node,m_mNode*m_mDof_node,0.0){}
     public:/**< inherent virtual func need to be implemented*/
     /**
      * init element
@@ -83,4 +94,13 @@ class CPE4R:public element{
     static const int m_mQPoint;                 /**< num of quadrature points of a elmt*/
     static const int m_QPW;                     /**< weightness of quadrature points of a elmt*/
     static ShpfunQuad4 m_shpfun;                /**< shape function relative computer*/
+    // *data for hourglass control*/
+    // ****************************/
+    static const double m_HG_coeff;
+    bool            m_ifHGUpdated;
+    double m_Kmax2;
+    MatrixXd m_KHG2;
+    double m_gamma2[4];                         /**< HG shape fun of last converged*/
+    double m_Q2[2];                              /**< hourglass general force of hourglass*/
+    double m_Q1[2];                              /**< current hourglass general force of hourglass*/
 };

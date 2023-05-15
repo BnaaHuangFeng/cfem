@@ -51,6 +51,12 @@ class LinearElasticMat2D:public Material2D{
      * @param elmtVarPtr < ptr to store the elemnt variable (need to preallocate)
     */
     virtual void getMatVariableArray(ElementVariableType elmtVarType,PetscScalar *elmtVarPtr);
+    virtual double getLame(){
+        return m_lame;
+    }
+    virtual double getG(){
+        return m_G;
+    };
     public:
     ViogtRank2Tensor2D m_strain;        /**< ln(V)=ln(B)/2 (Eulerain logarithmic strain)*/
     ViogtRank2Tensor2D m_strain0;       /**< last converged ln(V)=ln(B)/2 (Eulerain logarithmic strain)*/

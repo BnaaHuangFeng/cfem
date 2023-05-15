@@ -216,6 +216,9 @@ bool InputSystem::readMeshBlock(nlohmann::json &t_json){
     else if(shapeName=="half-cos"){
         m_meshDes.s_shape=MeshShape::HALFCOS;
     }
+    else if(shapeName=="half-cos-plus-step"){
+        m_meshDes.s_shape=MeshShape::HALFCOSPLUSSTEP;
+    }
     else{
         MessagePrinter::printErrorTxt(shapeName+" is not a supported mesh shape");
         MessagePrinter::exitcfem();
@@ -483,6 +486,9 @@ bool InputSystem::readOutputBlock(nlohmann::json &t_json){
         }
         else if(variableName=="log-strain"){
             m_outDes.s_FD.s_varTypes.push_back(FieldVariableType::LOGSTRAIN);
+        }
+        else if(variableName=="pressure"){
+            m_outDes.s_FD.s_varTypes.push_back(FieldVariableType::PRESSURE);
         }
         else{
             MessagePrinter::printErrorTxt(variableName+" is not a supported field variable.");

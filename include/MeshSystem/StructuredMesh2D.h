@@ -239,6 +239,13 @@ private:
     */
     void getHalfCosCoord0ByDmdaInd(PetscInt xI,PetscInt yI, Vector *aCoord);
     /**
+     * Get the coords of half cos mesh in ref config by DMDA index
+     * @param xI > global x DMDA index
+     * @param yI > global y DMDA index
+     * @param aCoord < ptr to coord0 of a node
+    */
+    void getHalfCosPlusStepCoord0ByDmdaInd(PetscInt xI,PetscInt yI, Vector *aCoord);
+    /**
      * Get element's global DMDA id via its id in rank
      * @param rId > elmt's id in rank
      * @param xIPtr > ptr to dmda x index

@@ -49,4 +49,6 @@ public:
      * @param elmtVarPtr < ptr to store the elemnt variable (need to preallocate)
     */
     virtual void getMatVariableArray(ElementVariableType elmtVarType,PetscScalar *elmtVarPtr)=0;
+    virtual double getLame()=0;
+    virtual double getG()=0;
 };

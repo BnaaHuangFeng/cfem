@@ -305,6 +305,7 @@ PetscErrorCode PostStructured2d::outputHisVariable(int t_increI, PetscScalar t_t
                 MessagePrinter::exitcfem();            
                 break;
         }
+        PetscCall(PetscBarrier(NULL));
         restoreNodeVariable(nodeVarType);
         ++buffFrameNum;
         ++m_infoForHisOut.bufferFrameNumInNodeVec[nodeVarI];
@@ -322,11 +323,16 @@ PetscErrorCode PostStructured2d::outputHisVariable(int t_increI, PetscScalar t_t
                 PetscCall(MatSetUp(framesMat));
                 PetscInt *colLocalInd=new PetscInt[mcol];
                 for(int i=0;i<mcol;++i)colLocalInd[i]=i;
-                PetscInt rowLocalInd=0;
-                PetscCall(MatSetValuesLocal(framesMat,1,&rowLocalInd,mcol,colLocalInd,buf,INSERT_VALUES));
+                // for debug
+                // PetscCall(PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%3d] 0",m_rank));
+                // for(int i=0;i<mcol;++i){
+                //     PetscCall(PetscSynchronizedPrintf(PETSC_COMM_WORLD,"%12.5e ",buf[i]));
+                // }
+                // PetscCall(PetscSynchronizedPrintf(PETSC_COMM_WORLD,"\n"));
+                // PetscCall(PetscSynchronizedFlush(PETSC_COMM_WORLD,PETSC_STDOUT));
+                PetscCall(MatSetValuesLocal(framesMat,1,&m_rank,mcol,colLocalInd,buf,INSERT_VALUES));
                 PetscCall(MatAssemblyBegin(framesMat,MAT_FINAL_ASSEMBLY));
                 PetscCall(MatAssemblyEnd(framesMat,MAT_FINAL_ASSEMBLY));
-                // PetscCall(MatView(framesMat,PETSC_VIEWER_STDOUT_WORLD));
                 PetscCall(MatGetColumnSums(framesMat,buf));
                 processedData=buf;
                 delete[] colLocalInd;

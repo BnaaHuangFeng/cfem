@@ -1,5 +1,6 @@
 #pragma once
 #include "Material2D.h"
+#include "MaterialSystem/ElasticConst.h"
 #include "nlohmann/json.hpp"
 /**
  * this class implement the Neohooken material of abaqus version
@@ -65,6 +66,12 @@ class NeoHookeanAbq2d:public Material2D{
      * @param elmtVarPtr < ptr to store the elemnt variable (need to preallocate)
     */
     virtual void getMatVariableArray(ElementVariableType elmtVarType,PetscScalar *elmtVarPtr);
+    virtual double getLame(){
+        return ElasticConst::getLameByK_G(m_K,m_G);
+    }
+    virtual double getG(){
+        return m_G;
+    };
     public:
     ViogtRank2Tensor2D m_B;             /**< left cauchy-green tensor B=F*F^T*/
     ViogtRank2Tensor2D m_B0;            /**< last converged left cauchy-green tensor B0*/

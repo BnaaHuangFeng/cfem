@@ -6,7 +6,7 @@
 #include "Init/SystemInit.h"
 #include "unistd.h"
 int main(int args,char *argv[]){
-    int *FLAG=new int;
+    // int *FLAG=new int;
     // FLAG[0]=1;
     // while(FLAG[0])sleep(2);
     PetscCall(PetscInitialize(&args,&argv,NULL,NULL));
@@ -61,9 +61,6 @@ int main(int args,char *argv[]){
             ++(solSysPtr->m_increI);
         }
     }
-    // StructuredMesh2D *meshSysPtr2=(StructuredMesh2D *)meshSysPtr;
-    // meshSysPtr2->printVaribale(NodeVariableType::U,&meshSysPtr2->m_nodes_u2,2,0);
-    // meshSysPtr2->printVaribale(NodeVariableType::U,&meshSysPtr2->m_nodes_u2,2,1);
     /******************************************************/
     /** delete the class created by new                 ***/
     /******************************************************/
@@ -74,6 +71,6 @@ int main(int args,char *argv[]){
     if(postSysPtr) delete postSysPtr;
     if(meshSysPtr) delete meshSysPtr;
     PetscCall(PetscFinalize());
-    delete FLAG;
+    // delete FLAG;
     return 0;
 }

@@ -13,3 +13,6 @@ double ElasticConst::getKByE_Nu(double E,double nu){
 double ElasticConst::getGByE_Nu(double E,double nu){
     return 0.5*E/(1.0+nu);
 }
+double ElasticConst::getLameByK_G(double K, double G){
+    return K-2.0*G/3.0;
+}
