@@ -12,6 +12,7 @@ SolutionSystem::SolutionSystem():
     m_ifSetMeshSysPtr=false;
     m_ifSolverInit=false;
     m_ifSolutionCtxInit=false;
+    m_arcLenSolverPtr=nullptr;
 }
 SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr):
                 m_meshSysPtr(nullptr),
@@ -27,6 +28,7 @@ SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr):
     m_ifSetMeshSysPtr=false;
     m_ifSolverInit=false;
     m_ifSolutionCtxInit=false;
+    m_arcLenSolverPtr=nullptr;
 }
 SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr, MeshSystem *t_meshSysPtr):
                 m_mDiverged(0),m_iterI(-1),m_mIter(0),
@@ -42,10 +44,11 @@ SolutionSystem::SolutionSystem(StepDescriptiom *t_stepDesPtr, MeshSystem *t_mesh
     setMeshSysPtr(t_meshSysPtr);
     m_ifSolverInit=false;
     m_ifSolutionCtxInit=false;   
+    m_arcLenSolverPtr=nullptr;
 }
 SolutionSystem::~SolutionSystem(){
-    SNESDestroy(&m_snes);
     if(m_arcLenSolverPtr)delete m_arcLenSolverPtr;
+    SNESDestroy(&m_snes);
 }
 PetscErrorCode SolutionSystem::init(StepDescriptiom *t_stepDesPtr,MeshSystem *t_meshSysPtr,ElementSystem *t_elmtSysPtr,BCsSystem *t_bcsSysPtr, LoadController *t_loadCtrlPtr){
     readStepDes(t_stepDesPtr);

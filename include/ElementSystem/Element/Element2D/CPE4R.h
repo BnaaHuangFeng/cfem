@@ -27,10 +27,10 @@ class CPE4R:public element{
     /**
      * update hourglass parameter
     */
-    void updateHourglass(Vector2d *t_elmtCoord2, Vector2d *t_dNdx2);
+    void updateHourglassConverged(Vector2d *t_dNdx2);
     public:
-    CPE4R():element(false),m_det_dx0dr(0.0),m_KHG2(m_mNode*m_mDof_node,m_mNode*m_mDof_node,0.0){}
-    CPE4R(bool nLarge):element(nLarge),m_det_dx0dr(0.0),m_KHG2(m_mNode*m_mDof_node,m_mNode*m_mDof_node,0.0){}
+    CPE4R():element(false),m_det_dx0dr(0.0){}
+    CPE4R(bool nLarge):element(nLarge),m_det_dx0dr(0.0){}
     public:/**< inherent virtual func need to be implemented*/
     /**
      * init element
@@ -96,11 +96,12 @@ class CPE4R:public element{
     static ShpfunQuad4 m_shpfun;                /**< shape function relative computer*/
     // *data for hourglass control*/
     // ****************************/
+    bool                m_ifHGUpdateConverged;
     static const double m_HG_coeff;
-    bool            m_ifHGUpdated;
     double m_Kmax2;
-    MatrixXd m_KHG2;
-    double m_gamma2[4];                         /**< HG shape fun of last converged*/
+    double m_ddQddu[4];                          /**< d Q_i / d uInc_Ni*/
+    double m_gamma1[4];                          /**< current HG shape fun*/
+    double m_gamma2[4];                          /**< HG shape fun of last converged*/
     double m_Q2[2];                              /**< hourglass general force of hourglass*/
     double m_Q1[2];                              /**< current hourglass general force of hourglass*/
 };

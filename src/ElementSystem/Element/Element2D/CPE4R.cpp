@@ -5,7 +5,7 @@ const int CPE4R::m_mDof_node=2;               /**< dof num per node*/
 const int CPE4R::m_mNode=4;                   /**< a element's nodes number*/
 const int CPE4R::m_mQPoint=1;
 const int CPE4R::m_QPW=4.0;
-const double CPE4R::m_HG_coeff=0.01;
+const double CPE4R::m_HG_coeff=0.003;
 ShpfunQuad4 CPE4R::m_shpfun=ShpfunQuad4(Vector2d(0.0,0.0)); /**< shape function relative computer*/
 PetscErrorCode CPE4R::initElement(PetscInt t_elmt_rId, bool nLarge,MeshSystem *t_meshSysPtr, PetscScalar *elmtParamPtr){
     m_elmt_rId=t_elmt_rId;
@@ -25,6 +25,18 @@ PetscErrorCode CPE4R::initElement(PetscInt t_elmt_rId, bool nLarge,MeshSystem *t
     }    
     m_det_dx0dr=dx0dr.det();
     m_Q1[0]=0.; m_Q1[1]=0.; m_Q2[0]=0.; m_Q2[1]=0.;
+    m_shpfun.setRefCoords(elmt_coord0);
+    Vector2d dNdx2[m_mNode];    /**< derivate to last converged coord*/
+    m_shpfun.getDer2Ref(dNdx2);
+    m_shpfun.getHGShpVec(dNdx2,elmt_coord0,m_gamma2);
+    double lame=m_matPtr->getLame();
+    double G=m_matPtr->getG();
+    double volume=m_QPW*m_det_dx0dr;
+    m_Kmax2=getKMax(lame,G,dNdx2,volume);
+    for(int nN=0;nN<m_mNode;nN++){
+        m_ddQddu[nN]=0.5*m_HG_coeff*m_Kmax2*m_gamma2[nN];
+    }
+    m_ifHGUpdateConverged=true;
     return 0;
 }
 
@@ -43,7 +55,8 @@ PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, 
     }
     this->m_shpfun.setRefCoords(elmtCoord1);
     this->m_shpfun.getDer2Ref(dNdx);
-    if(!m_ifHGUpdated) updateHourglass(elmtCoord2,dNdx);
+    if(!m_ifHGUpdateConverged) updateHourglassConverged(dNdx);
+    m_shpfun.getHGShpVec(dNdx,elmtCoord1,m_gamma1);
     this->getBMatrix(dNdx,m_mNode,m_mDof_node,&BMatrix);
     /**
      * update material
@@ -80,11 +93,12 @@ PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, 
     m_matPtr->getMatVariable(ElementVariableType::JACOBIAN,&J);
     double volume=m_QPW*J*m_det_dx0dr;
     *t_elmtInnerForce=BMatrix.transpose()*(stress*volume);
+
     // update current hourglass general force of hourglass
     for(int di=0;di<m_mDof_node;++di){
         m_Q1[di]=m_Q2[di];
         for(int nJ=0;nJ<m_mNode;++nJ){
-            m_Q1[di]+=0.5*m_HG_coeff*m_Kmax2*m_gamma2[nJ]*elmtDofInc[nJ](di);
+            m_Q1[di]+=0.5*m_ddQddu[nJ]*elmtDofInc[nJ](di);
         }
     }
     // hourglass control force*/
@@ -92,11 +106,8 @@ PetscErrorCode CPE4R::getElmtInnerForce(void *t_elmtCoord2, void *t_elmtDofInc, 
     for(int nI=0;nI<m_mNode;++nI){
         for(int di=0;di<m_mDof_node;++di){
             int dof=nI*m_mDof_node+di;
-            f_HG(dof)=0.5*m_gamma2[nI]*m_Q2[di];
-            for(int nJ=0;nJ<m_mNode;++nJ){
-                f_HG(dof)+=0.25*m_HG_coeff*m_Kmax2*m_gamma2[nI]*m_gamma2[nJ]*elmtDofInc[nJ](di);
-                (*t_elmtInnerForce)(dof)+=f_HG(dof);
-            }
+            f_HG(dof)=0.5*m_gamma1[nI]*m_Q1[di];
+            (*t_elmtInnerForce)(dof)+=f_HG(dof);
         }
     }
     // for dubug
@@ -128,7 +139,7 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
     m_shpfun.setRefCoords(elmtCoord1);
     Vector2d dNdx[4];
     m_shpfun.getDer2Ref(dNdx);
-    if(!m_ifHGUpdated) updateHourglass(elmtCoord2,dNdx);
+    if(!m_ifHGUpdateConverged) updateHourglassConverged(dNdx);
     // evaluate elemental volume
     double J=0;
     m_matPtr->getMatVariable(ElementVariableType::JACOBIAN,&J);
@@ -148,7 +159,7 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
             }
         }
         m_matPtr->getTangentModulus(&duIncdx,&D);
-        *t_stfMatrix=B.transpose()*D*B*volume+m_KHG2;
+        *t_stfMatrix=B.transpose()*D*B*volume;
     }
     else{
         const int mGMatrix=4;   /** G-Matrix's row count*/
@@ -169,7 +180,22 @@ PetscErrorCode CPE4R::getElmtStfMatrix(void *t_elmtCoord2, void *t_elmtDofInc, M
         }
         /** cal a*/
         m_matPtr->getSpatialTangentModulus(&Finc,&a);
-        *t_stfMatrix=G.transpose()*a*G*volume+m_KHG2;
+        *t_stfMatrix=G.transpose()*a*G*volume;
+    }
+    // add hourglass stiffness
+    for(int nI=0;nI<m_mNode;++nI){
+        for(int di=0;di<m_mDof_node;++di){
+            int dofRow=nI*m_mDof_node+di;
+            for(int nN=0;nN<m_mNode;++nN){
+                for(int dn=0;dn<m_mDof_node;++dn){
+                    int dofCol=nN*m_mDof_node+dn;
+                    (*t_stfMatrix)(dofRow,dofCol)+=-0.5*m_Q1[di]*dNdx[nI](dn)*m_gamma1[nN];
+                    if(di==dn){
+                        (*t_stfMatrix)(dofRow,dofCol)+=0.5*m_ddQddu[nN]*m_gamma1[nI];
+                    }
+                }
+            }
+        }
     }
     return 0;
 }
@@ -188,7 +214,7 @@ PetscErrorCode CPE4R::getElmtWeightedVolumeInt(PetscScalar **t_valQPPtr,PetscSca
 }
 void CPE4R::updateConvergence(){
     m_matPtr->updateConvergence();
-    m_ifHGUpdated=false;
+    m_ifHGUpdateConverged=false;
 }
 void CPE4R::getElmtVariableArray(ElementVariableType elmtVarType,PetscScalar **elmtVarPtr){
     m_matPtr->getMatVariableArray(elmtVarType,*elmtVarPtr);
@@ -201,12 +227,14 @@ double CPE4R::getKMax(double lame, double G, Vector2d t_dNdx2[4], double V2){
             Kmax+=t_dNdx2[nI](di)*t_dNdx2[nI](di);
         }
     }
-    // Kmax*=(lame+2*G)*V2;
-    Kmax*=4*G*V2;
+    Kmax*=(lame+2*G)*V2;
+    // Kmax*=4*G*V2;
     return Kmax;
 }
-void CPE4R::updateHourglass(Vector2d *t_elmtCoord2, Vector2d *t_dNdx2){
-    m_shpfun.getHGShpVec(t_dNdx2,t_elmtCoord2,m_gamma2);
+void CPE4R::updateHourglassConverged(Vector2d *t_dNdx2){
+    for(int nI=0;nI<m_mNode;++nI){
+        m_gamma2[nI]=m_gamma1[nI];
+    }
     double lame=m_matPtr->getLame();
     double G=m_matPtr->getG();
     double J=0;
@@ -216,14 +244,8 @@ void CPE4R::updateHourglass(Vector2d *t_elmtCoord2, Vector2d *t_dNdx2){
     for(int di=0;di<m_mDof_node;++di){
         m_Q2[di]=m_Q1[di];
     }
-    for(int nI=0;nI<m_mNode;++nI){
-        for(int nJ=0;nJ<m_mNode;++nJ){
-            for(int ni=0;ni<m_mDof_node;++ni){
-                int rowI=nI*m_mDof_node+ni;
-                int colJ=nJ*m_mDof_node+ni;
-                m_KHG2(rowI,colJ)=0.25*m_HG_coeff*m_Kmax2*m_gamma2[nI]*m_gamma2[nJ];
-            }
-        }
+    for(int nN=0;nN<m_mNode;nN++){
+        m_ddQddu[nN]=0.5*m_HG_coeff*m_Kmax2*m_gamma2[nN];
     }
-    m_ifHGUpdated=true;
+    m_ifHGUpdateConverged=true;
 }

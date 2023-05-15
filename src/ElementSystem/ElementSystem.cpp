@@ -83,8 +83,6 @@ bool ElementSystem::checkElmtsAssigment(){
     return true;
 }
 PetscErrorCode ElementSystem::assignElmtType(){
-    m_meshSysPtr->openNodeVariableVec(NodeVariableType::COORD,
-                                    &m_meshSysPtr->m_nodes_coord0,0,VecAccessMode::READ);
     const int mElmtType=m_elmtTypeNames.size();
     for(int elmtTypeI=0;elmtTypeI<mElmtType;++elmtTypeI){// loop over every elmt type
         vector<PetscInt> &elmtSet=m_meshSysPtr->m_setManager.getSet(
@@ -101,15 +99,14 @@ PetscErrorCode ElementSystem::assignElmtType(){
                 MessagePrinter::exitcfem();
                 break;
             }
-            m_elmtPtrs[elmtSet[i]]->initElement(elmtSet[i],m_nLarge,m_meshSysPtr,nullptr);
         }
     }
-    m_meshSysPtr->closeNodeVariableVec(NodeVariableType::COORD,
-                                    &m_meshSysPtr->m_nodes_coord0,0,VecAccessMode::READ);
     m_ifAssignElmtType=true;
     return 0;
 }
 PetscErrorCode ElementSystem::assignMatType(){
+    m_meshSysPtr->openNodeVariableVec(NodeVariableType::COORD,
+                                    &m_meshSysPtr->m_nodes_coord0,0,VecAccessMode::READ);
     const int mMatType=m_matTypeNames.size();
     for(int matTypeId=0;matTypeId<mMatType;++matTypeId){// loop over every material type
         vector<PetscInt> &elmtSet=m_meshSysPtr->m_setManager.getSet(
@@ -132,9 +129,12 @@ PetscErrorCode ElementSystem::assignMatType(){
                     MessagePrinter::exitcfem();                   
             }
             m_elmtPtrs[elmtSet[i]]->m_matPtr->initProperty(&(m_properties[matTypeId]));
+            m_elmtPtrs[elmtSet[i]]->initElement(elmtSet[i],m_nLarge,m_meshSysPtr,nullptr);
         }
     }
     m_ifAssignMatype=true;
+    m_meshSysPtr->closeNodeVariableVec(NodeVariableType::COORD,
+                                    &m_meshSysPtr->m_nodes_coord0,0,VecAccessMode::READ);
     return 0;
 }
 PetscErrorCode ElementSystem::checkInit(){

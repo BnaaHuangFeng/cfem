@@ -268,7 +268,7 @@ PetscErrorCode ArcLengthSolver::updateConvergenceReason(){
         m_converReason=SNES_CONVERGED_FNORM_RELATIVE;
         return 0;
     }
-    if(m_rnorm>m_div_tol*m_rnorm0&&m_mIter>1){
+    if(m_div_tol>0&&m_rnorm>m_div_tol*m_rnorm0&&m_mIter>1){
         m_converReason=SNES_DIVERGED_DTOL;
         return 0;
     }

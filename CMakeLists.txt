@@ -114,8 +114,8 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/external")
 ###############################################
 if (CMAKE_BUILD_TYPE STREQUAL "")
     # user should use -DCMAKE_BUILD_TYPE=Release[Debug] option
-    # set (CMAKE_BUILD_TYPE "Depdebug")
-    set (CMAKE_BUILD_TYPE "Release")
+    set (CMAKE_BUILD_TYPE "Depdebug")
+    # set (CMAKE_BUILD_TYPE "Release")
 endif ()
 
 ###############################################
@@ -215,6 +215,8 @@ set(src ${src} src/MathUtils/Rank4Tensor3d.cpp)
 # ### for general math funs
 set(inc ${inc} include/MathUtils/MathFuns.h)
 set(src ${src} src/MathUtils/MathFuns.cpp)
+set(inc ${inc} include/MathUtils/PetsExtension.h)
+set(src ${src} src/MathUtils/PetsExtension.cpp)
 #############################################################
 ### For MeshSystem                                        ###
 #############################################################
@@ -237,6 +239,8 @@ set(src ${src} src/MaterialSystem/ElasticConst.cpp)
 set(src ${src} src/MaterialSystem/LinearElasticMat2D.cpp)
 set(inc ${inc} include/MaterialSystem/ElmtVarInfo.h)
 set(src ${src} src/MaterialSystem/ElmtVarInfo.cpp)
+set(inc ${inc} include/MaterialSystem/NeoHookeanAbq2d.h)
+set(src ${src} src/MaterialSystem/NeoHookeanAbq2d.cpp)
 #############################################################
 ### For ElementSystem                                     ###
 #############################################################
@@ -266,6 +270,8 @@ set(src ${src} src/LoadController/LoadController.cpp)
 set(inc ${inc} include/SolutionSystem/SolutionCtx.h)
 set(inc ${inc} include/SolutionSystem/SolutionSystem.h)
 set(src ${src} src/SolutionSystem/SolutionSystem.cpp)
+set(inc ${inc} include/SolutionSystem/ArcLengthSolver.h)
+set(src ${src} src/SolutionSystem/ArcLengthSolver.cpp)
 #############################################################
 ### For system item inition                               ###
 #############################################################
